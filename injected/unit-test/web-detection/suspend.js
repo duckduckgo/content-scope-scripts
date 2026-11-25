@@ -1,9 +1,10 @@
+import { JSDOM } from 'jsdom';
 import { compileDetector } from '../../src/features/web-detection/compile/compile.js';
 import { EvaluationContext } from '../../src/features/web-detection/evaluate/context.js';
 import { createDetectorState, runDetector, runDetectorSteps } from '../../src/features/web-detection/evaluate/run.js';
 import { ConfigParseError, Failure } from '../../src/features/web-detection/model/core.js';
 import { pageSources } from '../../src/features/web-detection/sources/index.js';
-import { readerFor } from './support.js';
+import { INVALID_SELECTOR, readerFor } from './support.js';
 
 /**
  * The page sources, with `api` replaced by a source that suspends the run on its path, and resumes
@@ -98,10 +99,16 @@ describe('Runs that suspend', () => {
     });
 
     it('end with the error thrown after resuming', () => {
-        const { steps } = start([{ define: { x: { api: 'a' } } }, { define: { y: { sum: [{ ref: 'x' }] } } }]);
-        steps.next();
-        const end = steps.next('not a number');
-        expect(end.value).toEqual(jasmine.objectContaining({ failedAt: 'actions.1.define.y.sum', failure: 'error' }));
+        const originalDocument = globalThis.document;
+        globalThis.document = new JSDOM('<!DOCTYPE html><p></p>').window.document;
+        try {
+            const { steps } = start([{ define: { x: { api: 'a' } } }, { define: { y: INVALID_SELECTOR } }]);
+            steps.next();
+            const end = steps.next(1);
+            expect(end.value).toEqual(jasmine.objectContaining({ failedAt: 'actions.1.define.y', failure: 'error' }));
+        } finally {
+            globalThis.document = originalDocument;
+        }
     });
 
     it('keep run names bound before the suspension', () => {
