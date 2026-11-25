@@ -129,6 +129,12 @@ describe('Recorded types in detectors', () => {
         expectParseError(on({ entryType: 'event', sync: true }), '`sync` is for');
         expectParseError(on({ event: 'click', field: 'type' }), "unknown key 'field'");
     });
+
+    it('rejects `whenPending` with `sync`, and a value it does not take', () => {
+        const on = (/** @type {unknown} */ body) => ({ triggers: { observe: { state: 'enabled', on: [body] } }, actions: REPORT });
+        expectParseError(on({ event: 'click', sync: true, whenPending: 'run' }), '`whenPending` is for bodies with no `sync`');
+        expectParseError(on({ event: 'click', whenPending: 'queue' }), '`whenPending` takes');
+    });
 });
 
 describe('The observe trigger', () => {
@@ -375,6 +381,123 @@ describe('The observe trigger', () => {
         createInstance({ g: { d: { triggers: { observe: { state: 'disabled', on: [{ event: 'click' }] } }, actions: COUNT } } });
         createInstance({ g: { d: { actions: { define: { x: { trigger: { event: 'click' } } } } } } });
         expect(listeners).toEqual([]);
+    });
+
+    describe('pending runs', () => {
+        /**
+         * Fire an event per run with what its `trigger` gives from clicks, and how many clicks `observed` has.
+         *
+         * @param {string} [type]
+         */
+        const reading = (type = 'clicks') => ({
+            fireEvent: {
+                type,
+                data: {
+                    n: { value: { trigger: { event: 'click' }, using: 'length' } },
+                    first: { value: { trigger: { event: 'click', field: 'clientX' }, using: { path: 'at', args: [0] } } },
+                    last: { value: { trigger: { event: 'click', field: 'clientX' }, using: { path: 'at', args: [-1] } } },
+                    seen: { value: { observed: { event: 'click', keep: { count: 10 } }, using: 'length' } },
+                },
+            },
+        });
+
+        it('runs once for arrivals while a run is pending with `skip`, reading the first, and again after it', () => {
+            const instance = observing([{ event: 'click', delayMs: 50, whenPending: 'skip' }], reading());
+            dispatch('click', { clientX: 1 });
+            jasmine.clock().tick(20);
+            dispatch('click', { clientX: 2 });
+            jasmine.clock().tick(30);
+            expect(sent(instance).map(({ data }) => data)).toEqual([{ n: 1, first: 1, last: 1, seen: 2 }]);
+            dispatch('click', { clientX: 3 });
+            jasmine.clock().tick(50);
+            expect(sent(instance).length).toBe(2);
+        });
+
+        it('runs once for arrivals while a run is pending with `batch`, reading every one in order', () => {
+            const instance = observing([{ event: 'click', delayMs: 50, whenPending: 'batch' }], reading());
+            for (const clientX of [1, 2, 3]) {
+                dispatch('click', { clientX });
+                jasmine.clock().tick(10);
+            }
+            jasmine.clock().tick(20);
+            expect(sent(instance).map(({ data }) => data)).toEqual([{ n: 3, first: 1, last: 3, seen: 3 }]);
+        });
+
+        it('gives a batched run the items of each arrival under its own type', () => {
+            const instance = observing(
+                [
+                    { event: 'click', delayMs: 50, whenPending: 'batch' },
+                    { event: 'keydown', delayMs: 50, whenPending: 'batch' },
+                ],
+                {
+                    fireEvent: {
+                        type: 'x',
+                        data: {
+                            clicks: { value: { trigger: { event: 'click' }, using: 'length' } },
+                            keys: { value: { trigger: { event: 'keydown' }, using: 'length' } },
+                        },
+                    },
+                },
+            );
+            dispatch('click');
+            dispatch('keydown');
+            dispatch('keydown');
+            jasmine.clock().tick(50);
+            expect(sent(instance)).toEqual([{ type: 'x', data: { clicks: 1, keys: 2 } }]);
+        });
+
+        it('runs `delayMs` after the last of arrivals with `replace`, reading it', () => {
+            const instance = observing([{ event: 'click', delayMs: 50, whenPending: 'replace' }], reading());
+            dispatch('click', { clientX: 1 });
+            jasmine.clock().tick(30);
+            dispatch('click', { clientX: 2 });
+            jasmine.clock().tick(49);
+            expect(sent(instance)).toEqual([]);
+            jasmine.clock().tick(1);
+            expect(sent(instance).map(({ data }) => data)).toEqual([{ n: 1, first: 2, last: 2, seen: 2 }]);
+        });
+
+        it('leaves the other runs due at a timer when `replace` cancels one', () => {
+            const instance = createInstance({
+                g: {
+                    a: {
+                        triggers: { observe: { state: 'enabled', on: [{ event: 'click', delayMs: 50, whenPending: 'replace' }] } },
+                        actions: reading('a'),
+                    },
+                    b: { triggers: { observe: { state: 'enabled', on: [{ event: 'click', delayMs: 50 }] } }, actions: reading('b') },
+                },
+            });
+            dispatch('click');
+            jasmine.clock().tick(30);
+            dispatch('click');
+            jasmine.clock().tick(20);
+            expect(sent(instance).map(({ type }) => type)).toEqual(['b']);
+            jasmine.clock().tick(30);
+            expect(sent(instance).map(({ type }) => type)).toEqual(['b', 'a', 'b']);
+        });
+
+        it("acts on a run another of the detector's bodies scheduled", () => {
+            const instance = observing(
+                [
+                    { event: 'click', delayMs: 50 },
+                    { event: 'keydown', delayMs: 50, whenPending: 'skip' },
+                ],
+                reading(),
+            );
+            dispatch('click', { clientX: 1 });
+            dispatch('keydown');
+            jasmine.clock().tick(50);
+            expect(sent(instance).map(({ data }) => data)).toEqual([{ n: 1, first: 1, last: 1, seen: 1 }]);
+        });
+
+        it('schedules its own run with `run`, while another is pending', () => {
+            const instance = observing([{ event: 'click', delayMs: 50, whenPending: 'run' }], reading());
+            dispatch('click', { clientX: 1 });
+            jasmine.clock().tick(20);
+            dispatch('click', { clientX: 2 });
+            jasmine.clock().tick(50);
+            expect(sent(instance).map(({ data }) => data?.first)).toEqual([1, 2]);
+        });
     });
 
     describe('entries', () => {

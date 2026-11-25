@@ -6,7 +6,7 @@ import { TaskReadCache } from './task-read-cache.js';
 /**
  * @import { Failure } from '../model/core.js'
  * @import { ActionOutcome, ItemBinder, ActionSink, Node, PredicateContext, Reader, TaskReads } from '../model/types.js'
- * @import { Arrival } from './recorders.js'
+ * @import { RunArrival } from './recorders.js'
  */
 
 /** @type {ActionSink} for a run whose actions go nowhere */
@@ -38,7 +38,7 @@ export class EvaluationContext {
      * @param {Map<string, unknown>} [detectorNames] - the detector's names, which outlive the run
      * @param {TaskReads} [task] - the page reads shared with other runs
      * @param {ActionSink} [sink] - where `fireEvent` and `breakageReportData` send, as each runs
-     * @param {Arrival} [arrival] - what started the run, which `trigger` reads
+     * @param {RunArrival} [arrival] - what started the run, which `trigger` reads
      */
     constructor(reader, detectorNames = new Map(), task = new TaskReadCache(), sink = NO_SINK, arrival = undefined) {
         this.reader = reader;

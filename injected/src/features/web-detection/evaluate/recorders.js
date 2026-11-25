@@ -39,6 +39,13 @@ import { isArray, Map, performanceNow, ReflectApply, Set } from '../../../captur
  */
 
 /**
+ * What a run's `trigger` reads: the arrival that started it, or the arrivals batched into it with
+ * `whenPending: "batch"`, in the order they arrived.
+ *
+ * @typedef {Arrival | { kind: 'batch', parts: Arrival[] }} RunArrival
+ */
+
+/**
  * The constructors whose prototypes hold the getters of entries and events, which the native reader
  * captures when a detector reads a recorded type.
  */

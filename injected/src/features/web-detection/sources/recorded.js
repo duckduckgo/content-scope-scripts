@@ -6,7 +6,7 @@ import { parseItemKeys, selectItems } from './common.js';
 
 /**
  * @import { PredicateContext, PredicateHooks, Source } from '../model/types.js'
- * @import { Keep, RecordedBody } from '../evaluate/recorders.js'
+ * @import { Arrival, Keep, RecordedBody } from '../evaluate/recorders.js'
  */
 
 /**
@@ -152,7 +152,7 @@ export const triggerSource = {
 };
 
 /**
- * The items of the run's arrival a body gives before its `where`: none when it names another type.
+ * The items of the run's arrival, or of each arrival batched into it, a body gives before its `where`.
  *
  * @param {TriggerBody} body
  * @param {PredicateContext} ctx
@@ -160,7 +160,20 @@ export const triggerSource = {
  */
 function arrivalItems(body, ctx) {
     const arrival = ctx.arrival;
-    if (!arrival || arrival.kind !== body.kind) return [];
+    if (!arrival) return [];
+    if (arrival.kind === 'batch') return arrival.parts.flatMap((part) => itemsOf(body, part));
+    return itemsOf(body, arrival);
+}
+
+/**
+ * The items of one arrival a body gives before its `where`: none when it names another type.
+ *
+ * @param {TriggerBody} body
+ * @param {Arrival} arrival
+ * @returns {unknown[]}
+ */
+function itemsOf(body, arrival) {
+    if (arrival.kind !== body.kind) return [];
     if (!isRecordedBody(body)) return arrival.items;
     if (body.recorder === undefined || arrival.recorder !== body.recorder) return [];
     return arrival.items.filter((item) => passesThreshold(body, item));

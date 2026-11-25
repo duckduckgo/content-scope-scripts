@@ -30,6 +30,8 @@ import { finish } from './positions.js';
  * @property {RecordedBody} body
  * @property {number} delayMs - the run is in a task this long after the arrival
  * @property {boolean} sync - the run is in the listener, during dispatch
+ * @property {'run' | 'skip' | 'batch' | 'replace'} whenPending - what an arrival does while a run of the detector is pending:
+ * schedule its own run, schedule nothing, add its items to the pending run, or cancel the pending run and schedule its own
  * @property {string} path
  */
 
@@ -494,7 +496,7 @@ function compileOn(triggers, scope) {
     return observe.on.map((raw, i) => {
         const bodyPath = `${path}.${i}`;
         if (!isPlainObject(raw)) throw new ConfigParseError(bodyPath, 'an `on` body takes an object');
-        rejectUnknownKeys(raw, ['entryType', 'event', 'durationThreshold', 'target', 'where', 'delayMs', 'sync'], bodyPath);
+        rejectUnknownKeys(raw, ['entryType', 'event', 'durationThreshold', 'target', 'where', 'delayMs', 'sync', 'whenPending'], bodyPath);
         const body = { ...parseRecordedType(raw, bodyPath, scope.hooks), ...parseItemKeys(raw, bodyPath, scope.hooks) };
         const delayMs = raw.delayMs ?? 0;
         if (typeof delayMs !== 'number' || !(delayMs >= 0))
@@ -504,7 +506,15 @@ function compileOn(triggers, scope) {
         if (sync && (body.kind !== 'event' || raw.delayMs !== undefined)) {
             throw new ConfigParseError(`${bodyPath}.sync`, '`sync` is for `event` bodies with no `delayMs`');
         }
-        return { body, delayMs, sync, path: bodyPath };
+        const whenPending = raw.whenPending ?? 'run';
+        if (whenPending !== 'run' && whenPending !== 'skip' && whenPending !== 'batch' && whenPending !== 'replace') {
+            throw new ConfigParseError(`${bodyPath}.whenPending`, '`whenPending` takes "run", "skip", "batch" or "replace"');
+        }
+        // A `sync` run happens at the arrival, so it's never pending
+        if (sync && raw.whenPending !== undefined) {
+            throw new ConfigParseError(`${bodyPath}.whenPending`, '`whenPending` is for bodies with no `sync`');
+        }
+        return { body, delayMs, sync, whenPending, path: bodyPath };
     });
 }
 

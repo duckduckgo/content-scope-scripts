@@ -19,14 +19,30 @@ import { selectItems } from './web-detection/sources/common.js';
  * @import { DetectorState } from './web-detection/evaluate/run.js'
  * @import { BreakageEntry } from './web-detection/evaluate/breakage-entries.js'
  * @import { OnBody } from './web-detection/compile/compile.js'
- * @import { Arrival, RecordedBody, Recorder } from './web-detection/evaluate/recorders.js'
+ * @import { Arrival, RecordedBody, Recorder, RunArrival } from './web-detection/evaluate/recorders.js'
  */
 
 /**
  * What triggered a run of the detectors: a breakage report, an `auto` timer at one of its intervals,
  * or an arrival on an `observe` trigger's `on` body.
  *
- * @typedef {{ trigger: 'breakageReport' } | { trigger: 'auto', intervalMs: number } | { trigger: 'observe', arrival: Arrival }} TriggerInfo
+ * @typedef {{ trigger: 'breakageReport' } | { trigger: 'auto', intervalMs: number } | { trigger: 'observe', arrival: RunArrival }} TriggerInfo
+ */
+
+/**
+ * A timer and the detectors it runs: an `auto` interval's, or the runs arrivals scheduled with `delayMs`.
+ *
+ * @typedef {{ timer: ReturnType<typeof setTimeout>, detectors: DetectorEntry[] }} Timer
+ */
+
+/**
+ * A run an arrival scheduled with `delayMs`, from then until it's due. Later arrivals act on it as their
+ * `on` body's `whenPending` sets.
+ *
+ * @typedef {object} PendingRun
+ * @property {DetectorEntry} detector
+ * @property {RunArrival} arrival - what the run's `trigger` reads
+ * @property {Timer & { runs: PendingRun[] }} timer - the timer the run is due at, with every run due at it
  */
 
 /**
@@ -75,8 +91,11 @@ export default class WebDetection extends ContentFeature {
     /** @type {Map<number, DetectorEntry[]>} the detectors the `auto` trigger runs at each interval */
     #autoDetectors = new Map();
 
-    /** @type {Array<{ timer: ReturnType<typeof setTimeout>, detectors: DetectorEntry[] }>} the `auto` timers, and the runs arrivals scheduled with `delayMs` */
+    /** @type {Timer[]} the `auto` timers, and the runs arrivals scheduled with `delayMs` */
     #timers = [];
+
+    /** @type {Map<string, PendingRun[]>} each detector's pending runs, by full detector ID, in the order they were scheduled */
+    #pending = new Map();
 
     /** the recorders of the types detectors read, capturing their globals at construction */
     #recorders = new Recorders(globalThis, { onEvent: (event) => this._pinTarget(event) });
@@ -260,9 +279,10 @@ export default class WebDetection extends ContentFeature {
     }
 
     /**
-     * Schedule the runs an arrival starts: one per detector whose `on` body gives an item from it. Runs
-     * with `sync` happen now, in the listener. The others, at each `delayMs`, run together in one task,
-     * sharing its read cache.
+     * Schedule the runs an arrival starts: one per detector whose `on` body gives an item from it, unless
+     * the detector has a pending run its `whenPending` skips or batches the arrival into. Runs with `sync`
+     * happen now, in the listener. The others, at each `delayMs`, run together in one task, sharing its
+     * read cache.
      *
      * @param {Arrival} arrival
      * @param {Observer[]} observers - the detectors observing the arrival's recorder
@@ -275,18 +295,86 @@ export default class WebDetection extends ContentFeature {
         for (const { detector, on } of observers) {
             if (this._stateOf(detector.detectorId).done || !this._givesItem(on.body, arrival)) continue;
             if (on.sync) now.push(detector);
-            else getOrCreate(later, on.delayMs, () => []).push(detector);
+            else if (this._schedulesOwnRun(detector, on.whenPending, arrival)) getOrCreate(later, on.delayMs, () => []).push(detector);
         }
         /** @type {TriggerInfo} */
         const triggerInfo = { trigger: 'observe', arrival };
-        if (now.length > 0) this._runAll(now, triggerInfo);
+        if (now.length > 0) this._runAll(now.map((detector) => ({ detector, triggerInfo })));
         for (const [delayMs, detectors] of later) {
-            const timer = setTimeout(() => {
-                this.#timers = this.#timers.filter((entry) => entry.timer !== timer);
-                this._runAll(detectors, triggerInfo);
-            }, delayMs);
-            this.#timers.push({ timer, detectors });
+            /** @type {PendingRun['timer']} */
+            const timer = { detectors, runs: [], timer: setTimeout(() => this._runPending(timer), delayMs) };
+            for (const detector of detectors) {
+                /** @type {PendingRun} */
+                const run = { detector, arrival, timer };
+                timer.runs.push(run);
+                getOrCreate(this.#pending, detector.detectorId, () => []).push(run);
+            }
+            this.#timers.push(timer);
         }
+    }
+
+    /**
+     * Act on the detector's latest pending run as an arrival's `whenPending` sets: skip the arrival, add
+     * it to the run, or cancel the run.
+     *
+     * @param {DetectorEntry} detector
+     * @param {OnBody['whenPending']} whenPending
+     * @param {Arrival} arrival
+     * @returns {boolean} whether the arrival schedules a run of its own
+     */
+    _schedulesOwnRun(detector, whenPending, arrival) {
+        const runs = this.#pending.get(detector.detectorId);
+        const pending = runs?.[runs.length - 1];
+        if (pending === undefined || whenPending === 'run') return true;
+        if (whenPending === 'skip') return false;
+        if (whenPending === 'batch') {
+            // The run's own list, as the recorder's arrival goes to every detector observing it
+            if (pending.arrival.kind !== 'batch') pending.arrival = { kind: 'batch', parts: [pending.arrival] };
+            pending.arrival.parts.push(arrival);
+            return false;
+        }
+        this._cancelPending(pending);
+        return true;
+    }
+
+    /**
+     * Run the runs due at a timer, together in one task.
+     *
+     * @param {PendingRun['timer']} timer
+     */
+    _runPending(timer) {
+        this.#timers = this.#timers.filter((entry) => entry !== timer);
+        for (const run of timer.runs) this._unpend(run);
+        this._runAll(timer.runs.map(({ detector, arrival }) => ({ detector, triggerInfo: { trigger: 'observe', arrival } })));
+    }
+
+    /**
+     * Cancel a pending run, and its timer once no other run is due at it.
+     *
+     * @param {PendingRun} run
+     */
+    _cancelPending(run) {
+        const { timer } = run;
+        const i = timer.runs.indexOf(run);
+        timer.runs.splice(i, 1);
+        timer.detectors.splice(i, 1);
+        this._unpend(run);
+        if (timer.runs.length > 0) return;
+        clearTimeout(timer.timer);
+        this.#timers = this.#timers.filter((entry) => entry !== timer);
+    }
+
+    /**
+     * Stop counting a run as its detector's pending run, once it's due or cancelled.
+     *
+     * @param {PendingRun} run
+     */
+    _unpend(run) {
+        const runs = this.#pending.get(run.detector.detectorId);
+        if (!runs) return;
+        const remaining = runs.filter((r) => r !== run);
+        if (remaining.length > 0) this.#pending.set(run.detector.detectorId, remaining);
+        else this.#pending.delete(run.detector.detectorId);
     }
 
     /**
@@ -478,7 +566,7 @@ export default class WebDetection extends ContentFeature {
     }
 
     /**
-     * Cancel each pending timer whose detectors are all done.
+     * Cancel each pending timer whose detectors are all done, and stop tracking done detectors' pending runs.
      */
     _cancelFinishedTimers() {
         this.#timers = this.#timers.filter(({ timer, detectors }) => {
@@ -486,6 +574,9 @@ export default class WebDetection extends ContentFeature {
             clearTimeout(timer);
             return false;
         });
+        for (const detectorId of this.#pending.keys()) {
+            if (this.#states.get(detectorId)?.done) this.#pending.delete(detectorId);
+        }
     }
 
     /**
@@ -546,18 +637,18 @@ export default class WebDetection extends ContentFeature {
      * @param {{ trigger: 'breakageReport' } | { trigger: 'auto', intervalMs: number }} triggerInfo
      */
     runDetectors(triggerInfo) {
-        this._runAll(this._detectorsFor(triggerInfo), triggerInfo);
+        this._runAll([...this._detectorsFor(triggerInfo)].map((detector) => ({ detector, triggerInfo })));
     }
 
     /**
-     * Run detectors that aren't done in one task, as one dispatch for `detectorPerf`.
+     * Run detectors that aren't done in one task, as one dispatch for `detectorPerf`, each with what
+     * triggered its run.
      *
-     * @param {Iterable<DetectorEntry>} detectors
-     * @param {TriggerInfo} triggerInfo
+     * @param {Iterable<{ detector: DetectorEntry, triggerInfo: TriggerInfo }>} runs
      */
-    _runAll(detectors, triggerInfo) {
+    _runAll(runs) {
         this.#dispatchId += 1;
-        for (const detector of detectors) {
+        for (const { detector, triggerInfo } of runs) {
             try {
                 this._runDetector(detector, triggerInfo, this.#reads);
             } catch (e) {
@@ -591,7 +682,7 @@ export default class WebDetection extends ContentFeature {
  * the run's start for an `auto` timer or a breakage report.
  *
  * @param {TriggerInfo} triggerInfo
- * @returns {Arrival}
+ * @returns {RunArrival}
  */
 function arrivalOf(triggerInfo) {
     if (triggerInfo.trigger === 'observe') return triggerInfo.arrival;

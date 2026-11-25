@@ -10,7 +10,7 @@
  * @import { ApiBody } from '../sources/api.js'
  * @import { ElementBody } from '../sources/element.js'
  * @import { TextBody } from '../sources/text.js'
- * @import { Arrival, RecordedBody } from '../evaluate/recorders.js'
+ * @import { RunArrival, RecordedBody } from '../evaluate/recorders.js'
  * @import { TriggerBody } from '../sources/recorded.js'
  */
 
@@ -130,7 +130,7 @@
  * @property {(value: unknown) => unknown[] | Failure | undefined} items - the items of a list value, or `undefined` for any other value
  * @property {<T>(binder: ItemBinder, value: unknown, fn: () => T) => T} bind - runs `fn` with `self` of a `where` or `field` bound to `value`
  * @property {TaskReads} task - the page reads the run shares with other runs
- * @property {Arrival} [arrival] - what started the run, which `trigger` reads
+ * @property {RunArrival} [arrival] - what started the run, which `trigger` reads
  */
 
 /**
