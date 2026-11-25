@@ -9,6 +9,7 @@ import { OmnibarContext } from './OmnibarProvider.js';
 import { ArrowIndentCenteredIcon, LogoStacked } from '../../components/Icons.js';
 import { useModeWithLocalPersistence } from './PersistentOmnibarValuesProvider.js';
 import { useTabState } from '../../tabs/TabsProvider.js';
+import { TabModelPickProvider } from './TabModelPick.js';
 
 /**
  * @typedef {import('../strings.json')} Strings
@@ -88,19 +89,21 @@ function OmnibarReadyState({ config, tabId }) {
     const modeForCurrentTab = useModeWithLocalPersistence(tabId, defaultMode);
 
     return (
-        <Omnibar
-            mode={modeForCurrentTab}
-            setMode={setMode}
-            enableAi={showAiSetting && enableAi}
-            enableRecentAiChats={enableRecentAiChats}
-            showViewAllAiChats={showViewAllAiChats}
-            showCustomizePopover={showCustomizePopover}
-            enableVoiceChatAccess={enableVoiceChatAccess}
-            enableAskAiSuggestion={enableAskAiSuggestion}
-            enableAttachTabs={enableAttachTabs}
-            showSuggestedPrompts={showSuggestedPrompts}
-            tabId={tabId}
-        />
+        <TabModelPickProvider tabId={tabId}>
+            <Omnibar
+                mode={modeForCurrentTab}
+                setMode={setMode}
+                enableAi={showAiSetting && enableAi}
+                enableRecentAiChats={enableRecentAiChats}
+                showViewAllAiChats={showViewAllAiChats}
+                showCustomizePopover={showCustomizePopover}
+                enableVoiceChatAccess={enableVoiceChatAccess}
+                enableAskAiSuggestion={enableAskAiSuggestion}
+                enableAttachTabs={enableAttachTabs}
+                showSuggestedPrompts={showSuggestedPrompts}
+                tabId={tabId}
+            />
+        </TabModelPickProvider>
     );
 }
 

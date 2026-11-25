@@ -1,5 +1,6 @@
 import { useCallback, useContext } from 'preact/hooks';
 import { OmnibarContext } from './OmnibarProvider';
+import { useModelPick } from './TabModelPick.js';
 
 /**
  * @typedef {NonNullable<import('../../../types/new-tab.js').UsageLimitsDrawer>} UsageLimitsDrawerConfig
@@ -30,11 +31,14 @@ export function useUsageLimitsDrawer() {
         dismissUsageLimits();
     }, [dismissUsageLimits]);
 
+    const { switchToModel } = useModelPick();
+
     const onSelectCta = useCallback(
         (/** @type {string | undefined} */ modelId) => {
+            if (modelId) switchToModel(modelId);
             selectUsageLimitsCta(modelId);
         },
-        [selectUsageLimitsCta],
+        [selectUsageLimitsCta, switchToModel],
     );
 
     if (!usageLimits) {

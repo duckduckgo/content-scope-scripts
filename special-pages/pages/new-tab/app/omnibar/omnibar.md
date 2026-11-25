@@ -30,6 +30,18 @@ The Duck.ai prompt grows with its text up to 10 lines. While focus is outside th
 
 Web Search and Create Image share one selection across NTP tabs in the window. Switching tabs preserves the tool; deselecting it or submitting a prompt clears it for all tabs. Feature configuration and model support still determine which tools are available. The selection lasts for the lifetime of the NTP page and is not persisted across page reloads.
 
+## Model pick per tab
+
+When native sends `enablePerTabModelPick: true`, each NTP tab keeps its own model and reasoning-effort pick, the way it keeps its mode:
+
+- `selectedModelId` and `selectedReasoningEffort` are the new-chat default. A tab without a pick shows them and follows them when native pushes a new default.
+- Picking a model or effort changes only the current tab. The page sends `omnibar_selectModel` or `omnibar_selectReasoningEffort` so native can react, and never writes the pick through `omnibar_setConfig`.
+- Sending a prompt from a tab (`omnibar_submitChat`, which carries `modelId` and `reasoningEffort`) clears that tab's pick, so its next prompt starts on the default again.
+- A model the user switches to from the usage-limits drawer becomes the current tab's pick.
+- With `enableUpdatedCreateImage`, while Create Image is on, a tab whose model can't create images uses `imageGenerationModelId` instead. `omnibar_setImageGenerationActive` carries the tab's model so native can build the notice.
+
+Without the flag (older native), the pick is shared through `omnibar_setConfig` as before. Picks last for the lifetime of the NTP page.
+
 ## Requests:
 
 ### `omnibar_getConfig` 
@@ -54,6 +66,8 @@ Web Search and Create Image share one selection across NTP tabs in the window. S
   - `aiModelSections` — array of model sections for the model selector. Each model may include `supportedReasoningEffort` (e.g. `["none", "low", "medium"]`) to surface the reasoning picker
   - `selectedModelId` — the user's persisted model choice
   - `selectedReasoningEffort` — the user's persisted reasoning-effort choice for the active model. Native validates against the model's `supportedReasoningEffort` on write
+  - `enablePerTabModelPick` — when `true`, the two fields above are the new-chat default and each tab keeps its own pick. See [Model pick per tab](#model-pick-per-tab) (default `false`)
+  - `imageGenerationModelId` — with `enablePerTabModelPick`, the model a tab uses for Create Image when its own model can't create images
   - `requiresAiTermsAcceptance` — `true` while the user hasn't accepted Duck.ai's terms. See [Duck.ai terms](#duckai-terms) (default `false`)
 ```json
 {
@@ -223,6 +237,16 @@ Files dragged onto the Duck.ai prompt (e.g. from Finder) are attached like picke
 ### `omnibar_setImageGenerationActive`
 - Sent when Create Image is activated or deactivated while `enableUpdatedCreateImage` is enabled.
 - Native resolves and persists the selected model and pushes `createImageModelSwitch` via `omnibar_onConfigUpdate` when a notice should be shown.
+- With `enablePerTabModelPick`, activation also sends `modelId`, the model the tab was on. Native builds the notice from it and leaves the tab's model to the page.
+
+### `omnibar_selectModel`
+- {@link "NewTab Messages".OmnibarSelectModelNotification}
+- Sent with `enablePerTabModelPick` when the user picks a model in a tab: `{ "modelId": "openai_gpt-oss-120b", "previousModelId": "claude-haiku-4-5" }`.
+- Native doesn't keep the pick; it can count the pick or settle a usage-limits message that asked for a model switch.
+
+### `omnibar_selectReasoningEffort`
+- {@link "NewTab Messages".OmnibarSelectReasoningEffortNotification}
+- Sent with `enablePerTabModelPick` when the user picks a reasoning effort in a tab: `{ "reasoningEffort": "low" }`. Native doesn't keep the pick.
 
 ### `omnibar_dismissCreateImageModelSwitch`
 - Sent when the user dismisses the native-provided Create Image model-switch notice.

@@ -9,6 +9,10 @@
     "active": {
       "type": "boolean",
       "description": "Whether Create Image is now active in this New Tab Page omnibar."
+    },
+    "modelId": {
+      "type": "string",
+      "description": "The model the tab was on when Create Image turned on. Native builds the model-switch notice from it."
     }
   }
 }

@@ -59,6 +59,14 @@ export const OmnibarContext = createContext({
     setSelectedReasoningEffort: () => {
         throw new Error('must implement');
     },
+    /** @type {(params: import('../../../types/new-tab.js').SelectModel) => void} */
+    selectModel: () => {
+        throw new Error('must implement');
+    },
+    /** @type {(effort: import('../../../types/new-tab.js').ReasoningEffort) => void} */
+    selectReasoningEffort: () => {
+        throw new Error('must implement');
+    },
     /** @type {(params: SubmitChatAction) => void} */
     submitChat: () => {
         throw new Error('must implement');
@@ -95,7 +103,7 @@ export const OmnibarContext = createContext({
     dismissCreateImageModelSwitch: () => {
         throw new Error('must implement');
     },
-    /** @type {(active: boolean) => void} */
+    /** @type {(active: boolean, modelId?: string) => void} */
     setImageGenerationActive: () => {
         throw new Error('must implement');
     },
@@ -262,6 +270,22 @@ export function OmnibarProvider(props) {
         [service],
     );
 
+    /** @type {(params: import('../../../types/new-tab.js').SelectModel) => void} */
+    const selectModel = useCallback(
+        (params) => {
+            service.current?.selectModel(params);
+        },
+        [service],
+    );
+
+    /** @type {(effort: import('../../../types/new-tab.js').ReasoningEffort) => void} */
+    const selectReasoningEffort = useCallback(
+        (effort) => {
+            service.current?.selectReasoningEffort(effort);
+        },
+        [service],
+    );
+
     /** @type {(params: SubmitChatAction) => void} */
     const submitChat = useCallback(
         (params) => {
@@ -326,10 +350,10 @@ export function OmnibarProvider(props) {
 
     const [activeTool, setActiveTool] = useState(/** @type {import('./chat-tools/tools-menu/ToolsMenu').ToolId | null} */ (null));
 
-    /** @type {(active: boolean) => void} */
+    /** @type {(active: boolean, modelId?: string) => void} */
     const setImageGenerationActive = useCallback(
-        (active) => {
-            service.current?.setImageGenerationActive(active);
+        (active, modelId) => {
+            service.current?.setImageGenerationActive(active, modelId);
         },
         [service],
     );
@@ -449,6 +473,8 @@ export function OmnibarProvider(props) {
                 setShowCustomizePopover,
                 setSelectedModelId,
                 setSelectedReasoningEffort,
+                selectModel,
+                selectReasoningEffort,
                 getSuggestions,
                 onSuggestions,
                 openSuggestion,

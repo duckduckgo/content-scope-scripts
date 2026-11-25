@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Select Model",
+  "description": "Sent with enablePerTabModelPick when the user picks a model in a tab. Native doesn't keep the pick; it only reacts to it (for example, settling a usage-limits message).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["modelId"],
+  "properties": {
+    "modelId": {
+      "type": "string",
+      "description": "The model the user picked."
+    },
+    "previousModelId": {
+      "type": "string",
+      "description": "The model the tab was on before the pick."
+    }
+  }
+}

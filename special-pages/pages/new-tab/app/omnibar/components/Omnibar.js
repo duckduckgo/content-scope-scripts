@@ -34,6 +34,7 @@ import { useToolsMenu } from './chat-tools/tools-menu/useToolsMenu';
 import { useActiveTools } from './chat-tools/useActiveTools';
 import { useSelectedModel } from './useSelectedModel';
 import { useSelectedReasoningEffort } from './useSelectedReasoningEffort';
+import { useModelPick } from './TabModelPick.js';
 import { AttachMenu } from './chat-tools/tab-attachment/AttachMenu';
 import { MentionPicker } from './chat-tools/tab-attachment/MentionPicker';
 import { OpenTabsProvider } from './chat-tools/tab-attachment/OpenTabsProvider';
@@ -128,6 +129,7 @@ export function Omnibar({
     const rebrand = useNewTabPageRebranding();
     const { keyboardFocusWithinProps } = useKeyboardFocusWithin({ enabled: rebrand });
     const { openSuggestion, submitSearch, submitChat, setShowCustomizePopover } = useContext(OmnibarContext);
+    const { endPick } = useModelPick();
 
     const { open: openCustomizer } = useDrawerControls();
     useDrawerEventListeners(
@@ -170,8 +172,14 @@ export function Omnibar({
     };
 
     /** @type {(params: SubmitChatAction) => void} */
-    const handleSubmitChat = (params) => {
+    const submitChatOnTab = (params) => {
         submitChat(launcherPromoVisibleRef.current ? { ...params, launcherPromoVisible: true } : params);
+        endPick();
+    };
+
+    /** @type {(params: SubmitChatAction) => void} */
+    const handleSubmitChat = (params) => {
+        submitChatOnTab(params);
         resetForm();
     };
 
@@ -187,7 +195,7 @@ export function Omnibar({
             if (now - lastSameTabSuggestedPromptAt.current < SUGGESTED_PROMPT_REPEAT_GUARD_MS) return;
             lastSameTabSuggestedPromptAt.current = now;
         }
-        submitChat(launcherPromoVisibleRef.current ? { ...params, launcherPromoVisible: true } : params);
+        submitChatOnTab(params);
     };
 
     /** @type {(mode: OmnibarConfig['mode']) => void} */
@@ -334,6 +342,7 @@ function AiChatContent({
     const updatedCreateImageEnabled = state.config?.enableUpdatedCreateImage === true;
     const { selectedModel } = useSelectedModel();
     const { selectedEffort } = useSelectedReasoningEffort();
+    const { keptPerTab } = useModelPick();
     const { activeTool, availableTools, imageGenerationActive, webSearchActive, setActiveTool } = useActiveTools();
 
     const containerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
@@ -404,7 +413,7 @@ function AiChatContent({
         }
 
         if (updatedCreateImageEnabled && (imageGenerationActive || nextImageGeneration)) {
-            setImageGenerationActive(nextImageGeneration);
+            setImageGenerationActive(nextImageGeneration, nextImageGeneration && keptPerTab ? selectedModel?.id : undefined);
         }
 
         setActiveTool(nextTool);

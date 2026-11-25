@@ -9,6 +9,7 @@ import { SearchIcon } from '../../components/Icons.js';
 import {
     AttachmentPrivacyGrant,
     FileAttachments,
+    ModelPicks,
     ImageAttachments,
     TextPastedAttachments,
     OpenTabsList,
@@ -23,6 +24,7 @@ const { Provider: ImageAttachmentsProvider } = ImageAttachments;
 const { Provider: TextPastedAttachmentsProvider } = TextPastedAttachments;
 const { Provider: OpenTabsListProvider } = OpenTabsList;
 const { Provider: AttachmentPrivacyGrantProvider } = AttachmentPrivacyGrant;
+const { Provider: ModelPicksProvider } = ModelPicks;
 
 /**
  * @import enStrings from "../strings.json"
@@ -56,9 +58,11 @@ export function OmnibarCustomized() {
                             <ImageAttachmentsProvider>
                                 <TextPastedAttachmentsProvider>
                                     <AttachmentPrivacyGrantProvider>
-                                        <OmnibarProvider>
-                                            <OmnibarConsumer />
-                                        </OmnibarProvider>
+                                        <ModelPicksProvider>
+                                            <OmnibarProvider>
+                                                <OmnibarConsumer />
+                                            </OmnibarProvider>
+                                        </ModelPicksProvider>
                                     </AttachmentPrivacyGrantProvider>
                                 </TextPastedAttachmentsProvider>
                             </ImageAttachmentsProvider>

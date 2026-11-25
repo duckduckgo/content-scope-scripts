@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Select Reasoning Effort",
+  "description": "Sent with enablePerTabModelPick when the user picks a reasoning effort in a tab. Native doesn't keep the pick.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["reasoningEffort"],
+  "properties": {
+    "reasoningEffort": {
+      "$ref": "./types/reasoning-effort.json"
+    }
+  }
+}
