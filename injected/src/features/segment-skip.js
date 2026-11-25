@@ -546,7 +546,7 @@ export class SegmentSkip extends ContentFeature {
         const kindChanged = host.classList.contains('undo') !== (kind === 'undo');
         if (kindChanged) {
             host.classList.toggle('undo', kind === 'undo');
-            label.textContent = kind === 'undo' ? 'Undo Skip' : 'Skip';
+            label.textContent = this.localized(kind === 'undo' ? 'undoSkipButton' : 'skipButton');
         }
         const moved = host.parentElement !== parent;
         if (moved) parent.append(host);
