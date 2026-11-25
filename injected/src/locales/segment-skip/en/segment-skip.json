@@ -1,0 +1,16 @@
+{
+  "smartling": {
+    "string_format": "icu",
+    "translate_paths": [
+      {
+        "path": "*/title",
+        "key": "{*}/title",
+        "instruction": "*/note"
+      }
+    ]
+  },
+  "skipButton": {
+    "title": "Skip",
+    "note": "Button shown over a YouTube video while a sponsored segment plays; tapping it jumps past the segment. Keep it short: it sits between two small icons."
+  }
+}

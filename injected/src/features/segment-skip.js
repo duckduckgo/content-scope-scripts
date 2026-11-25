@@ -12,6 +12,13 @@ import {
 import daxSvg from './segment-skip/assets/DuckDuckGo-Color-16.svg';
 import skipSvg from './segment-skip/assets/Skip-Recolorable-16.svg';
 import undoSvg from './segment-skip/assets/Undo-16.svg';
+// Bundled by scripts/buildLocales.js from src/locales/segment-skip/
+import localesJSON from '../../../build/locales/segment-skip-locales.js';
+
+/** @type {Record<string, Record<string, Record<string, string>>>} locale → file → key → string */
+const STRINGS = JSON.parse(localesJSON);
+// buildLocales.js keys each locale by filename; named for the feature because Smartling needs unique file names per repo.
+const STRINGS_FILE = 'segment-skip.json';
 
 /** @typedef {import('../types/segment-skip.js').Segment} Segment */
 /** @typedef {import('../types/segment-skip.js').OnConfigChangedParams} Config */
@@ -256,6 +263,7 @@ export class SegmentSkip extends ContentFeature {
     #controlsObserved = null;
     // The document holding the player. On Android Duck Player it is the embed's, since the script runs only in the top frame.
     #doc = document;
+    #locale = 'en';
 
     /**
      * Selector list from feature settings, falling back to `defaults` when the key is absent. Remote config is a
@@ -268,7 +276,15 @@ export class SegmentSkip extends ContentFeature {
         return validSelectors(this.getFeatureSetting(key), defaults);
     }
 
-    async init() {
+    /**
+     * @param {{ locale?: string, language?: string }} [args]
+     */
+    async init(args) {
+        // Locale dirs are bare language codes: strip any region subtag ('de-DE'/'de_DE' → 'de')
+        this.#locale =
+            String(args?.locale || args?.language || 'en')
+                .toLowerCase()
+                .split(/[-_]/)[0] || 'en';
         const { hostname, origin, ancestorOrigins } = window.location;
         // ancestorOrigins is missing in Firefox; there the embed case simply stays inactive.
         const frame = {
@@ -691,6 +707,15 @@ export class SegmentSkip extends ContentFeature {
         if (row) skipButton.style.bottom = `${Math.round(hostRect.bottom - row.getBoundingClientRect().top) + 12}px`;
     }
 
+    /**
+     * Localized copy for a key: the bundled locale, then bundled English.
+     * @param {string} key
+     * @returns {string}
+     */
+    localized(key) {
+        return STRINGS[this.#locale]?.[STRINGS_FILE]?.[key] ?? STRINGS.en?.[STRINGS_FILE]?.[key] ?? key;
+    }
+
     // A closed shadow root keeps the button's markup and listeners out of reach of YouTube's scripts. Built with DOM
     // calls, not innerHTML: YouTube enforces Trusted Types, which blocks assigning a plain string to innerHTML.
     /** @returns {SkipButton} */
@@ -706,7 +731,7 @@ export class SegmentSkip extends ContentFeature {
         button.setAttribute('aria-live', 'polite');
         const logo = createIcon(this.#doc, DAX_ICON_URI);
         const label = this.#doc.createElement('span');
-        label.textContent = 'Skip';
+        label.textContent = this.localized('skipButton');
         const sweep = this.#doc.createElement('span');
         sweep.className = 'sweep';
         for (const el of [logo, label]) el.className = 'collapsible';
