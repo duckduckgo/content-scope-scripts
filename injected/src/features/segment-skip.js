@@ -11,9 +11,16 @@ import {
 } from './segment-skip/helpers.js';
 import daxSvg from './segment-skip/assets/DuckDuckGo-Color-16.svg';
 import skipSvg from './segment-skip/assets/Skip-Recolorable-16.svg';
+import undoSvg from './segment-skip/assets/Undo-16.svg';
 
 /** @typedef {import('../types/segment-skip.js').Segment} Segment */
 /** @typedef {import('../types/segment-skip.js').OnConfigChangedParams} Config */
+/**
+ * @typedef {object} SkipButton
+ * @property {HTMLElement} host shadow host, placed in the player
+ * @property {HTMLElement} label
+ * @property {HTMLElement[]} collapsible the logo and label, folded away when the button is tapped
+ */
 
 // Selector defaults, used until the privacy-config `segmentSkip` settings ship the same keys. Ordered lists: the first
 // selector with a visible match wins, so put the preferred element first.
@@ -45,6 +52,12 @@ const DEFAULT_CONTROLS_VISIBLE_SELECTORS = ['#movie_player:not(.ytp-autohide):no
 // only while the video plays and the button is on screen, so a paused or buffering video keeps the button, and time
 // spent hidden while YouTube's controls show doesn't count against it.
 const SKIP_BUTTON_TIMEOUT_MS = 8000;
+// How long the "Undo Skip" button stays up after an automatic skip, in wall-clock time.
+const UNDO_TIMEOUT_MS = 5000;
+// Exit timings, matching the transitions in SKIP_BUTTON_STYLES.
+const SLIDE_OUT_MS = 450;
+const COLLAPSE_FADE_AT_MS = 620;
+const COLLAPSE_DONE_MS = 840;
 const OVERLAY_CLASS = 'ddg-segmentskip-overlay';
 const SKIP_BUTTON_CLASS = 'ddg-segmentskip-skip';
 const STYLES = `
@@ -64,17 +77,57 @@ const STYLES = `
 #player-controls > .${SKIP_BUTTON_CLASS} { right: 24px; bottom: 140px; }
 `;
 const SKIP_BUTTON_STYLES = `
+/* Hidden until .on: off the right edge. Removing .on plays the same transition back. The host moves, not the button,
+   so the hit area moves with what the user sees. */
+:host {
+    transform: translateX(calc(100% + 24px)); opacity: 0;
+    transition: transform .45s cubic-bezier(.2, 1.1, .3, 1), opacity .2s ease;
+}
+:host(.on) { transform: none; opacity: 1; }
+/* Exit after a tap, phase 2 (.out): fade and shrink. Phase 1 (.collapse) is on the button below. */
+:host(.collapse.out) { opacity: 0; transform: scale(.85); transition: opacity .2s ease, transform .2s ease; }
 button {
-    all: unset; box-sizing: border-box; display: flex; align-items: center; gap: 8px; padding: 12px 20px;
+    all: unset; box-sizing: border-box; position: relative; display: flex; align-items: center; gap: 8px; padding: 12px 20px;
     border-radius: 999px; background: #242323; color: #fff; font: 700 16px/16px Roboto, Arial, sans-serif;
     white-space: nowrap; cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(0, 0, 0, 0.08);
+    transition: gap .32s cubic-bezier(.4, 0, .2, 1), padding .32s cubic-bezier(.4, 0, .2, 1), transform .1s;
 }
+button:active { transform: scale(.96); }
 button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+:host(:not(.on)) button, :host(.collapse) button { pointer-events: none; }
 img { display: block; width: 16px; height: 16px; }
+/* After an automatic skip (.undo) the button offers to go back, with the undo icon in place of the skip icon. */
+.undo-icon, :host(.undo) .skip-icon { display: none; }
+:host(.undo) .undo-icon { display: block; }
+.collapsible { overflow: hidden; transition: max-width .32s cubic-bezier(.4, 0, .2, 1), opacity .18s ease; }
+/* Exit after a tap, phase 1: the logo and label fold away, so the button shrinks towards its right edge. */
+:host(.collapse) button { gap: 0; padding-left: 8px; padding-right: 8px; }
+:host(.collapse) .collapsible { opacity: 0; }
+/* A light that runs once around the edge after the slide in: a turning conic gradient, masked to a 1px ring. A custom
+   property can't animate the gradient's angle here, since @property is ignored in a shadow root. */
+.sweep {
+    position: absolute; inset: -1px; padding: 1px; border-radius: inherit; overflow: hidden; pointer-events: none; opacity: 0;
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude;
+}
+.sweep::before {
+    content: ''; position: absolute; left: 50%; top: 50%; width: 120%; aspect-ratio: 1; transform: translate(-50%, -50%);
+    background: conic-gradient(transparent 0deg, transparent 250deg, rgba(255, 255, 255, .55) 310deg, transparent 350deg);
+}
+:host(.on) .sweep { animation: sweep-fade 1.8s cubic-bezier(.45, 0, .25, 1) .35s both; }
+:host(.on) .sweep::before { animation: sweep-turn 1.8s cubic-bezier(.45, 0, .25, 1) .35s both; }
+@keyframes sweep-fade { 0%, 100% { opacity: 0; } 20%, 80% { opacity: 1; } }
+@keyframes sweep-turn { to { transform: translate(-50%, -50%) rotate(360deg); } }
+/* The collapse snaps and the sweep is off; the slide and the fade still run. */
+@media (prefers-reduced-motion: reduce) {
+    button, .collapsible { transition: none; }
+    .sweep { display: none; }
+}
 `;
 // Loaded as images from data URIs: YouTube enforces Trusted Types, so the SVG markup can't be parsed into the DOM.
 const DAX_ICON_URI = `data:image/svg+xml;utf8,${encodeURIComponent(daxSvg)}`;
 const SKIP_ICON_URI = `data:image/svg+xml;utf8,${encodeURIComponent(skipSvg)}`;
+const UNDO_ICON_URI = `data:image/svg+xml;utf8,${encodeURIComponent(undoSvg)}`;
 
 /**
  * @param {Document} doc
@@ -136,7 +189,10 @@ function duckPlayerEmbedDocument() {
         const observer = new MutationObserver(() => {
             if (attach()) observer.disconnect();
         });
-        observer.observe(document.documentElement, { childList: true, subtree: true });
+        observer.observe(document.documentElement, {
+            childList: true,
+            subtree: true,
+        });
     });
 }
 
@@ -161,10 +217,16 @@ export class SegmentSkip extends ContentFeature {
     /** @type {HTMLElement | null} */
     #overlay = null;
     #renderedDuration = 0;
-    /** @type {HTMLElement | null} shadow host of the skip button */
+    /** @type {SkipButton | null} */
     #skipButton = null;
+    /** @type {ReturnType<typeof setTimeout>[] | null} timers of the skip button's running exit animation */
+    #skipButtonExit = null;
     /** @type {Segment | null} */
     #skipSegment = null;
+    /** @type {Segment | null} the segment skipped automatically, while the button offers to undo that */
+    #undoSegment = null;
+    /** @type {ReturnType<typeof setTimeout> | undefined} */
+    #undoTimer;
     /** @type {string | null} uuid of the segment the skip button is showing for */
     #skipButtonFor = null;
     /** @type {string | null} uuid of the segment whose skip button timed out; stays hidden until playback leaves it */
@@ -200,7 +262,12 @@ export class SegmentSkip extends ContentFeature {
     async init() {
         const { hostname, origin, ancestorOrigins } = window.location;
         // ancestorOrigins is missing in Firefox; there the embed case simply stays inactive.
-        const frame = { hostname, origin, isTop: window.top === window, ancestorOrigins: Array.from(ancestorOrigins ?? []) };
+        const frame = {
+            hostname,
+            origin,
+            isTop: window.top === window,
+            ancestorOrigins: Array.from(ancestorOrigins ?? []),
+        };
         if (!shouldActivate(frame)) return;
         // Android injects only into the top frame; the Duck Player embed is driven from the page instead (see below).
         if (this.platform.name === 'android' && !frame.isTop) return;
@@ -298,6 +365,7 @@ export class SegmentSkip extends ContentFeature {
         if (videoID === this.#videoID) return;
         this.#videoID = videoID;
         this.#segments = [];
+        this.clearUndo();
         this.renderOverlay();
         this.updateSkip();
         if (videoID && this.#enabled) void this.fetchSegments(videoID);
@@ -369,9 +437,16 @@ export class SegmentSkip extends ContentFeature {
      */
     observeControls(host) {
         if (this.#controlsObserved === host) return;
-        this.#controlsObserver ??= new MutationObserver(() => this.updateSkip());
+        // The skip button's own host is in the subtree and its classes drive its animations; reacting to those would loop.
+        this.#controlsObserver ??= new MutationObserver((records) => {
+            if (records.some((record) => record.target !== this.#skipButton?.host)) this.updateSkip();
+        });
         this.#controlsObserver.disconnect();
-        this.#controlsObserver.observe(host, { attributes: true, attributeFilter: ['class'], subtree: true });
+        this.#controlsObserver.observe(host, {
+            attributes: true,
+            attributeFilter: ['class'],
+            subtree: true,
+        });
         this.#controlsObserved = host;
     }
 
@@ -397,12 +472,104 @@ export class SegmentSkip extends ContentFeature {
         this.hideSkipButton();
     }
 
-    hideSkipButton() {
-        this.#skipButton?.remove();
+    /**
+     * Offers to undo an automatic skip of `segment` for a few seconds.
+     * @param {Segment} segment
+     */
+    offerUndo(segment) {
+        clearTimeout(this.#undoTimer);
+        this.#undoSegment = segment;
+        this.#undoTimer = setTimeout(() => {
+            this.#undoSegment = null;
+            this.hideSkipButton();
+        }, UNDO_TIMEOUT_MS);
+    }
+
+    clearUndo() {
+        clearTimeout(this.#undoTimer);
+        this.#undoSegment = null;
+    }
+
+    /**
+     * Shows the skip button in `parent` as `kind`, sliding it in when it wasn't on screen. Showing it while it animates
+     * out turns it back around. While YouTube's controls show it stays mounted but hidden, so its countdown keeps the
+     * time already used, and slides in again once they fade.
+     * @param {Element} parent
+     * @param {'skip' | 'undo'} kind
+     * @param {boolean} visible
+     * @returns {HTMLElement} the button's shadow host
+     */
+    showSkipButton(parent, kind, visible) {
+        this.#skipButton ??= this.createSkipButton();
+        const { host, label } = this.#skipButton;
+        if (this.#skipButtonExit) this.resetSkipButton();
+        const kindChanged = host.classList.contains('undo') !== (kind === 'undo');
+        if (kindChanged) {
+            host.classList.toggle('undo', kind === 'undo');
+            label.textContent = kind === 'undo' ? 'Undo Skip' : 'Skip';
+        }
+        const moved = host.parentElement !== parent;
+        if (moved) parent.append(host);
+        if (!visible) {
+            host.style.display = 'none';
+            host.classList.remove('on');
+            return host;
+        }
+        const wasHidden = host.style.display === 'none';
+        host.style.display = '';
+        // Appearing, or a new kind of offer: start the slide in from the hidden state.
+        if (moved || kindChanged || wasHidden || !host.classList.contains('on')) {
+            host.classList.remove('on');
+            void host.offsetWidth;
+        }
+        host.classList.add('on');
+        return host;
+    }
+
+    /**
+     * Animates the skip button out, then removes it. A tap folds it down to the skip icon; anything else slides it off.
+     * @param {'collapse' | 'slide'} exit
+     */
+    hideSkipButton(exit = 'slide') {
         this.stopSkipButtonCountdown();
         this.#skipButtonFor = null;
         this.#controlsObserver?.disconnect();
         this.#controlsObserved = null;
+        if (!this.#skipButton?.host.isConnected || this.#skipButtonExit) return;
+        const { host, collapsible } = this.#skipButton;
+        if (exit === 'slide') {
+            host.classList.remove('on');
+            this.#skipButtonExit = [setTimeout(() => this.removeSkipButton(), SLIDE_OUT_MS)];
+            return;
+        }
+        // max-width only transitions between lengths, so pin each part to its width before folding it to 0.
+        for (const el of collapsible) el.style.maxWidth = `${el.offsetWidth}px`;
+        void host.offsetWidth;
+        host.classList.add('collapse');
+        for (const el of collapsible) el.style.maxWidth = '0';
+        this.#skipButtonExit = [
+            setTimeout(() => host.classList.add('out'), COLLAPSE_FADE_AT_MS),
+            setTimeout(() => this.removeSkipButton(), COLLAPSE_DONE_MS),
+        ];
+    }
+
+    removeSkipButton() {
+        if (!this.#skipButton) return;
+        const { host } = this.#skipButton;
+        host.remove();
+        this.resetSkipButton();
+        host.classList.remove('on');
+        host.style.display = '';
+    }
+
+    // Cancels any exit animation and clears its state.
+    resetSkipButton() {
+        if (!this.#skipButton) return;
+        const { host, collapsible } = this.#skipButton;
+        for (const timer of this.#skipButtonExit ?? []) clearTimeout(timer);
+        this.#skipButtonExit = null;
+        host.classList.remove('collapse', 'out');
+        for (const el of collapsible) el.style.maxWidth = '';
     }
 
     startSkipButtonCountdown() {
@@ -436,29 +603,32 @@ export class SegmentSkip extends ContentFeature {
         if (this.#skipSegment?.uuid !== this.#seekedInto) this.#seekedInto = null;
         if (video && this.#skipSegment && this.#skipMode === 'auto' && !this.#seekedInto) {
             this.skipTo(video, this.#skipSegment);
-            return;
+            this.offerUndo(this.#skipSegment);
+            // Playback is past the segment now; fall through to show the undo button.
+            this.#skipSegment = null;
         }
         const uuid = this.#skipSegment?.uuid ?? null;
         // Leaving the segment forgets its timeout, so coming back to it shows the button again.
         if (uuid !== this.#skipButtonTimedOut) this.#skipButtonTimedOut = null;
-        const host = uuid && !this.#skipButtonTimedOut ? findFirstVisible(this.#doc, this.#skipButtonHostSelectors) : null;
-        if (!host) {
+        // Inside a segment the skip button takes over from an undo offer.
+        if (uuid) this.clearUndo();
+        const skippable = uuid && !this.#skipButtonTimedOut;
+        const kind = skippable ? 'skip' : this.#undoSegment ? 'undo' : null;
+        const host = kind ? findFirstVisible(this.#doc, this.#skipButtonHostSelectors) : null;
+        if (!host || !kind) {
             this.hideSkipButton();
             return;
         }
-        this.#skipButton ??= this.createSkipButton();
-        if (this.#skipButton.parentElement !== host) host.append(this.#skipButton);
-        if (this.#skipButtonFor !== uuid) {
+        const controlsVisible = this.controlsVisible();
+        const skipButton = this.showSkipButton(host, kind, !controlsVisible);
+        if (skippable && this.#skipButtonFor !== uuid) {
             this.stopSkipButtonCountdown();
             this.#skipButtonFor = uuid;
             this.#skipButtonMsLeft = SKIP_BUTTON_TIMEOUT_MS;
         }
         this.observeControls(host);
-        // Hidden rather than removed while YouTube's controls show, so its countdown keeps the time already used.
-        const controlsVisible = this.controlsVisible();
-        this.#skipButton.style.display = controlsVisible ? 'none' : '';
         // Playing means not paused and not stalled waiting for data.
-        if (!controlsVisible && video && !video.paused && video.readyState >= video.HAVE_FUTURE_DATA) {
+        if (skippable && !controlsVisible && video && !video.paused && video.readyState >= video.HAVE_FUTURE_DATA) {
             this.startSkipButtonCountdown();
         } else {
             this.stopSkipButtonCountdown();
@@ -471,16 +641,17 @@ export class SegmentSkip extends ContentFeature {
             // bottom-right corner, as on m.youtube.com.
             const videoRect = video?.getBoundingClientRect();
             if (!videoRect?.height) return;
-            this.#skipButton.style.bottom = `${Math.round(hostRect.bottom - videoRect.bottom) + 40}px`;
-            this.#skipButton.style.right = `${Math.round(hostRect.right - videoRect.right) + 8}px`;
+            skipButton.style.bottom = `${Math.round(hostRect.bottom - videoRect.bottom) + 40}px`;
+            skipButton.style.right = `${Math.round(hostRect.right - videoRect.right) + 8}px`;
             return;
         }
         const row = host.querySelector('.player-controls-bottom');
-        if (row) this.#skipButton.style.bottom = `${Math.round(hostRect.bottom - row.getBoundingClientRect().top) + 12}px`;
+        if (row) skipButton.style.bottom = `${Math.round(hostRect.bottom - row.getBoundingClientRect().top) + 12}px`;
     }
 
     // A closed shadow root keeps the button's markup and listeners out of reach of YouTube's scripts. Built with DOM
     // calls, not innerHTML: YouTube enforces Trusted Types, which blocks assigning a plain string to innerHTML.
+    /** @returns {SkipButton} */
     createSkipButton() {
         const host = this.#doc.createElement('div');
         host.className = SKIP_BUTTON_CLASS;
@@ -489,16 +660,40 @@ export class SegmentSkip extends ContentFeature {
         style.textContent = SKIP_BUTTON_STYLES;
         const button = this.#doc.createElement('button');
         button.type = 'button';
-        button.append(createIcon(this.#doc, DAX_ICON_URI), 'Skip', createIcon(this.#doc, SKIP_ICON_URI));
+        // The label changes between "Skip" and "Undo Skip"; announce it.
+        button.setAttribute('aria-live', 'polite');
+        const logo = createIcon(this.#doc, DAX_ICON_URI);
+        const label = this.#doc.createElement('span');
+        label.textContent = 'Skip';
+        const sweep = this.#doc.createElement('span');
+        sweep.className = 'sweep';
+        for (const el of [logo, label]) el.className = 'collapsible';
+        const skipIcon = createIcon(this.#doc, SKIP_ICON_URI);
+        skipIcon.className = 'skip-icon';
+        const undoIcon = createIcon(this.#doc, UNDO_ICON_URI);
+        undoIcon.className = 'undo-icon';
+        button.append(logo, label, skipIcon, undoIcon, sweep);
         shadow.append(style, button);
         // Keep the tap from also reaching the player, which would toggle YouTube's controls.
         button.addEventListener('pointerdown', (e) => e.stopPropagation());
         button.addEventListener('click', (e) => {
             e.stopPropagation();
             const video = getMainVideo(this.#doc);
-            if (video && this.#skipSegment) this.skipTo(video, this.#skipSegment);
+            const undo = this.#undoSegment;
+            if (video && undo) {
+                // Going back is a choice to watch the segment: no auto skip and no skip button until playback leaves it.
+                this.clearUndo();
+                this.hideSkipButton();
+                this.#seekedInto = undo.uuid;
+                this.#skipButtonTimedOut = undo.uuid;
+                video.currentTime = undo.start;
+                return;
+            }
+            if (!video || !this.#skipSegment) return;
+            this.hideSkipButton('collapse');
+            this.skipTo(video, this.#skipSegment);
         });
-        return host;
+        return { host, label, collapsible: [logo, label] };
     }
 }
 
