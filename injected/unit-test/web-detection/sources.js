@@ -621,10 +621,10 @@ describe('WebDetection sources', () => {
             expect(runInTask(PAGE, [counting, counting]).map((result) => result.names.get('n'))).toEqual([2, 2]);
         });
 
-        it('records an invalid expression as an error in each detector that names it', () => {
+        it('records an invalid expression as a failure in each detector that names it', () => {
             const detector = matching({ xpath: '//[', pattern: 'x' });
             const results = runInTask(PAGE, [detector, detector]);
-            expect(results.map((result) => result.match)).toEqual(['error', 'error']);
+            expect(results.map((result) => result.match)).toEqual(['aborted', 'aborted']);
             expect(results[0].failedAt).toBeDefined();
             expect(results[1].failedAt).toBe(results[0].failedAt);
         });

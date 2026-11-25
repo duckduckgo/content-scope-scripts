@@ -2,6 +2,7 @@ import {
     BROKEN,
     FAILING,
     IMG,
+    INVALID_SELECTOR,
     NATURAL_WIDTH,
     REPORT,
     abortError,
@@ -281,6 +282,32 @@ describe('WebDetection evaluate', () => {
             ];
             for (const [body, expression] of cases) {
                 const context = JSON.stringify(expression);
+                expect(holds(body, { ...expression, is: { fails: true } }))
+                    .withContext(context)
+                    .toBe(true);
+                expect(holds(body, { ...expression, is: { fails: false } }))
+                    .withContext(context)
+                    .toBe(false);
+            }
+        });
+
+        it('fails on a selector or XPath expression the engine rejects, which `fails` handles', () => {
+            const readRoot = { only: { element: { selector: '#s', field: 'textContent' } } };
+            /** @type {Array<[string, object]>} */
+            const cases = [
+                ['<p></p>', INVALID_SELECTOR],
+                ['<p></p>', { any: [INVALID_SELECTOR] }],
+                ['<p></p>', { ...INVALID_SELECTOR, using: 'length' }],
+                ['<p></p>', { element: { selector: 'p', root: '[' } }],
+                ['<p id="s">[</p>', { element: { selector: 'p', root: readRoot } }],
+                ['<p id="s">[</p>', { element: { selector: 'p', root: readRoot }, using: 'length' }],
+                ['<p>x</p>', { text: { selector: '[', pattern: 'x' } }],
+                ['<p>x</p>', { text: { xpath: '//[', pattern: 'x' } }],
+                ['<p>x</p>', { text: { xpath: '//[', pattern: 'x' }, using: 'length' }],
+            ];
+            for (const [body, expression] of cases) {
+                const context = JSON.stringify(expression);
+                expect(holds(body, expression)).withContext(context).toBe('aborted');
                 expect(holds(body, { ...expression, is: { fails: true } }))
                     .withContext(context)
                     .toBe(true);

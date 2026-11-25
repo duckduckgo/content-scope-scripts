@@ -53,7 +53,7 @@ describe('WebDetection feature', () => {
                 'include a detector with no breakageReportData action once a run fails',
                 { match: { element: { selector: '!!!invalid' } }, actions: { fireEvent: { type: 'adwall' } } },
                 {},
-                failed({ 'match.element': 'error' }),
+                failed({ 'match.element': 'aborted' }),
             ],
             ['not run when detector state is disabled', detects(true, { state: 'disabled' }), {}, []],
             ['not run when trigger state is disabled', detects(true, { triggers: OFF }), {}, []],
@@ -70,10 +70,10 @@ describe('WebDetection feature', () => {
                 failed({ parse: 'error' }),
             ],
             [
-                'return error for detector with invalid selector',
+                'record an invalid selector as a failure',
                 detects({ element: { selector: '!!!invalid' } }),
                 {},
-                failed({ 'match.element': 'error' }),
+                failed({ 'match.element': 'aborted' }),
             ],
             [
                 'return error when condition mixes operator keys with leaf fields',

@@ -2,13 +2,13 @@
  * Values shared by the web detection evaluator modules.
  *
  * Three outcomes leave an expression other than a value:
- * - a `Failure` is a state of the page: a getter or method threw, a name called is not a function, or a
- *   value does not fit the config, such as a value of the wrong type or `only` over no items. It is
- *   returned, not thrown, so `fails` can test it and `none` cannot invert it. A value that doesn't fit is
- *   a failure even when the config alone shows it, such as a literal of the wrong type, which the config
- *   validator in privacy-configuration rejects.
+ * - a `Failure` is a state of the page: a getter or method threw, a name called is not a function, the
+ *   engine rejected a selector or XPath expression, or a value does not fit the config, such as a value
+ *   of the wrong type or `only` over no items. It is returned, not thrown, so `fails` can test it and
+ *   `none` cannot invert it. A value that doesn't fit is a failure even when the config alone shows it,
+ *   such as a literal of the wrong type, which the config validator in privacy-configuration rejects.
  * - a `DetectionError` is config that `compileDetector` should have rejected reaching evaluation. It is
- *   thrown, and ends the run with `'error'`, as an invalid selector or XPath expression does.
+ *   thrown, and ends the run with `'error'`, as any other throw from this code does.
  * - a `ConfigParseError` is config that does not fit the grammar. It is thrown at parse time.
  */
 

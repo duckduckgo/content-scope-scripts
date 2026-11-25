@@ -153,7 +153,7 @@ test.describe('DetectorPerf Feature', () => {
         expect(params.detectorData?.fraudDetection).toBeDefined();
     });
 
-    test('erroring and aborted webDetection runs emit failure telemetry and remain in breakage data', async ({ page }, testInfo) => {
+    test('failed webDetection runs emit failure telemetry and remain in breakage data', async ({ page }, testInfo) => {
         const collector = ResultsCollector.create(page, testInfo.project.use);
         collector.withMockResponse({ webDetectionAutoRun: null, webEvent: null, breakageReportResult: null });
         const config = buildConfig();
@@ -167,12 +167,6 @@ test.describe('DetectorPerf Feature', () => {
                 actions: { breakageReportData: {} },
             },
         };
-        config.features.webDetection.settings.detectors.abortTest = {
-            onlyOverNoItems: {
-                match: { only: { element: { selector: '.missing' } } },
-                actions: { breakageReportData: {} },
-            },
-        };
         await collector.load('/web-detection/index.html', config);
         await navigateTo(page, '/web-detection/pages/no-detection.html');
 
@@ -180,17 +174,11 @@ test.describe('DetectorPerf Feature', () => {
         const [reportCall] = await collector.waitForMessage('breakageReportResult');
         const params = /** @type {Record<string, any>} */ (reportCall.payload).params;
 
-        const events = await getDetectorPerfEvents(collector);
-        expect(events).toContain('detectorPerf_failureTest_failed');
-        expect(events).toContain('detectorPerf_abortTest_failed');
+        expect(await getDetectorPerfEvents(collector)).toContain('detectorPerf_failureTest_failed');
         const breakageData = JSON.parse(decodeURIComponent(String(params.breakageData)));
         expect(breakageData.webDetection).toContainEqual({
             detectorId: 'failureTest.invalidSelector',
-            errors: { 'match.element': 'error' },
-        });
-        expect(breakageData.webDetection).toContainEqual({
-            detectorId: 'abortTest.onlyOverNoItems',
-            errors: { 'match.only': 'aborted' },
+            errors: { 'match.element': 'aborted' },
         });
     });
 

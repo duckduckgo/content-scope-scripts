@@ -226,8 +226,8 @@ describe('WebDetection conditions', () => {
                 }
             });
 
-            it('should throw on an invalid expression, surfacing as a detector error', () => {
-                expect(() => matchInDOM('<p>adblocker</p>', text('adblocker', { xpath: '//[bad' }))).toThrow();
+            it('should fail on an invalid expression', () => {
+                expect(matchInDOM('<p>adblocker</p>', text('adblocker', { xpath: '//[bad' }))).toBe('aborted');
             });
 
             describe('chunked scanning', () => {

@@ -1,4 +1,4 @@
-import { ConfigParseError, getOrCreate, isFailure, isPlainObject, newMap, rejectUnknownKeys } from '../model/core.js';
+import { ConfigParseError, getOrCreate, isFailure, isPlainObject, newMap, rejectUnknownKeys, thrownFailure } from '../model/core.js';
 import { ItemBuffer } from '../model/lists.js';
 import { stringList } from './common.js';
 import { parseRoot, resolveRoots } from './roots.js';
@@ -40,8 +40,8 @@ const compiledXPaths = new WeakMap();
 /**
  * Compile an XPath expression, reusing a previously compiled one where possible.
  *
- * An invalid expression throws `SyntaxError` here rather than at evaluation time;
- * either way it propagates to the caller and is recorded as an `'error'` in the detector's breakage entry.
+ * An expression the engine rejects throws `SyntaxError` here rather than at evaluation time, and
+ * `textSegments` gives it as a failure.
  *
  * @param {string} expression
  * @returns {XPathExpression}
@@ -355,15 +355,30 @@ function* textSegments(bodies, ctx) {
             return;
         }
         for (const root of roots) {
-            for (const element of textElements(body, root)) {
+            // A selector or XPath expression the engine rejects throws, and fails the read
+            /** @type {Iterable<Element | ParentNode>} */
+            let elements;
+            try {
+                elements = textElements(body, root);
+            } catch (e) {
+                yield thrownFailure(e);
+                return;
+            }
+            for (const element of elements) {
                 const text = ctx.task.of(element, 'textContent', () => element.textContent || '');
                 pattern.lastIndex = 0;
                 yield { pattern, chunk: { text, end: Infinity, next: text.length } };
             }
             for (const expression of body.xpaths) {
-                // An invalid expression throws `SyntaxError` here, recorded as an `'error'` for the
-                // detector, as an invalid selector does from `querySelectorAll`
-                for (const chunk of xpathChunks(selectedText(expression, root, ctx), body.chunking)) {
+                /** @type {SelectedText} */
+                let selected;
+                try {
+                    selected = selectedText(expression, root, ctx);
+                } catch (e) {
+                    yield thrownFailure(e);
+                    return;
+                }
+                for (const chunk of xpathChunks(selected, body.chunking)) {
                     pattern.lastIndex = 0;
                     yield { pattern, chunk };
                 }

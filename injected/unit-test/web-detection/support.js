@@ -461,7 +461,7 @@ export const testGlobal = /** @type {Record<string, any>} */ (globalThis);
 export const aborting = { api: 'page.live.bad', is: { gt: 0 } };
 /** A string where a boolean or a number is expected, which fails */
 export const mistyped = { api: 'page.live.label' };
-/** An invalid selector, an error, for a detector run against a page */
+/** A selector the engine rejects, which fails */
 export const INVALID_SELECTOR = { element: { selector: '[' } };
 /** @type {Expr} */
 export const counter = {

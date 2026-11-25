@@ -1,5 +1,4 @@
 import {
-    INVALID_SELECTOR,
     REPORT,
     aborting,
     bindings,
@@ -11,11 +10,13 @@ import {
     fires,
     holds,
     mistyped,
-    run as runOnPage,
     throwing,
-    withPayload,
 } from './support.js';
 import { thrownMessage } from '../../src/features/web-detection/model/core.js';
+import { NativeReader } from '../../src/features/web-detection/evaluate/native-reader.js';
+
+/** Make every read throw past the reader, as a bug in this code would */
+const throwPastReader = () => spyOn(NativeReader.prototype, 'read').and.throwError('thrown past the reader');
 
 describe('WebDetection run', () => {
     describe('actions', () => {
@@ -93,10 +94,10 @@ describe('WebDetection run', () => {
         });
 
         it('records an erroring `match` under the path of the expression that erred', () => {
-            const result = runOnPage('<p></p>', { match: { if: INVALID_SELECTOR, then: true, else: false }, actions: REPORT });
-            expect(result.detected).toBe('error');
-            expect(result.failedAt).toBe('match.if.element');
-            expect(result.error).toBeDefined();
+            throwPastReader();
+            const run = detector({ match: { if: mistyped, then: true, else: false }, actions: REPORT }).run();
+            expectRun(run, { match: 'error', failedAt: 'match.if.api', done: false });
+            expect(run.error).toBe('thrown past the reader');
         });
 
         it('is done after a failing action once `match` has held, and not `detected` without `breakageReportData` running', () => {
@@ -298,8 +299,11 @@ describe('WebDetection run', () => {
         });
 
         it('records an error in a payload as `error` under the path of the expression that erred', () => {
-            const result = runOnPage('<p></p>', withPayload({ ...INVALID_SELECTOR, using: 'length' }));
-            expect(result.failure).toEqual({ path: 'actions.fireEvent.data.x.value.using', result: 'error' });
+            throwPastReader();
+            const run = detector({ actions: fires({ x: { value: { div: [1, mistyped] } } }) }).run();
+            const path = 'actions.fireEvent.data.x.value.div.1.api';
+            expectRun(run, { actions: { 'actions.fireEvent': 'error' }, failedAt: path });
+            expect(run.entry?.errors).toEqual({ [path]: 'error' });
         });
 
         it('carries on past an action whose failure a `fails` beside it handles', () => {
