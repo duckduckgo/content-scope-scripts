@@ -1,22 +1,35 @@
 /* Matches the Figma "Pick sites" frames. Favicons are a placeholder letter until the icon decision lands. */
 
-/* Colours the onboarding token set lacks or sets differently from the Figma frames */
+/*
+ * Colours from the Figma frames. The onboarding set in @duckduckgo/design-tokens v1.2.0 lacks some of the tokens
+ * Figma uses, or sets them differently, so each comment names the Figma token a local value stands in for.
+ * Swap a value for var(--ds-…) once the package ships it with Figma's value.
+ */
 .section {
+    /* Figma --ds-accent-alt-tertiary, missing from the package */
+    --picker-accent-alt-tertiary: #90c4ef;
+
     --picker-text-primary: var(--ds-text-primary);
     --picker-text-secondary: var(--ds-text-secondary);
+    /* Figma --ds-accent-alt-primary. The package sets it to #cbeaff, not Figma's #d6efff, and the package value is kept */
     --picker-hover-border: var(--ds-accent-alt-primary);
-    --picker-picked-border: #90c4ef;
+    --picker-picked-border: var(--picker-accent-alt-tertiary);
     --picker-icon-background: #fff;
-    --picker-plus-fill: #90c4ef;
+    --picker-plus-fill: var(--picker-accent-alt-tertiary);
     --picker-plus-glyph: #fff;
 
     :global(.theme-dark) & {
+        --picker-accent-alt-tertiary: rgba(161, 207, 247, 0.24);
+
+        /* Figma Text/Primary and Text/Secondary */
         --picker-text-primary: var(--color-white-at-84);
         --picker-text-secondary: var(--color-white-at-50);
-        --picker-hover-border: rgba(161, 208, 247, 0.16);
-        --picker-picked-border: rgba(161, 208, 247, 0.24);
+        /* Figma --ds-accent-alt-primary; the package's dark value is an opaque #034180 */
+        --picker-hover-border: rgba(161, 207, 247, 0.16);
+        /* Figma --ds-accent-alt-secondary-content-color, missing from the package */
         --picker-icon-background: #f5fbfe;
         --picker-plus-fill: var(--ds-accent-primary);
+        /* Figma --ds-icons-primary, missing from the package */
         --picker-plus-glyph: rgba(255, 255, 255, 0.78);
     }
 }

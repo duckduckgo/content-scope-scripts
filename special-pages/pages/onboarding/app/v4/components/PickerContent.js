@@ -1,6 +1,6 @@
 import { h } from 'preact';
 import cn from 'classnames';
-import { useRef, useState } from 'preact/hooks';
+import { useId, useRef, useState } from 'preact/hooks';
 import { useTypedTranslation } from '../../types';
 import { existingSiteIds } from '../data/existing-favorites';
 import { Button } from './Button';
@@ -27,6 +27,7 @@ const SECTIONS = ['email', 'popular'];
  */
 export function PickerContent({ step, addFavorites, advance }) {
     const { t } = useTypedTranslation();
+    const idPrefix = useId();
     const [pickedIds, setPickedIds] = useState(/** @type {string[]} */ ([]));
     // Set by Add or Skip. The step stays mounted through its exit fade, so every control is off from then on.
     const [done, setDone] = useState(false);
@@ -91,13 +92,14 @@ export function PickerContent({ step, addFavorites, advance }) {
                             <p class={styles.description}>{headers[section].description}</p>
                         </div>
                         <div class={cn(styles.sites, styles[section])}>
-                            {sectionSites.map((site) => {
+                            {sectionSites.map((site, index) => {
                                 const existing = existingIds.includes(site.id);
                                 const on = existing || pickedIds.includes(site.id);
                                 const description = siteDescriptions[site.id];
                                 // The description sits inside the switch, so name it by the title alone
-                                const titleId = `picker-${site.id}-title`;
-                                const descriptionId = `picker-${site.id}-description`;
+                                // Built from the position, as native can send any string as a site id
+                                const titleId = `${idPrefix}-${section}-${index}-title`;
+                                const descriptionId = `${idPrefix}-${section}-${index}-description`;
                                 return (
                                     <button
                                         key={site.id}
@@ -150,7 +152,8 @@ export function PickerContent({ step, addFavorites, advance }) {
     );
 }
 
-// Figma's badges: a disc in the badge colour, a white glyph and a 2px white ring. The colours come from CSS.
+// Figma's badges: a disc in the badge colour, a glyph and a 2px white ring. The colours come from CSS, and the
+// glyph is white except on the dark plus, where it's 78% white.
 
 function PlusBadge() {
     return (
