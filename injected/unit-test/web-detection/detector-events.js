@@ -1,5 +1,5 @@
 import WebDetection from '../../src/features/web-detection.js';
-import { bound, expectParseError, inTopFrame, instanceArgs } from './support.js';
+import { bound, expectParseError, inTopFrame, instanceArgs, REPORT } from './support.js';
 
 describe('The object operator', () => {
     it('gives an object with a field per key, in value position', () => {
@@ -210,5 +210,17 @@ describe('Detector events', () => {
             { actions: { define: { x: { observed: { detectorEvent: 'x', target: { api: 'window' }, keep: null } } } } },
             '`event` bodies only',
         );
+    });
+
+    it('take `whenPending` on an `on` body with a `delayMs`', () => {
+        const instance = create({
+            a: at10([{ emit: { name: 'ping', data: 1 } }, { emit: { name: 'ping', data: 2 } }]),
+            b: on('ping', fire('pinged', { trigger: { detectorEvent: 'ping' }, using: 'length' }), { delayMs: 50, whenPending: 'batch' }),
+        });
+        jasmine.clock().tick(60);
+        expect(sent(instance)).toEqual([{ type: 'pinged', data: { v: 2 } }]);
+        for (const body of [{ whenPending: 'skip' }, { delayMs: 0, whenPending: 'skip' }]) {
+            expectParseError(on('ping', REPORT, body), '`whenPending` is for detector event bodies with a `delayMs`');
+        }
     });
 });

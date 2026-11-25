@@ -555,6 +555,10 @@ function compileOn(triggers, scope) {
         if (sync && raw.whenPending !== undefined) {
             throw new ConfigParseError(`${bodyPath}.whenPending`, '`whenPending` is for bodies with no `sync`');
         }
+        // A detector event's run with no `delayMs` happens in the emitting task, so it's never pending
+        if (body.kind === 'detectorEvent' && delayMs === 0 && raw.whenPending !== undefined) {
+            throw new ConfigParseError(`${bodyPath}.whenPending`, '`whenPending` is for detector event bodies with a `delayMs`');
+        }
         const whenBusy = raw.whenBusy ?? 'queue';
         if (whenBusy !== 'queue' && whenBusy !== 'interrupt' && whenBusy !== 'skip') {
             throw new ConfigParseError(`${bodyPath}.whenBusy`, '`whenBusy` takes "queue", "interrupt" or "skip"');
