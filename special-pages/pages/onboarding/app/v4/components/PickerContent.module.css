@@ -2,11 +2,11 @@
 
 /*
  * Colours from the Figma frames. The onboarding set in @duckduckgo/design-tokens v1.2.0 lacks some of the tokens
- * Figma uses, or sets them differently, so each comment names the Figma token a local value stands in for.
- * Swap a value for var(--ds-…) once the package ships it with Figma's value.
+ * Figma uses, or sets them differently. Where a value departs from that set, its comment names the Figma token.
+ * Swap a local value for var(--ds-…) once the onboarding set ships it with Figma's value.
  */
 .section {
-    /* Figma --ds-accent-alt-tertiary, missing from the package */
+    /* Figma --ds-accent-alt-tertiary, missing from the onboarding set */
     --picker-accent-alt-tertiary: #90c4ef;
 
     --picker-text-primary: var(--ds-text-primary);
@@ -26,11 +26,11 @@
         --picker-text-secondary: var(--color-white-at-50);
         /* Figma --ds-accent-alt-primary; the package's dark value is an opaque #034180 */
         --picker-hover-border: rgba(161, 207, 247, 0.16);
-        /* Figma --ds-accent-alt-secondary-content-color, missing from the package */
+        /* Figma --ds-accent-alt-secondary-content-color, missing from the onboarding set */
         --picker-icon-background: #f5fbfe;
         --picker-plus-fill: var(--ds-accent-primary);
-        /* Figma --ds-icons-primary, missing from the package */
-        --picker-plus-glyph: rgba(255, 255, 255, 0.78);
+        /* Figma --ds-icons-primary, missing from the onboarding set but in the package's default theme */
+        --picker-plus-glyph: var(--ds-color-theme-default-dark-icons-primary);
     }
 }
 

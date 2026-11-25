@@ -152,8 +152,8 @@ export function PickerContent({ step, addFavorites, advance }) {
     );
 }
 
-// Figma's badges: a disc in the badge colour, a glyph and a 2px white ring. The colours come from CSS, and the
-// glyph is white except on the dark plus, where it's 78% white.
+// Figma's badges: a disc in the badge colour, a glyph and a 2px white ring. The disc and plus glyph colours come
+// from CSS; the ring and check glyph are always white. The plus glyph is white too, except in dark, where it's 78%.
 
 function PlusBadge() {
     return (
