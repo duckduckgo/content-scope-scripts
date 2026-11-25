@@ -694,8 +694,7 @@ export function* evaluateSteps(node, position, ctx) {
                 throw new DetectionError(`'${node.kind}' can't suspend`);
         }
         if (isFailure(result)) return result.at(node.path);
-        checkType(result, position);
-        return result;
+        return checkType(result, position)?.at(node.path) ?? result;
     } catch (e) {
         throw atPath(e, node.path, ctx);
     }

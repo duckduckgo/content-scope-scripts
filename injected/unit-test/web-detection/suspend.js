@@ -70,6 +70,40 @@ describe('Runs that suspend', () => {
         expect(sent).toEqual([{ type: 'no' }]);
     });
 
+    for (const [name, value] of /** @type {Array<[string, unknown]>} */ ([
+        ['an object', {}],
+        ['`undefined`', undefined],
+    ])) {
+        it(`fail at the source on ${name} resumed in an \`if\` condition`, () => {
+            const { steps, sent } = start({
+                if: { api: 'a' },
+                then: { fireEvent: { type: 'yes' } },
+                else: { fireEvent: { type: 'no' } },
+            });
+            steps.next();
+            const end = steps.next(value);
+            expect(end.value).toEqual(jasmine.objectContaining({ failedAt: 'actions.if.api', failure: 'aborted' }));
+            expect(sent).toEqual([]);
+        });
+    }
+
+    it('let `fails` catch a resumed value of the wrong type', () => {
+        const { steps, sent } = start({
+            if: { expr: { if: { api: 'a' }, then: true, else: false }, is: { fails: true } },
+            then: { fireEvent: { type: 'caught' } },
+        });
+        steps.next();
+        steps.next({});
+        expect(sent).toEqual([{ type: 'caught' }]);
+    });
+
+    it('test a resumed value with `is` without checking its type', () => {
+        const { steps, sent } = start({ if: { api: 'a', is: { type: 'object' } }, then: { fireEvent: { type: 'yes' } } });
+        steps.next();
+        steps.next({});
+        expect(sent).toEqual([{ type: 'yes' }]);
+    });
+
     it('suspend in an `if` branch only when it is taken', () => {
         const { steps, ctx } = start({ if: false, then: { define: { x: { api: 'a' } } }, else: { define: { x: 1 } } });
         expect(steps.next()).toEqual(jasmine.objectContaining({ done: true }));
