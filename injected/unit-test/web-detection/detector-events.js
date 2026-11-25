@@ -203,8 +203,18 @@ describe('Detector events', () => {
         expect(sent(instance)).toEqual([{ type: 'ran' }]);
     });
 
+    it('match a name by exact string, whatever its characters', () => {
+        const instance = create({
+            a: at10({ emit: { name: 'not a-name' } }),
+            b: on('not a-name', { fireEvent: { type: 'pinged' } }),
+        });
+        jasmine.clock().tick(10);
+        expect(sent(instance)).toEqual([{ type: 'pinged' }]);
+    });
+
     it('take a name', () => {
-        expectParseError({ actions: { emit: { name: '1bad' } } }, '`name` takes a name');
+        expectParseError({ actions: { emit: { name: 1 } } }, '`name` takes a string');
+        expectParseError({ actions: { emit: {} } }, '`name` takes a string');
         expectParseError({ actions: { emit: { name: 'ok', to: 'x' } } }, "unknown key 'to'");
         expectParseError(
             { actions: { define: { x: { observed: { detectorEvent: 'x', target: { api: 'window' }, keep: null } } } } },

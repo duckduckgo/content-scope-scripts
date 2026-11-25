@@ -277,7 +277,7 @@ function compileDone(raw, path, scope) {
 function compileEmit(raw, path, scope) {
     if (!isPlainObject(raw)) throw new ConfigParseError(path, '`emit` takes an object');
     rejectUnknownKeys(raw, ['name', 'data'], path);
-    if (typeof raw.name !== 'string' || !NAME_PATTERN.test(raw.name)) throw new ConfigParseError(`${path}.name`, '`name` takes a name');
+    if (typeof raw.name !== 'string') throw new ConfigParseError(`${path}.name`, '`name` takes a string');
     const data = raw.data === undefined ? undefined : compileExpr(raw.data, 'value', `${path}.data`, scope);
     return makeNode(scope, { kind: 'emit', name: raw.name, ...(data && { data }), path, position: 'value' });
 }
