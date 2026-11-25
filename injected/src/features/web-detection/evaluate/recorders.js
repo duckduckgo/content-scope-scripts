@@ -399,13 +399,14 @@ export class Recorders {
 
     /**
      * Observe an element's place in the viewport with the `IntersectionObserver` captured, with the
-     * viewport as root, giving each callback's entries. Gives the function that disconnects it, or
-     * `undefined` when the element can't be observed.
+     * viewport as root, giving each callback's entries. Gives the function that disconnects it, a
+     * `Failure` when observing throws, such as on a target that isn't an element, or `undefined` when
+     * the engine has no `IntersectionObserver`.
      *
      * @param {unknown} target
      * @param {Record<string, unknown>} options - the options of `IntersectionObserver`, `root` and `rootMargin` left out
      * @param {(entries: IntersectionObserverEntry[]) => void} onEntries
-     * @returns {(() => void) | undefined}
+     * @returns {(() => void) | Failure | undefined}
      */
     observeIntersection(target, options, onEntries) {
         const { IntersectionObserver: Observer, observeIntersection: observe, disconnectIntersection: disconnect } = this.#globals;
@@ -415,20 +416,20 @@ export class Recorders {
             const observer = new Observer((entries) => onEntries(entries), rest);
             ReflectApply(observe, observer, [target]);
             return () => ReflectApply(disconnect, observer, []);
-        } catch {
-            // A target that isn't an element, or options the engine rejects
-            return undefined;
+        } catch (e) {
+            return thrownFailure(e);
         }
     }
 
     /**
      * Observe an element's size with the `ResizeObserver` captured, giving each callback's entries.
-     * Gives the function that disconnects it, or `undefined` when the element can't be observed.
+     * Gives the function that disconnects it, a `Failure` when observing throws, such as on a target
+     * that isn't an element, or `undefined` when the engine has no `ResizeObserver`.
      *
      * @param {unknown} target
      * @param {Record<string, unknown>} options - the options of `ResizeObserver.observe()`
      * @param {(entries: ResizeObserverEntry[]) => void} onEntries
-     * @returns {(() => void) | undefined}
+     * @returns {(() => void) | Failure | undefined}
      */
     observeResize(target, options, onEntries) {
         const { ResizeObserver: Observer, observeResize: observe, disconnectResize: disconnect } = this.#globals;
@@ -437,9 +438,8 @@ export class Recorders {
             const observer = new Observer((entries) => onEntries(entries));
             ReflectApply(observe, observer, [target, options]);
             return () => ReflectApply(disconnect, observer, []);
-        } catch {
-            // A target that isn't an element, or options the engine rejects
-            return undefined;
+        } catch (e) {
+            return thrownFailure(e);
         }
     }
 

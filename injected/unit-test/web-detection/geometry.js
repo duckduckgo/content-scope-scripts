@@ -137,8 +137,20 @@ describe("Waits on an element's place and size", () => {
         expect(sent(instance)).toEqual([{ type: 'got', data: { v: 0 } }]);
     });
 
-    it("resume at `timeoutMs` when the element isn't an element", () => {
-        delete testGlobal.wdRegion;
+    for (const kind of ['intersection', 'resize']) {
+        it(`fail at \`target\` straight away when it isn't an element, for \`${kind}\``, () => {
+            delete testGlobal.wdRegion;
+            const instance = waiting({ [kind]: {} }, { ref: 'got' });
+            click();
+            expect(sent(instance)).toEqual([]);
+            expect(instance.getBreakageReportData()).toEqual([
+                { detectorId: 'g.d', errors: { 'actions.0.define.got.wait.target.api': 'aborted' } },
+            ]);
+        });
+    }
+
+    it('resume at `timeoutMs` with no item on an engine without the observer', () => {
+        testGlobal.ResizeObserver = undefined;
         const instance = waiting({ resize: {} }, { ref: 'got', is: { type: 'undefined' } });
         click();
         jasmine.clock().tick(1000);
