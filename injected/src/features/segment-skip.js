@@ -101,7 +101,7 @@ img { display: block; width: 16px; height: 16px; }
 :host(.undo) .undo-icon { display: block; }
 .collapsible { overflow: hidden; transition: max-width .32s cubic-bezier(.4, 0, .2, 1), opacity .18s ease; }
 /* Exit after a tap, phase 1: the logo and label fold away, so the button shrinks towards its right edge. */
-:host(.collapse) button { gap: 0; padding-left: 8px; padding-right: 8px; }
+:host(.collapse) button { gap: 0; padding-left: 12px; padding-right: 12px; }
 :host(.collapse) .collapsible { opacity: 0; }
 /* A light that runs once around the edge after the slide in: a turning conic gradient, masked to a 1px ring. A custom
    property can't animate the gradient's angle here, since @property is ignored in a shadow root. */
