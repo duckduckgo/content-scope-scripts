@@ -63,7 +63,6 @@ export class HistoryTestPage {
 
         searchParams.set('history', String(this.entries));
 
-        // eslint-disable-next-line no-undef
         if (process.env.PAGE) {
             await this.page.goto('/' + '?' + searchParams.toString());
         } else {

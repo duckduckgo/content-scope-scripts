@@ -147,7 +147,6 @@ export default class UaChBrands extends ContentFeature {
         if (proto.getHighEntropyValues) {
             // Need to capture feature instance in closure to access applyBrandMutationsToList
             // while preserving dynamic `this` (userAgentData) for DDGReflect.apply.
-            // eslint-disable-next-line @typescript-eslint/no-this-alias
             const featureInstance = this;
             this.wrapMethod(proto, 'getHighEntropyValues', async function (originalFn, ...args) {
                 const originalResult = await DDGReflect.apply(originalFn, this, args);

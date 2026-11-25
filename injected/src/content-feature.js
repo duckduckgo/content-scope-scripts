@@ -1,7 +1,6 @@
 import { processAttr } from './utils.js';
 import { PerformanceMonitor } from './performance.js';
 import { defineProperty, shimInterface, shimProperty, wrapMethod, wrapProperty, wrapToString } from './wrapper-utils.js';
-// eslint-disable-next-line no-redeclare
 import { Proxy, Reflect, consoleLog, consoleWarn, consoleError } from './captured-globals.js';
 import { Messaging, MessagingContext } from '../../messaging/index.js';
 import { extensionConstructMessagingConfig } from './sendmessage-transport.js';

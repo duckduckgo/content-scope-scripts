@@ -6,7 +6,6 @@
  * @module API manipulation
  */
 import ContentFeature from '../content-feature.js';
-// eslint-disable-next-line no-redeclare
 import { ReflectApply, getOwnPropertyDescriptor, hasOwnProperty, objectDefineProperty, objectKeys } from '../captured-globals.js';
 import { processAttr } from '../utils.js';
 import { mergePropertyDescriptors, wrapToString } from '../wrapper-utils.js';

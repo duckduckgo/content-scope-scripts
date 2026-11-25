@@ -5,7 +5,6 @@ import { useMessaging } from '../providers/MessagingProvider';
 import { useErrorData } from '../providers/SpecialErrorProvider';
 import { usePlatformName, useIsMobile } from '../providers/SettingsProvider';
 import { useWarningHeading, useWarningContent } from '../hooks/ErrorStrings';
-// eslint-disable-next-line no-redeclare -- shadows DOM global `Text` intentionally
 import { Text } from '../../../../shared/components/Text/Text';
 import { Button } from '../../../../shared/components/Button/Button';
 

@@ -5,7 +5,6 @@
 import ContentFeature from '../content-feature.js';
 import { getFaviconList } from './favicon.js';
 import { isDuckAi, isBeingFramed, getTabUrl } from '../utils.js';
-// eslint-disable-next-line no-redeclare
 import { JSONparse, Set, hasOwnProperty } from '../captured-globals.js';
 const MSG_PAGE_CONTEXT_RESPONSE = 'collectionResult';
 

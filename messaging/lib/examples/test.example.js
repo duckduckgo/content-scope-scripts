@@ -42,11 +42,7 @@ messaging.notify('helloWorld');
 /**
  * Or request some data
  */
-try {
-    console.log(await messaging.request('getData', { foo: 'bar' }));
-} catch (e) {
-    console.error(e);
-}
+messaging.request('getData', { foo: 'bar' }).then(console.log).catch(console.error);
 
 /**
  * Or subscribe for push messages

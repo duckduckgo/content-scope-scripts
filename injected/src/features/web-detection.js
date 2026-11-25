@@ -1,5 +1,4 @@
 import ContentFeature from '../content-feature.js';
-// eslint-disable-next-line no-redeclare
 import { hasOwnProperty } from '../captured-globals.js';
 import { timeDetector } from './detector-perf.js';
 import { compileDetectorConfig, parseDetectors } from './web-detection/compile/detector-config.js';

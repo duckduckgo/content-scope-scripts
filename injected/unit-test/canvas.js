@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-redeclare
 import ImageData from '@canvas/image-data';
 import { modifyPixelData } from '../src/canvas.js';
 

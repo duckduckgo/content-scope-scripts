@@ -157,7 +157,6 @@ export class HistoryService {
      */
     queryFetcher(query) {
         console.log(`🦻 [query] ${JSON.stringify(query.query)} offset: ${query.offset}, limit: ${query.limit} source: ${query.source}`);
-        // eslint-disable-next-line promise/prefer-await-to-then
         return this.history.messaging.request('query', query).then((resp) => {
             return { info: resp.info, results: resp.value, lastQueryParams: query };
         });

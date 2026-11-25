@@ -1,5 +1,4 @@
 import ContentFeature from '../content-feature.js';
-/* eslint-disable no-redeclare */
 import {
     Uint8Array,
     atob,
@@ -8,7 +7,6 @@ import {
     charCodeAt,
     randomUUID,
 } from '../captured-globals.js';
-/* eslint-enable no-redeclare */
 
 const MSG_INBOUND_PASSKEY_SELECTED = 'passkeySelected';
 const MSG_OUTBOUND_NAME = 'registerPasskeyRequest';
@@ -33,7 +31,6 @@ export default class AutofillPasskeys extends ContentFeature {
         }
 
         const credentialsSingleton = navigator.credentials;
-        // eslint-disable-next-line @typescript-eslint/no-this-alias
         const feature = this;
 
         this.wrapMethod(

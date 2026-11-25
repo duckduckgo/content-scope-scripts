@@ -45,7 +45,6 @@ class AnimationMocker {
         };
 
         // Use Object.defineProperty to override read-only performance.now in Node.js
-        // eslint-disable-next-line @typescript-eslint/no-this-alias
         const mocker = this;
         Object.defineProperty(performance, 'now', {
             writable: true,

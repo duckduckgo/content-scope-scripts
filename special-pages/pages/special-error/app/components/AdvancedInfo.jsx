@@ -1,7 +1,6 @@
 import { h } from 'preact';
 import { useRef } from 'preact/hooks';
 import { useTypedTranslation } from '../types';
-// eslint-disable-next-line no-redeclare -- shadows DOM global `Text` intentionally
 import { Text } from '../../../../shared/components/Text/Text';
 import { useMessaging } from '../providers/MessagingProvider';
 import { useAdvancedInfoHeading, useAdvancedInfoContent } from '../hooks/ErrorStrings';

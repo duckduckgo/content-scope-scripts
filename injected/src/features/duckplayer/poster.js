@@ -4,7 +4,6 @@
  * Painting a YouTube thumbnail as an element's background, given candidates that may not
  * resolve to a real image.
  */
-// eslint-disable-next-line no-redeclare
 import { URL } from '../../captured-globals.js';
 
 /** @typedef {{url: string, source: 'page' | 'ytimg'}} PosterCandidate */

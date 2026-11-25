@@ -12,7 +12,7 @@
 import { getOwnPropertyDescriptor, getPrototypeOf, isArray, objectKeys } from '../../../captured-globals.js';
 
 export class Failure {
-    // eslint-disable-next-line no-unused-vars, no-unused-private-class-members -- read via `#brand in value`
+    // eslint-disable-next-line no-unused-private-class-members -- read via `#brand in value`
     #brand = true;
 
     /**

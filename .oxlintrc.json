@@ -273,7 +273,7 @@
                 "allowKeywords": true
             }
         ],
-        "typescript/ban-ts-comment": "error",
+        "ddg/ban-ts-comment": "error",
         "typescript/no-duplicate-enum-values": "error",
         "typescript/no-empty-object-type": "error",
         "typescript/no-explicit-any": "error",
@@ -292,7 +292,8 @@
         "typescript/triple-slash-reference": "error",
         "typescript/await-thenable": "error",
         "no-object-constructor": "error",
-        "ddg/no-private-methods": "error"
+        "ddg/no-private-methods": "error",
+        "no-unreachable-loop": "error"
     },
     "overrides": [
         {
@@ -379,7 +380,8 @@
         },
         {
             "files": [
-                "special-pages/pages/*/src/index.js"
+                "special-pages/pages/*/src/index.js",
+                "messaging/lib/examples/*.js"
             ],
             "rules": {
                 "promise/prefer-await-to-then": "off"

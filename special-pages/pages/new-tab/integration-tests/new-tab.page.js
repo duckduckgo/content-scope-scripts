@@ -146,7 +146,6 @@ export class NewtabPage {
             }
         }
 
-        // eslint-disable-next-line no-undef
         if (process.env.PAGE) {
             await this.page.goto('/' + '?' + searchParams.toString());
         } else {

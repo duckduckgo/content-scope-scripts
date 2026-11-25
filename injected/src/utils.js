@@ -1,4 +1,3 @@
-/* eslint-disable no-redeclare, no-global-assign */
 import { Set } from './captured-globals.js';
 import { platformSupport, featureConfigDependencies } from './features.js';
 
@@ -479,7 +478,6 @@ export function getContextId(scope) {
     // @ts-expect-error - contextID is a global variable
     if (typeof contextID !== 'undefined') {
         // @ts-expect-error - contextID is a global variable
-        // eslint-disable-next-line no-undef
         return contextID;
     }
 }

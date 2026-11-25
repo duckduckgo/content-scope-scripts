@@ -4,7 +4,6 @@ import { useMessaging } from '../index';
 import { useTypedTranslation } from '../types';
 import { Button } from '../../../../shared/components/Button/Button';
 import { Card } from '../../../../shared/components/Card/Card';
-// eslint-disable-next-line no-redeclare
 import { Text } from '../../../../shared/components/Text/Text';
 import { usePlatformName } from '../settings.provider';
 import { ContentPlaceholder } from './ContentPlaceholder';
