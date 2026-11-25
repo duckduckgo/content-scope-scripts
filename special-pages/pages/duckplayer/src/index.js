@@ -177,7 +177,6 @@ const messaging = createSpecialPageMessaging({
 const duckplayerPage = new DuckplayerPage(messaging, import.meta.injectName);
 const telemetry = new Telemetry(messaging);
 
-// eslint-disable-next-line promise/prefer-await-to-then
 init(duckplayerPage, telemetry, baseEnvironment).catch((e) => {
     // messages.
     console.error(e);

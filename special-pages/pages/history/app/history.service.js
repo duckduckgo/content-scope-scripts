@@ -59,7 +59,7 @@ export class HistoryService {
         /**
          * Conduct a query
          */
-        this.internal.addEventListener(HistoryService.QUERY_EVENT, (/** @type {CustomEvent<HistoryQuery>} */ evt) => {
+        this.internal.addEventListener(HistoryService.QUERY_EVENT, async (/** @type {CustomEvent<HistoryQuery>} */ evt) => {
             const { detail } = evt;
 
             // reject duplicates (eg: already fetching the same query)
@@ -74,35 +74,32 @@ export class HistoryService {
             // store a snapshot of the ongoing query
             this.ongoing = JSON.parse(JSON.stringify(detail));
 
-            this.queryFetcher(detail)
-                // eslint-disable-next-line promise/prefer-await-to-then
-                .then((next) => {
-                    const old = this.data;
-                    if (old === null) throw new Error('unreachable - typescript this.query must always be there?');
+            try {
+                const next = await this.queryFetcher(detail);
+                const old = this.data;
+                if (old === null) throw new Error('unreachable - typescript this.query must always be there?');
 
-                    /**
-                     * First, reject overlapping promises
-                     */
-                    const resolvedPromiseIsStale = this.index !== index;
-                    if (resolvedPromiseIsStale) return console.log('❌ rejected stale result');
+                /**
+                 * First, reject overlapping promises
+                 */
+                const resolvedPromiseIsStale = this.index !== index;
+                if (resolvedPromiseIsStale) return console.log('❌ rejected stale result');
 
-                    /**
-                     * concatenate results if this was a 'fetch more' request, or overwrite
-                     */
-                    let valueToPublish;
-                    if (queryEq(old.info.query, next.info.query) && next.lastQueryParams?.offset > 0) {
-                        const results = old.results.concat(next.results);
-                        valueToPublish = { info: next.info, results, lastQueryParams: next.lastQueryParams };
-                    } else {
-                        valueToPublish = next;
-                    }
+                /**
+                 * concatenate results if this was a 'fetch more' request, or overwrite
+                 */
+                let valueToPublish;
+                if (queryEq(old.info.query, next.info.query) && next.lastQueryParams?.offset > 0) {
+                    const results = old.results.concat(next.results);
+                    valueToPublish = { info: next.info, results, lastQueryParams: next.lastQueryParams };
+                } else {
+                    valueToPublish = next;
+                }
 
-                    this.accept(valueToPublish);
-                })
-                // eslint-disable-next-line promise/prefer-await-to-then
-                .catch((e) => {
-                    console.error(e, detail);
-                });
+                this.accept(valueToPublish);
+            } catch (e) {
+                console.error(e, detail);
+            }
         });
 
         /**

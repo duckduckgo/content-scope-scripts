@@ -379,6 +379,14 @@
         },
         {
             "files": [
+                "special-pages/pages/*/src/index.js"
+            ],
+            "rules": {
+                "promise/prefer-await-to-then": "off"
+            }
+        },
+        {
+            "files": [
                 "**/scripts/*.js"
             ],
             "env": {

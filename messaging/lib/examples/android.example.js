@@ -36,8 +36,11 @@ messaging.notify('helloWorld');
 /**
  * Or request some data
  */
-// eslint-disable-next-line promise/prefer-await-to-then
-messaging.request('getData', { foo: 'bar' }).then(console.log).catch(console.error);
+try {
+    console.log(await messaging.request('getData', { foo: 'bar' }));
+} catch (e) {
+    console.error(e);
+}
 
 /**
  * Or subscribe for push messages

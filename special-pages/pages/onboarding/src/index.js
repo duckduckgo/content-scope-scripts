@@ -255,7 +255,6 @@ window.addEventListener('unhandledrejection', (event) => {
     onboarding.reportInitException({ message: `[unhandledrejection] ${message}` });
 });
 
-// eslint-disable-next-line promise/prefer-await-to-then
 init(onboarding, baseEnvironment).catch((e) => {
     console.error(e);
     const msg = typeof e?.message === 'string' ? e.message : 'unknown init error';

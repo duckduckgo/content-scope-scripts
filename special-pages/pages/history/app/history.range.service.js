@@ -23,21 +23,19 @@ export class HistoryRangeService {
     constructor(history) {
         this.history = history;
 
-        this.internal.addEventListener(HistoryRangeService.REFRESH_EVENT, () => {
+        this.internal.addEventListener(HistoryRangeService.REFRESH_EVENT, async () => {
             // increment the counter
             this.index++;
             // and, store a local index, we can check it when the promise resolves
             const index = this.index;
 
-            // eslint-disable-next-line promise/prefer-await-to-then
-            this.fetcher().then((next) => {
-                /**
-                 * First, reject overlapping promises
-                 */
-                const resolvedPromiseIsStale = this.index !== index;
-                if (resolvedPromiseIsStale) return console.log('❌ rejected stale result');
-                this.accept(next);
-            });
+            const next = await this.fetcher();
+            /**
+             * First, reject overlapping promises
+             */
+            const resolvedPromiseIsStale = this.index !== index;
+            if (resolvedPromiseIsStale) return console.log('❌ rejected stale result');
+            this.accept(next);
         });
     }
 
