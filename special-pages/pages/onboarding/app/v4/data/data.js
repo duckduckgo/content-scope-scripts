@@ -128,12 +128,13 @@ export const stepsConfig = {
         const step = /** @type {import('../../types').PickerStep} */ (globalState.step);
         return {
             topBubble: {
-                content: <StepHeader title={t('picker_title')} onTitleComplete={onTitleComplete} />,
+                content: <StepHeader title={t('picker_title')} subtitle={t('picker_subtitle')} onTitleComplete={onTitleComplete} />,
             },
             bottomBubble: {
                 content: <PickerContent step={step} addFavorites={addFavorites} advance={enqueueNext} />,
             },
             showProgress: true,
+            bubbleWidth: 'picker',
         };
     },
     addressBarMode: ({ t, globalState, enqueueNext, dismiss, onTitleComplete, updateSystemValue }) => {

@@ -574,23 +574,59 @@
     "note": "Windows onboarding checkbox for opening the browser at Windows sign-in."
   },
   "picker_title": {
-    "title": "Add your favorite sites",
-    "note": "Placeholder until final copy. Title of the onboarding step where the user picks popular sites to add to their favorites."
+    "title": "Want to add some popular sites to your favorites?",
+    "note": "Title of the onboarding step where the user picks popular sites to add to their favorites."
   },
   "picker_section_email": {
-    "title": "Email",
-    "note": "Placeholder until final copy. Heading above the email provider options on the favorites picker step. The user can pick several."
+    "title": "Add your email",
+    "note": "Heading above the email provider options on the favorites picker step. The user can pick several."
+  },
+  "picker_section_email_description": {
+    "title": "DuckDuckGo blocks trackers on websites you visit from your emails.",
+    "note": "Line under the email heading on the favorites picker step."
   },
   "picker_section_popular": {
-    "title": "Popular sites",
-    "note": "Placeholder until final copy. Heading above the popular site options on the favorites picker step."
+    "title": "Add popular sites",
+    "note": "Heading above the popular site options on the favorites picker step."
+  },
+  "picker_section_popular_description": {
+    "title": "Here’s how DuckDuckGo helps you on each site.",
+    "note": "Line under the popular sites heading on the favorites picker step. Each site's card then says what DuckDuckGo does on that site."
+  },
+  "picker_site_youtube": {
+    "title": "Free video ad blocking comes built into DuckDuckGo.",
+    "note": "Line on the YouTube card of the favorites picker step."
+  },
+  "picker_site_reddit": {
+    "title": "Block trackers on sites you open from Reddit.",
+    "note": "Line on the Reddit card of the favorites picker step."
+  },
+  "picker_site_amazon": {
+    "title": "Limit what Amazon learns about you elsewhere.",
+    "note": "Line on the Amazon card of the favorites picker step."
+  },
+  "picker_site_facebook": {
+    "title": "See fewer targeted ads in your feed.",
+    "note": "Line on the Facebook card of the favorites picker step."
+  },
+  "picker_site_bbcNews": {
+    "title": "No cookie pop-ups getting in the way of your news.",
+    "note": "Line on the BBC News card of the favorites picker step."
+  },
+  "picker_site_netflix": {
+    "title": "Netflix works just like it does in other browsers.",
+    "note": "Line on the Netflix card of the favorites picker step."
   },
   "picker_add": {
-    "title": "Add to favorites",
+    "title": "Add to Favorites",
     "note": "Button on the favorites picker step that adds the picked sites to the user's favorites and moves on."
   },
   "picker_skip": {
     "title": "Skip",
     "note": "Button on the favorites picker step that moves on without adding any favorites."
+  },
+  "picker_subtitle": {
+    "title": "I’ll keep them a click away on your home screen.",
+    "note": "Line under the title of the favorites picker step. The favorites show on the New Tab page."
   }
 }

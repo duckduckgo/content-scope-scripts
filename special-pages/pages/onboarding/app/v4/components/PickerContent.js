@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import cn from 'classnames';
 import { useRef, useState } from 'preact/hooks';
 import { useTypedTranslation } from '../../types';
 import { existingSiteIds } from '../data/existing-favorites';
@@ -62,9 +63,20 @@ export function PickerContent({ step, addFavorites, advance }) {
         advance();
     };
 
-    const headings = {
-        email: t('picker_section_email'),
-        popular: t('picker_section_popular'),
+    const headers = {
+        email: { heading: t('picker_section_email'), description: t('picker_section_email_description') },
+        popular: { heading: t('picker_section_popular'), description: t('picker_section_popular_description') },
+    };
+
+    // Only popular sites carry a line of copy. A site without one, like Wikipedia for now, shows its name alone.
+    /** @type {Record<string, string>} */
+    const siteDescriptions = {
+        youtube: t('picker_site_youtube'),
+        reddit: t('picker_site_reddit'),
+        amazon: t('picker_site_amazon'),
+        facebook: t('picker_site_facebook'),
+        bbcNews: t('picker_site_bbcNews'),
+        netflix: t('picker_site_netflix'),
     };
 
     return (
@@ -74,11 +86,15 @@ export function PickerContent({ step, addFavorites, advance }) {
                 if (sectionSites.length === 0) return null;
                 return (
                     <div key={section} class={styles.section}>
-                        <h3 class={styles.heading}>{headings[section]}</h3>
-                        <div class={styles.sites}>
+                        <div class={styles.header}>
+                            <h3 class={styles.heading}>{headers[section].heading}</h3>
+                            <p class={styles.description}>{headers[section].description}</p>
+                        </div>
+                        <div class={styles.sites} data-section={section}>
                             {sectionSites.map((site) => {
                                 const existing = existingIds.includes(site.id);
                                 const on = existing || pickedIds.includes(site.id);
+                                const description = siteDescriptions[site.id];
                                 return (
                                     <button
                                         key={site.id}
@@ -90,7 +106,46 @@ export function PickerContent({ step, addFavorites, advance }) {
                                         disabled={done || existing}
                                         onClick={() => toggle(site)}
                                     >
-                                        {site.title}
+                                        {/* Placeholder until the favicon decision lands */}
+                                        <span class={styles.icon} aria-hidden="true">
+                                            {site.title.charAt(0)}
+                                            <span class={cn(styles.badge, styles.plus)}>
+                                                <img
+                                                    class={styles.light}
+                                                    src="assets/img/v4/icons/picker-plus.svg"
+                                                    width="20.6667"
+                                                    height="20.6667"
+                                                    alt=""
+                                                />
+                                                <img
+                                                    class={styles.dark}
+                                                    src="assets/img/v4/icons/picker-plus-dark.svg"
+                                                    width="20.6667"
+                                                    height="20.6667"
+                                                    alt=""
+                                                />
+                                            </span>
+                                            <span class={cn(styles.badge, styles.check)}>
+                                                <img
+                                                    class={styles.light}
+                                                    src="assets/img/v4/icons/picker-check.svg"
+                                                    width="24"
+                                                    height="24"
+                                                    alt=""
+                                                />
+                                                <img
+                                                    class={styles.dark}
+                                                    src="assets/img/v4/icons/picker-check-dark.svg"
+                                                    width="24"
+                                                    height="24"
+                                                    alt=""
+                                                />
+                                            </span>
+                                        </span>
+                                        <span class={styles.text}>
+                                            <span class={styles.title}>{site.title}</span>
+                                            {description && <span class={styles.siteDescription}>{description}</span>}
+                                        </span>
                                     </button>
                                 );
                             })}

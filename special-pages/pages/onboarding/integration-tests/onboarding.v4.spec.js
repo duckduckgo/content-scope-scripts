@@ -483,7 +483,7 @@ test.describe('onboarding v4', () => {
             await onboarding.goToPicker();
             await page.getByRole('switch', { name: 'YouTube' }).click();
             await page.getByRole('switch', { name: 'Gmail' }).click();
-            await page.getByRole('button', { name: 'Add to favorites' }).click();
+            await page.getByRole('button', { name: 'Add to Favorites' }).click();
 
             await page.getByRole('heading', { name: 'Want easy access to private AI Chat?' }).waitFor({ timeout: 1000 });
             // in list order, not click order
@@ -494,7 +494,7 @@ test.describe('onboarding v4', () => {
         test('The primary button comes first on Windows and last on macOS', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             await onboarding.goToPicker();
-            const add = await page.getByRole('button', { name: 'Add to favorites' }).boundingBox();
+            const add = await page.getByRole('button', { name: 'Add to Favorites' }).boundingBox();
             const skip = await page.getByRole('button', { name: 'Skip' }).boundingBox();
             if (!add || !skip) throw new Error('picker buttons not rendered');
             if (workerInfo.project.name === 'windows') {
@@ -507,11 +507,11 @@ test.describe('onboarding v4', () => {
         test('Add is disabled until a site is toggled', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             await onboarding.goToPicker();
-            await expect(page.getByRole('button', { name: 'Add to favorites' })).toBeDisabled();
+            await expect(page.getByRole('button', { name: 'Add to Favorites' })).toBeDisabled();
             await page.getByRole('switch', { name: 'YouTube' }).click();
-            await expect(page.getByRole('button', { name: 'Add to favorites' })).toBeEnabled();
+            await expect(page.getByRole('button', { name: 'Add to Favorites' })).toBeEnabled();
             await page.getByRole('switch', { name: 'YouTube' }).click();
-            await expect(page.getByRole('button', { name: 'Add to favorites' })).toBeDisabled();
+            await expect(page.getByRole('button', { name: 'Add to Favorites' })).toBeDisabled();
         });
 
         test('Several email providers can be picked, next to a locked one', async ({ page }, workerInfo) => {
@@ -523,7 +523,7 @@ test.describe('onboarding v4', () => {
             for (const name of ['Gmail', 'Outlook', 'Yahoo Mail']) {
                 await expect(page.getByRole('switch', { name })).toHaveAttribute('aria-checked', 'true');
             }
-            await page.getByRole('button', { name: 'Add to favorites' }).click();
+            await page.getByRole('button', { name: 'Add to Favorites' }).click();
 
             await onboarding.didAddFavorites([gmail, outlook]);
         });
@@ -532,7 +532,7 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             await onboarding.goToPicker();
             await page.getByRole('switch', { name: 'YouTube' }).click();
-            await page.getByRole('button', { name: 'Add to favorites' }).dblclick();
+            await page.getByRole('button', { name: 'Add to Favorites' }).dblclick();
 
             await page.getByRole('heading', { name: 'Want easy access to private AI Chat?' }).waitFor({ timeout: 1000 });
             await onboarding.didAddFavorites([youtube]);
@@ -547,7 +547,7 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             await onboarding.goToPicker({ reducedMotion: false });
             await page.getByRole('switch', { name: 'YouTube' }).click();
-            const add = page.getByRole('button', { name: 'Add to favorites' });
+            const add = page.getByRole('button', { name: 'Add to Favorites' });
             await add.click();
             // the step is still mounted while it fades out, so every control must already be off
             await expect(add).toBeDisabled();
@@ -563,7 +563,7 @@ test.describe('onboarding v4', () => {
             await onboarding.goToPicker({ reducedMotion: false });
             await page.getByRole('switch', { name: 'YouTube' }).click();
             await page.getByRole('button', { name: 'Skip' }).click();
-            await expect(page.getByRole('button', { name: 'Add to favorites' })).toBeDisabled();
+            await expect(page.getByRole('button', { name: 'Add to Favorites' })).toBeDisabled();
 
             await page.getByRole('heading', { name: 'Want easy access to private AI Chat?' }).waitFor({ timeout: 2000 });
             await onboarding.didNotAddFavorites();
@@ -613,7 +613,7 @@ test.describe('onboarding v4', () => {
                 await expect(page.getByRole('switch', { name })).toBeEnabled();
             }
             // an existing favorite alone is not a pick
-            await expect(page.getByRole('button', { name: 'Add to favorites' })).toBeDisabled();
+            await expect(page.getByRole('button', { name: 'Add to Favorites' })).toBeDisabled();
         });
 
         test('Add leaves existing favorites out of addFavorites', async ({ page }, workerInfo) => {
@@ -621,7 +621,7 @@ test.describe('onboarding v4', () => {
             await onboarding.goToPicker();
             await onboarding.pushConfigUpdate({ stepDefinitions: { picker: { existingFavorites: ['https://www.youtube.com'] } } });
             await page.getByRole('switch', { name: 'Wikipedia' }).click();
-            await page.getByRole('button', { name: 'Add to favorites' }).click();
+            await page.getByRole('button', { name: 'Add to Favorites' }).click();
 
             await onboarding.didAddFavorites([wikipedia]);
         });
@@ -634,7 +634,7 @@ test.describe('onboarding v4', () => {
             await onboarding.pushConfigUpdate({ stepDefinitions: { picker: { existingFavorites: ['https://www.youtube.com'] } } });
             await expect(page.getByRole('switch', { name: 'YouTube' })).toBeDisabled();
             await expect(page.getByRole('switch', { name: 'YouTube' })).toHaveAttribute('aria-checked', 'true');
-            await page.getByRole('button', { name: 'Add to favorites' }).click();
+            await page.getByRole('button', { name: 'Add to Favorites' }).click();
 
             await onboarding.didAddFavorites([gmail]);
         });
@@ -643,7 +643,7 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             await onboarding.goToPicker({ init: { region: 'GB' } });
             await page.getByRole('switch', { name: 'Amazon' }).click();
-            await page.getByRole('button', { name: 'Add to favorites' }).click();
+            await page.getByRole('button', { name: 'Add to Favorites' }).click();
 
             await onboarding.didAddFavorites([{ id: 'amazon', url: 'https://www.amazon.co.uk' }]);
         });
@@ -652,7 +652,7 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             await onboarding.goToPicker();
             await page.getByRole('switch', { name: 'Amazon' }).click();
-            await page.getByRole('button', { name: 'Add to favorites' }).click();
+            await page.getByRole('button', { name: 'Add to Favorites' }).click();
 
             await onboarding.didAddFavorites([{ id: 'amazon', url: 'https://www.amazon.com' }]);
         });
@@ -662,7 +662,7 @@ test.describe('onboarding v4', () => {
             const amazon = { id: 'amazon', url: 'https://www.amazon.com', title: 'Amazon', section: 'popular' };
             await onboarding.goToPicker({ init: { region: 'GB', stepDefinitions: { picker: { sites: [amazon] } } } });
             await page.getByRole('switch', { name: 'Amazon' }).click();
-            await page.getByRole('button', { name: 'Add to favorites' }).click();
+            await page.getByRole('button', { name: 'Add to Favorites' }).click();
 
             await onboarding.didAddFavorites([{ id: 'amazon', url: 'https://www.amazon.com' }]);
         });

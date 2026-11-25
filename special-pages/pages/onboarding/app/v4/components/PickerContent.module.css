@@ -1,45 +1,187 @@
-/* Plain layout for the PoC. The Figma styling replaces this. */
+/* Matches the Figma "Pick sites" frames. Favicons are a placeholder letter until the icon decision lands. */
+
+/* Colours the onboarding token set lacks or sets differently from the Figma frames */
 .section {
+    --picker-text-primary: var(--ds-text-primary);
+    --picker-text-secondary: var(--ds-text-secondary);
+    --picker-hover-border: var(--ds-accent-alt-primary);
+    --picker-picked-border: #90c4ef;
+    --picker-icon-background: #fff;
+
+    :global(.theme-dark) & {
+        --picker-text-primary: rgba(255, 255, 255, 0.84);
+        --picker-text-secondary: rgba(255, 255, 255, 0.5);
+        --picker-hover-border: rgba(161, 207, 247, 0.16);
+        --picker-picked-border: rgba(161, 207, 247, 0.24);
+        --picker-icon-background: #f5fbfe;
+    }
+}
+
+.section {
+    align-self: stretch;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: var(--sp-6); /* 24px */
+}
+
+.header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2); /* 8px: Figma's 16px gap is between trimmed text boxes */
 }
 
 .heading {
     margin: 0;
-    font-size: 13px;
-    font-weight: 600;
+    color: var(--picker-text-primary);
+    font-size: calc(15 * var(--px-in-rem));
+    font-weight: 700;
+    line-height: calc(18 * var(--px-in-rem));
+}
+
+.description {
+    margin: 0;
+    color: var(--picker-text-secondary);
+    font-size: calc(14 * var(--px-in-rem));
+    line-height: calc(17 * var(--px-in-rem));
 }
 
 .sites {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--sp-2); /* 8px */
+    align-items: start;
+
+    &[data-section='email'] {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
 }
 
 .site {
-    padding: 8px 12px;
-    border: 1px solid var(--color-black-at-18, rgba(0, 0, 0, 0.18));
-    border-radius: 8px;
-    background: transparent;
-    color: inherit;
-    font: inherit;
+
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--sp-4); /* 16px */
+    padding: var(--sp-4); /* 16px */
+    border: none;
+    border-radius: 24px;
+    background: var(--ds-accent-alt-glow-primary);
+    color: var(--picker-text-primary);
+    font-family: var(--font-product);
+    text-align: left;
     cursor: pointer;
+
+    [data-section='email'] > & {
+        gap: var(--sp-3); /* 12px */
+    }
+
+    /* Inset ring, so the border never shifts the layout */
+    &:hover:not(:disabled) {
+        box-shadow: inset 0 0 0 2px var(--picker-hover-border);
+    }
+
+    &[data-on='true'] {
+        box-shadow: inset 0 0 0 2px var(--picker-picked-border);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--ds-accent-primary);
+        outline-offset: 2px;
+    }
+
+    &:disabled {
+        cursor: default;
+    }
 }
 
-.site:disabled {
-    cursor: default;
+.icon {
+    position: relative;
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--picker-icon-background);
+    color: rgba(0, 0, 0, 0.84);
+    font-size: calc(20 * var(--px-in-rem));
+    font-weight: 700;
+
+    [data-section='email'] & {
+        width: 48px;
+        height: 48px;
+    }
 }
 
-.site[data-on='true'] {
-    border-color: var(--color-blue-50, #3969ef);
-    outline: 1px solid var(--color-blue-50, #3969ef);
+/* Both badges sit centred on the same point near the icon's top right */
+.badge {
+    position: absolute;
+    display: none;
+}
+
+.check {
+    top: -8px;
+    left: 30px;
+
+    .site[data-on='true'] & {
+        display: block;
+    }
+}
+
+.plus {
+    top: -6.33px;
+    left: 31.67px;
+
+    .site:hover:not(:disabled):not([data-on='true']) & {
+        display: block;
+    }
+}
+
+/* Each badge has a light and a dark image, as the Figma frames use different blues */
+.light {
+    display: block;
+}
+
+.dark {
+    display: none;
+}
+
+:global(.theme-dark) {
+    .light {
+        display: none;
+    }
+
+    .dark {
+        display: block;
+    }
+}
+
+.text {
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    gap: var(--sp-1); /* 4px: Figma's 12px gap is between trimmed text boxes */
+    min-width: 0;
+}
+
+.title {
+    font-size: calc(14 * var(--px-in-rem));
+    font-weight: 700;
+    line-height: calc(18 * var(--px-in-rem));
+}
+
+.siteDescription {
+    color: var(--picker-text-secondary);
+    font-size: calc(12 * var(--px-in-rem));
+    line-height: calc(17 * var(--px-in-rem));
 }
 
 .actions {
+    align-self: stretch;
     display: flex;
     justify-content: flex-end;
-    gap: 8px;
+    gap: var(--sp-2); /* 8px */
 
     /* Windows puts the primary button first, as the other steps do */
     [data-platform-name='windows'] & > *:last-child {
