@@ -86,6 +86,12 @@ describe('WebDetection run', () => {
             expectRun(detector({ match: handled, actions: REPORT }).run(), { match: true, done: true });
         });
 
+        it('records a value of the wrong type under `any`, `all` or `none` at the operand that gave it', () => {
+            expect(detector({ match: { any: [false, mistyped] }, actions: REPORT }).run().failedAt).toBe('match.any.1.api');
+            expect(detector({ match: { all: [true, mistyped] }, actions: REPORT }).run().failedAt).toBe('match.all.1.api');
+            expect(detector({ match: { none: [false, mistyped] }, actions: REPORT }).run().failedAt).toBe('match.none.1.api');
+        });
+
         it('records an erroring `match` under the path of the expression that erred', () => {
             const result = runOnPage('<p></p>', { match: { if: INVALID_SELECTOR, then: true, else: false }, actions: REPORT });
             expect(result.detected).toBe('error');
