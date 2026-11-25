@@ -63,6 +63,7 @@ export class AgentOverlay extends Overlay {
         if (label) this.setCursorLabel(label);
         this.cursor.style.setProperty('--move-ms', `${durationMs}ms`);
         this.cursorTarget = { element, dx, dy };
+        if (!isInViewport(element)) element.scrollIntoView({ block: 'center', inline: 'nearest' });
         if (this.cursor.classList.contains('hidden')) {
             // A hidden cursor doesn't transition left and top, so moving it before showing it makes it
             // appear at the destination rather than slide in from wherever it was last.
@@ -168,6 +169,14 @@ export class AgentOverlay extends Overlay {
             this.typed.hidden = true;
         }
     }
+}
+
+/**
+ * @param {Element} element
+ */
+function isInViewport(element) {
+    const rect = element.getBoundingClientRect();
+    return rect.top >= 0 && rect.left >= 0 && rect.bottom <= window.innerHeight && rect.right <= window.innerWidth;
 }
 
 /**
