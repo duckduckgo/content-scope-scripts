@@ -1,4 +1,4 @@
-import { JSONparse, JSONstringify } from '../../../captured-globals.js';
+import { JSONparse, JSONstringify, objectDefineProperty } from '../../../captured-globals.js';
 import {
     DetectionError,
     decides,
@@ -16,7 +16,7 @@ import { testPredicate } from '../predicates/predicates.js';
 
 /**
  * @import { Failure } from '../model/core.js'
- * @import { ActionNode, ArithmeticNode, BreakageReportDataNode, CompiledPayloadField, DefineNode, FireEventNode, IfNode, ItemBinder, LengthNode, LogicNode } from '../model/types.js'
+ * @import { ActionNode, ArithmeticNode, BreakageReportDataNode, CompiledPayloadField, DefineNode, EmitNode, FireEventNode, IfNode, ItemBinder, LengthNode, LogicNode, ObjectNode } from '../model/types.js'
  * @import { Node, OnlyNode, PayloadData, Position, SequenceNode, SourceNode, UsingNode } from '../model/types.js'
  * @import { CompiledPredicate } from '../predicates/predicates.js'
  * @import { EvaluationContext } from './context.js'
@@ -127,7 +127,11 @@ export function evaluate(node, position, ctx) {
             case 'fireEvent':
             case 'breakageReportData':
             case 'done':
+            case 'emit':
                 result = runAction(node, ctx);
+                break;
+            case 'object':
+                result = computeObject(node, ctx);
                 break;
         }
         if (isFailure(result)) return result.at(node.path);
@@ -389,7 +393,45 @@ function runAction(node, ctx) {
 function applyAction(node, ctx) {
     if (node.kind === 'define') return applyDefine(node, evaluate(node.value, node.value.position, ctx), ctx);
     if (node.kind === 'done') return applyDone(evaluateOccurrence(node.value, ctx), ctx);
+    if (node.kind === 'emit') return applyEmit(node, node.data && evaluate(node.data, node.data.position, ctx), ctx);
     return applySend(node, node.data && evaluatePayload(node.data, ctx), ctx);
+}
+
+/**
+ * Record a detector event with its `data`, as evaluated: an element stays an element, and a list is
+ * an array of its items.
+ *
+ * @param {EmitNode} node
+ * @param {unknown} value - the `data` value, or a `Failure`
+ * @param {EvaluationContext} ctx
+ * @returns {Failure | undefined}
+ */
+function applyEmit(node, value, ctx) {
+    const data = isItemBuffer(value) ? allItems(value) : value;
+    if (isFailure(data)) return node.data ? data.at(node.data.path) : data;
+    ctx.sink.emit(node.name, data);
+    return undefined;
+}
+
+/**
+ * `object`: a field per key, defined on the object so `__proto__` is a field like any other, with the
+ * values computed in the order config lists the keys. A failed value fails the object, and a list is
+ * an array of its items.
+ *
+ * @param {ObjectNode} node
+ * @param {EvaluationContext} ctx
+ * @returns {object | Failure}
+ */
+function computeObject(node, ctx) {
+    /** @type {Record<string, unknown>} */
+    const object = {};
+    for (const { key, value: field } of node.fields) {
+        const read = evaluate(field, field.position, ctx);
+        const value = isItemBuffer(read) ? allItems(read) : read;
+        if (isFailure(value)) return value;
+        objectDefineProperty(object, key, { value, enumerable: true, writable: true, configurable: true });
+    }
+    return object;
 }
 
 /**
@@ -687,6 +729,7 @@ export function* evaluateSteps(node, position, ctx) {
             case 'fireEvent':
             case 'breakageReportData':
             case 'done':
+            case 'emit':
                 result = yield* actionSteps(node, ctx);
                 break;
             default:
@@ -737,6 +780,8 @@ function* actionSteps(node, ctx) {
         let failure;
         if (node.kind === 'define') failure = applyDefine(node, yield* evaluateSteps(node.value, node.value.position, ctx), ctx);
         else if (node.kind === 'done') failure = applyDone(yield* occurrenceSteps(node.value, ctx), ctx);
+        else if (node.kind === 'emit')
+            failure = applyEmit(node, node.data && (yield* evaluateSteps(node.data, node.data.position, ctx)), ctx);
         else failure = applySend(node, node.data && (yield* payloadSteps(node.data, ctx)), ctx);
         ctx.outcomes[node.path] = failure ? 'aborted' : 'ran';
         return failure;

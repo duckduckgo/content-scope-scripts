@@ -108,7 +108,7 @@ describe('Recorded types in detectors', () => {
     const errors = [
         ['`observed` without `keep`', { observed: { event: 'click' } }, 'needs `keep`'],
         ['an empty `keep`', { observed: { event: 'click', keep: {} } }, '`count`, `withinMs` or both'],
-        ['two types', { observed: { event: 'click', entryType: 'event', keep: null } }, 'one of `entryType` and `event`'],
+        ['two types', { observed: { event: 'click', entryType: 'event', keep: null } }, 'a body names one of'],
         [
             '`durationThreshold` off `event` entries',
             { observed: { event: 'click', durationThreshold: 16, keep: null } },

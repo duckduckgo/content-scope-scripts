@@ -16,7 +16,7 @@ import { parseItemKeys, selectItems } from './common.js';
  */
 
 /** The body keys naming a recorded type. */
-const TYPE_KEYS = ['entryType', 'event'];
+const TYPE_KEYS = ['entryType', 'event', 'detectorEvent'];
 
 /**
  * Parse the type a body names, and its `durationThreshold` and `target`: exactly one of `entryType` and
@@ -30,11 +30,12 @@ const TYPE_KEYS = ['entryType', 'event'];
 export function parseRecordedType(raw, path, hooks) {
     const named = TYPE_KEYS.filter((key) => raw[key] !== undefined);
     const [kind, ...others] = named;
-    if (kind === undefined || others.length > 0) throw new ConfigParseError(path, 'a body names one of `entryType` and `event`');
+    if (kind === undefined || others.length > 0)
+        throw new ConfigParseError(path, 'a body names one of `entryType`, `event` and `detectorEvent`');
     const type = raw[kind];
     if (typeof type !== 'string') throw new ConfigParseError(`${path}.${kind}`, `\`${kind}\` takes a string`);
     /** @type {RecordedBody} */
-    const body = { kind: /** @type {'entryType' | 'event'} */ (kind), type };
+    const body = { kind: /** @type {'entryType' | 'event' | 'detectorEvent'} */ (kind), type };
     if (raw.durationThreshold !== undefined) {
         if (kind !== 'entryType' || type !== 'event') {
             throw new ConfigParseError(`${path}.durationThreshold`, '`durationThreshold` is for `event` entries only');
@@ -186,5 +187,5 @@ function itemsOf(body, arrival) {
  * @returns {body is RecordedBody}
  */
 export function isRecordedBody(body) {
-    return body.kind === 'entryType' || body.kind === 'event';
+    return body.kind === 'entryType' || body.kind === 'event' || body.kind === 'detectorEvent';
 }

@@ -10,7 +10,7 @@ import { TaskReadCache } from './task-read-cache.js';
  */
 
 /** @type {ActionSink} for a run whose actions go nowhere */
-const NO_SINK = { fireEvent() {}, breakageReportData() {} };
+const NO_SINK = { fireEvent() {}, breakageReportData() {}, emit() {} };
 
 /**
  * One run's state, threaded to every expression. An expression is computed each time evaluation
@@ -32,6 +32,8 @@ export class EvaluationContext {
     frames = new Map();
     /** whether a `done` action in the run held, so the detector is done at the end of the run */
     done = false;
+    /** how many runs detector events with no `delayMs` started before this one in its task, 0 for any other run */
+    depth = 0;
 
     /**
      * @param {Reader} reader

@@ -92,6 +92,8 @@ export function suspendingOperands(node) {
         case 'define':
         case 'done':
             return [node.value];
+        case 'emit':
+            return node.data ? [node.data] : [];
         case 'fireEvent':
         case 'breakageReportData':
             return (node.data ?? []).map((field) => field.value);
