@@ -545,8 +545,18 @@ test.describe('SegmentSkip', () => {
                 /** @type {HTMLVideoElement} */ (document.querySelector('video')).currentTime = 3;
             });
             await expect(frame.locator(`#player-controls > ${SKIP_BUTTON}`)).toBeVisible();
-            // On the controls row, just above the progress bar: 180px layer, row bottom at 140px, plus a 4px gap.
-            await expect(frame.locator(SKIP_BUTTON)).toHaveCSS('bottom', '44px');
+            // Pinned to the video's bottom-right corner, 40px up and 8px in.
+            const { button, video } = await page.frames()[1].evaluate((selector) => {
+                const rect = (/** @type {Element} */ el) => {
+                    const { bottom, right } = el.getBoundingClientRect();
+                    return { bottom: Math.round(bottom), right: Math.round(right) };
+                };
+                return {
+                    button: rect(/** @type {Element} */ (document.querySelector(selector))),
+                    video: rect(/** @type {Element} */ (document.querySelector('video'))),
+                };
+            }, SKIP_BUTTON);
+            expect(button).toEqual({ bottom: video.bottom - 40, right: video.right - 8 });
             await frame.locator(SKIP_BUTTON).click();
             const time = await page
                 .frames()[1]

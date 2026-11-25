@@ -463,15 +463,20 @@ export class SegmentSkip extends ContentFeature {
         } else {
             this.stopSkipButtonCountdown();
         }
-        const row = host.id === 'player-controls' ? host.querySelector('.player-controls-bottom') : null;
-        if (row) {
-            const rowRect = row.getBoundingClientRect();
-            // Android's Duck Player embed is too short to clear the controls row without covering the play button, so
-            // there the button sits on the row, just above the progress bar.
-            const drivesEmbedFromPage = this.#doc !== document;
-            const gap = host.getBoundingClientRect().bottom - (drivesEmbedFromPage ? rowRect.bottom : rowRect.top);
-            this.#skipButton.style.bottom = `${Math.round(gap) + (drivesEmbedFromPage ? 4 : 12)}px`;
+        if (host.id !== 'player-controls') return;
+        const hostRect = host.getBoundingClientRect();
+        if (this.#doc !== document) {
+            // Android's Duck Player embed: the host fills the embed's viewport, which in fullscreen letterboxes the video.
+            // The button only shows while the controls are hidden, so it has nothing to clear: pin it to the video's
+            // bottom-right corner, as on m.youtube.com.
+            const videoRect = video?.getBoundingClientRect();
+            if (!videoRect?.height) return;
+            this.#skipButton.style.bottom = `${Math.round(hostRect.bottom - videoRect.bottom) + 40}px`;
+            this.#skipButton.style.right = `${Math.round(hostRect.right - videoRect.right) + 8}px`;
+            return;
         }
+        const row = host.querySelector('.player-controls-bottom');
+        if (row) this.#skipButton.style.bottom = `${Math.round(hostRect.bottom - row.getBoundingClientRect().top) + 12}px`;
     }
 
     // A closed shadow root keeps the button's markup and listeners out of reach of YouTube's scripts. Built with DOM
