@@ -115,6 +115,12 @@ describe('WebDetection run', () => {
             expect(bindings(d.run())).toEqual({ before: true, x: 1, after: 1 });
         });
 
+        it('binds any string as a name, with only a `this.` prefix making a detector name', () => {
+            const d = detector({ actions: [{ define: { '1x': 1, 'that.x': 2, 'a b': 3 } }, { define: { y: { ref: '1x' } } }] });
+            expect(bindings(d.run())).toEqual({ '1x': 1, 'that.x': 2, 'a b': 3, y: 1 });
+            expect(d.state.names.size).toBe(0);
+        });
+
         it('rebinds a name, the latest binding winning', () => {
             const d = detector({ actions: [{ define: { x: 1 } }, { define: { y: { ref: 'x' } } }, { define: { x: 2 } }] });
             expect(bindings(d.run())).toEqual({ x: 2, y: 1 });

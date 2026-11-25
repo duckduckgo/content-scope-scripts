@@ -150,9 +150,6 @@ export class ConfigParseError extends Error {
 /** `^[a-zA-Z][a-zA-Z0-9_]*$`: payload key names */
 export const NAME_PATTERN = /^[a-zA-Z][a-zA-Z0-9_]*$/;
 
-/** `^(this\.)?[a-zA-Z][a-zA-Z0-9_]*$`: a run name, or with `this.` a detector name */
-export const DEFINE_NAME_PATTERN = /^(this\.)?[a-zA-Z][a-zA-Z0-9_]*$/;
-
 /** The keys that make an object an action. */
 export const ACTION_KEYS = new Set(['fireEvent', 'breakageReportData', 'define']);
 

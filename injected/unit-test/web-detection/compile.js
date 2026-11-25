@@ -455,10 +455,8 @@ describe('WebDetection compile', () => {
             expectParseError({ actions: { fireEvent: 'a' } }, '`fireEvent` takes an object');
         });
 
-        it('rejects a `define` that is not an object of valid names', () => {
+        it('rejects a `define` that is not an object of expressions', () => {
             expectParseError({ actions: { define: true } }, '`define` takes an object of names');
-            expectParseError({ actions: { define: { '1x': 1 } } }, 'invalid name');
-            expectParseError({ actions: { define: { 'that.x': 1 } } }, 'invalid name');
             expectParseError({ actions: { define: { x: { foo: 1 } } } }, "unknown expression key 'foo'");
         });
 
