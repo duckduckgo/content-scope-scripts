@@ -323,8 +323,10 @@ export const stepDefinitions = {
         id: 'picker',
         kind: 'info',
         // The experiment's list. Each id keys the site's copy and bundled icon. Gmail and Outlook use the hosts
-        // their short domains redirect to, so they match the favorites people import. Settings.withRegionalSites
-        // swaps the Amazon and Wikipedia URLs for the user's store and language (see regional-sites.js).
+        // their short domains redirect to, so they match the favorites people import. Settings.withResolvedSiteUrls
+        // resolves each url (see site-urls.js). Amazon stores follow no pattern, so they're listed by OS region, and
+        // any other region gets amazon.com, where Amazon offers to switch store. Wikipedia editions follow the
+        // language, so a template covers every one of them.
         sites: [
             { id: 'gmail', url: 'https://mail.google.com', title: 'Gmail', section: 'email' },
             { id: 'outlook', url: 'https://outlook.live.com', title: 'Outlook', section: 'email' },
@@ -334,8 +336,45 @@ export const stepDefinitions = {
             { id: 'facebook', url: 'https://www.facebook.com', title: 'Facebook', section: 'popular' },
             { id: 'netflix', url: 'https://www.netflix.com', title: 'Netflix', section: 'popular' },
             { id: 'bbcNews', url: 'https://www.bbc.com/news', title: 'BBC News', section: 'popular' },
-            { id: 'wikipedia', url: 'https://en.wikipedia.org', title: 'Wikipedia', section: 'popular' },
-            { id: 'amazon', url: 'https://www.amazon.com', title: 'Amazon', section: 'popular' },
+            {
+                id: 'wikipedia',
+                url: 'https://en.wikipedia.org',
+                urlTemplate: 'https://{locale}.wikipedia.org',
+                title: 'Wikipedia',
+                section: 'popular',
+            },
+            {
+                id: 'amazon',
+                url: 'https://www.amazon.com',
+                urlByRegion: {
+                    CA: 'https://www.amazon.ca',
+                    MX: 'https://www.amazon.com.mx',
+                    BR: 'https://www.amazon.com.br',
+                    GB: 'https://www.amazon.co.uk',
+                    IE: 'https://www.amazon.ie',
+                    DE: 'https://www.amazon.de',
+                    AT: 'https://www.amazon.de',
+                    CH: 'https://www.amazon.de',
+                    FR: 'https://www.amazon.fr',
+                    IT: 'https://www.amazon.it',
+                    ES: 'https://www.amazon.es',
+                    PT: 'https://www.amazon.es',
+                    NL: 'https://www.amazon.nl',
+                    BE: 'https://www.amazon.com.be',
+                    SE: 'https://www.amazon.se',
+                    PL: 'https://www.amazon.pl',
+                    TR: 'https://www.amazon.com.tr',
+                    IN: 'https://www.amazon.in',
+                    JP: 'https://www.amazon.co.jp',
+                    SG: 'https://www.amazon.sg',
+                    AU: 'https://www.amazon.com.au',
+                    NZ: 'https://www.amazon.com.au',
+                    AE: 'https://www.amazon.ae',
+                    SA: 'https://www.amazon.sa',
+                },
+                title: 'Amazon',
+                section: 'popular',
+            },
         ],
         // Native sends these in its shouldShowTopSitesPicker answer.
         existingFavorites: [],

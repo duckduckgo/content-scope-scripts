@@ -19,7 +19,18 @@
           },
           "url": {
             "type": "string",
-            "description": "The URL saved as the favorite"
+            "description": "The URL saved as the favorite when neither urlByRegion nor urlTemplate gives one"
+          },
+          "urlByRegion": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "URLs to save instead of url, keyed by the OS region native sends as init.region, as an upper-case ISO 3166-1 alpha-2 code. Checked before urlTemplate."
+          },
+          "urlTemplate": {
+            "type": "string",
+            "description": "A URL with a {locale} placeholder, for a site whose URLs follow the language. The page fills it with its two-letter lower-case language code. It's used when urlByRegion has no match, and skipped when the locale isn't a two-letter code."
           },
           "title": {
             "type": "string",

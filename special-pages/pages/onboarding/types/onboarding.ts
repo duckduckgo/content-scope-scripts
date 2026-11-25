@@ -269,7 +269,7 @@ export interface InitResponse {
   env?: "development" | "production";
   locale?: string;
   /**
-   * The OS region as an ISO 3166-1 alpha-2 code (e.g. "GB"). The picker uses it to suggest the matching Amazon store, and falls back to amazon.com when it's missing or has no store.
+   * The OS region as an ISO 3166-1 alpha-2 code (e.g. "GB"). The picker uses it to look up each site's urlByRegion entry. A site keeps its url when the region is missing or has no entry.
    */
   region?: string;
   platform?: {
@@ -302,9 +302,19 @@ export interface PickerSite {
    */
   id: string;
   /**
-   * The URL saved as the favorite
+   * The URL saved as the favorite when neither urlByRegion nor urlTemplate gives one
    */
   url: string;
+  /**
+   * URLs to save instead of url, keyed by the OS region native sends as init.region, as an upper-case ISO 3166-1 alpha-2 code. Checked before urlTemplate.
+   */
+  urlByRegion?: {
+    [k: string]: string;
+  };
+  /**
+   * A URL with a {locale} placeholder, for a site whose URLs follow the language. The page fills it with its two-letter lower-case language code. It's used when urlByRegion has no match, and skipped when the locale isn't a two-letter code.
+   */
+  urlTemplate?: string;
   /**
    * The site's name, shown on its tile and used as the favorite's title
    */

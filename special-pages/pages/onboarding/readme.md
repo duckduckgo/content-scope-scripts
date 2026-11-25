@@ -41,7 +41,7 @@ Instead, make your changes in `src/' and then run `npm run build.pages` from the
 URL parameters can be used to override the default values of the onboarding flow's configuration. Supported parameters are:
 
 - `locale` - Specifies the language to use for translations. Expects a language code (e.g., `en`, `de`, `fr`).
-- `region` - Overrides `init.region`, the OS region the picker uses to choose the Amazon store. Expects an ISO 3166-1 alpha-2 code (e.g., `GB`, `DE`). Unlisted regions get amazon.com.
+- `region` - Overrides `init.region`, the OS region the picker uses to look up each site's `urlByRegion` entry. Expects an ISO 3166-1 alpha-2 code (e.g., `GB`, `DE`). In the default list only Amazon has entries, and unlisted regions get amazon.com.
 - `textLength` - Adjusts the length of translated strings, for testing layout with different text sizes (e.g., `short`, `long`).
 - `display` - Controls which view is rendered. `app` renders the main onboarding flow.
 - `platform` - Overrides the detected platform, for testing platform-specific styling (e.g., `macos`, `windows`).

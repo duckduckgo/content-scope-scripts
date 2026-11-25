@@ -1,6 +1,6 @@
 import { EVERY_PAGE_ID, ORDER_V4, STEPS_ORDER } from './types';
 import { stepDefinitions as defaultStepDefinitions } from './v4/data/data';
-import { regionalSites } from './v4/data/regional-sites';
+import { resolveSiteUrls } from './v4/data/site-urls';
 
 /**
  * Settings that affect the Application, such as running order
@@ -125,18 +125,18 @@ export class Settings {
     }
 
     /**
-     * Points the picker's default Amazon and Wikipedia sites at the user's store and language.
-     * Call it before `withStepDefinitions`, so a site list native sends replaces these URLs instead of being rewritten.
+     * Resolves each picker site's URL for the user's region and language, from its `urlByRegion` and `urlTemplate`.
+     * Call it after `withStepDefinitions`, so a site list native sends is resolved the same way as the default one.
      *
      * @param {{ locale?: string | null, region?: string | null }} where
      * @return {Settings}
      */
-    withRegionalSites(where) {
+    withResolvedSiteUrls(where) {
         const picker = this.stepDefinitions.picker;
         if (picker?.id !== 'picker' || !picker.sites) return this;
         return new Settings({
             ...this,
-            stepDefinitions: { ...this.stepDefinitions, picker: { ...picker, sites: regionalSites(picker.sites, where) } },
+            stepDefinitions: { ...this.stepDefinitions, picker: { ...picker, sites: resolveSiteUrls(picker.sites, where) } },
         });
     }
 

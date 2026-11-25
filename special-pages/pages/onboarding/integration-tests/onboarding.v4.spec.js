@@ -657,7 +657,23 @@ test.describe('onboarding v4', () => {
             await onboarding.didAddFavorites([{ id: 'amazon', url: 'https://www.amazon.com' }]);
         });
 
-        test('A site list from native keeps its own Amazon URL', async ({ page }, workerInfo) => {
+        test('A site list from native is resolved by its urlByRegion', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            const amazon = {
+                id: 'amazon',
+                url: 'https://www.amazon.com',
+                urlByRegion: { GB: 'https://www.amazon.co.uk' },
+                title: 'Amazon',
+                section: 'popular',
+            };
+            await onboarding.goToPicker({ init: { region: 'GB', stepDefinitions: { picker: { sites: [amazon] } } } });
+            await page.getByRole('switch', { name: 'Amazon', exact: true }).click();
+            await page.getByRole('button', { name: 'Add to Favorites' }).click();
+
+            await onboarding.didAddFavorites([{ id: 'amazon', url: 'https://www.amazon.co.uk' }]);
+        });
+
+        test('A site from native without urlByRegion keeps its URL', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             const amazon = { id: 'amazon', url: 'https://www.amazon.com', title: 'Amazon', section: 'popular' };
             await onboarding.goToPicker({ init: { region: 'GB', stepDefinitions: { picker: { sites: [amazon] } } } });
