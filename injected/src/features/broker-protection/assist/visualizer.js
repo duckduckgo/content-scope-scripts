@@ -63,7 +63,7 @@ export async function afterAction(action, response) {
     }
     // The cursor stays where the action left it so the next action glides on from there.
     overlay?.highlightField(null);
-    overlay?.setCursorLabel('Moving');
+    overlay?.setCursorLabel(null);
 }
 
 export function hide() {

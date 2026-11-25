@@ -34,6 +34,7 @@ export class AgentOverlay extends Overlay {
             img.addEventListener('error', () => img.remove());
         }
         this.cursor = /** @type {HTMLElement} */ (this.root.querySelector('.cursor'));
+        this.cursorTag = /** @type {HTMLElement} */ (this.root.querySelector('.cursor .tag'));
         this.cursorLabel = /** @type {HTMLElement} */ (this.root.querySelector('.cursor .tag span'));
         this.field = /** @type {HTMLElement} */ (this.root.querySelector('.field'));
         this.typed = /** @type {HTMLElement} */ (this.root.querySelector('.typed'));
@@ -59,7 +60,7 @@ export class AgentOverlay extends Overlay {
      * @param {{ dx: number, dy: number, label?: string, durationMs?: number }} options
      */
     placeCursor(element, { dx, dy, label, durationMs = CURSOR_MOVE_MS }) {
-        if (label) this.cursorLabel.textContent = label;
+        if (label) this.setCursorLabel(label);
         this.cursor.style.setProperty('--move-ms', `${durationMs}ms`);
         this.cursorTarget = { element, dx, dy };
         if (this.cursor.classList.contains('hidden')) {
@@ -75,10 +76,11 @@ export class AgentOverlay extends Overlay {
     }
 
     /**
-     * @param {string} label
+     * @param {string | null} label
      */
     setCursorLabel(label) {
-        this.cursorLabel.textContent = label;
+        this.cursorTag.hidden = label === null;
+        if (label !== null) this.cursorLabel.textContent = label;
     }
 
     hideCursor() {
