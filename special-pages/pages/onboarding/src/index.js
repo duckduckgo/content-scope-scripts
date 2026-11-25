@@ -169,7 +169,7 @@ export class OnboardingPage {
     }
 
     /**
-     * Sent once when the user clicks Add to favorites on the picker step. Native creates the favorites.
+     * Sent once when the user clicks Add to Favorites on the picker step. Native creates the favorites.
      * @param {import('../types/onboarding.ts').AddFavorites} params
      */
     addFavorites(params) {

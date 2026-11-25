@@ -481,8 +481,8 @@ test.describe('onboarding v4', () => {
         test('Add sends the toggled sites', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             await onboarding.goToPicker();
-            await page.getByRole('switch', { name: 'YouTube' }).click();
-            await page.getByRole('switch', { name: 'Gmail' }).click();
+            await page.getByRole('switch', { name: 'YouTube', exact: true }).click();
+            await page.getByRole('switch', { name: 'Gmail', exact: true }).click();
             await page.getByRole('button', { name: 'Add to Favorites' }).click();
 
             await page.getByRole('heading', { name: 'Want easy access to private AI Chat?' }).waitFor({ timeout: 1000 });
@@ -508,9 +508,9 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             await onboarding.goToPicker();
             await expect(page.getByRole('button', { name: 'Add to Favorites' })).toBeDisabled();
-            await page.getByRole('switch', { name: 'YouTube' }).click();
+            await page.getByRole('switch', { name: 'YouTube', exact: true }).click();
             await expect(page.getByRole('button', { name: 'Add to Favorites' })).toBeEnabled();
-            await page.getByRole('switch', { name: 'YouTube' }).click();
+            await page.getByRole('switch', { name: 'YouTube', exact: true }).click();
             await expect(page.getByRole('button', { name: 'Add to Favorites' })).toBeDisabled();
         });
 
@@ -518,10 +518,10 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             await onboarding.goToPicker();
             await onboarding.pushConfigUpdate({ stepDefinitions: { picker: { existingFavorites: ['https://mail.yahoo.com'] } } });
-            await page.getByRole('switch', { name: 'Gmail' }).click();
-            await page.getByRole('switch', { name: 'Outlook' }).click();
+            await page.getByRole('switch', { name: 'Gmail', exact: true }).click();
+            await page.getByRole('switch', { name: 'Outlook', exact: true }).click();
             for (const name of ['Gmail', 'Outlook', 'Yahoo Mail']) {
-                await expect(page.getByRole('switch', { name })).toHaveAttribute('aria-checked', 'true');
+                await expect(page.getByRole('switch', { name, exact: true })).toHaveAttribute('aria-checked', 'true');
             }
             await page.getByRole('button', { name: 'Add to Favorites' }).click();
 
@@ -531,7 +531,7 @@ test.describe('onboarding v4', () => {
         test('Double click on Add sends one addFavorites', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             await onboarding.goToPicker();
-            await page.getByRole('switch', { name: 'YouTube' }).click();
+            await page.getByRole('switch', { name: 'YouTube', exact: true }).click();
             await page.getByRole('button', { name: 'Add to Favorites' }).dblclick();
 
             await page.getByRole('heading', { name: 'Want easy access to private AI Chat?' }).waitFor({ timeout: 1000 });
@@ -546,13 +546,13 @@ test.describe('onboarding v4', () => {
         test('During the exit fade, a second Add or a late Skip does nothing', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             await onboarding.goToPicker({ reducedMotion: false });
-            await page.getByRole('switch', { name: 'YouTube' }).click();
+            await page.getByRole('switch', { name: 'YouTube', exact: true }).click();
             const add = page.getByRole('button', { name: 'Add to Favorites' });
             await add.click();
             // the step is still mounted while it fades out, so every control must already be off
             await expect(add).toBeDisabled();
             await expect(page.getByRole('button', { name: 'Skip' })).toBeDisabled();
-            await expect(page.getByRole('switch', { name: 'Gmail' })).toBeDisabled();
+            await expect(page.getByRole('switch', { name: 'Gmail', exact: true })).toBeDisabled();
 
             await page.getByRole('heading', { name: 'Want easy access to private AI Chat?' }).waitFor({ timeout: 2000 });
             await onboarding.didAddFavorites([youtube]);
@@ -561,7 +561,7 @@ test.describe('onboarding v4', () => {
         test('Skip during the exit fade keeps Add from sending', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             await onboarding.goToPicker({ reducedMotion: false });
-            await page.getByRole('switch', { name: 'YouTube' }).click();
+            await page.getByRole('switch', { name: 'YouTube', exact: true }).click();
             await page.getByRole('button', { name: 'Skip' }).click();
             await expect(page.getByRole('button', { name: 'Add to Favorites' })).toBeDisabled();
 
@@ -584,14 +584,14 @@ test.describe('onboarding v4', () => {
             await onboarding.goToPicker();
             await onboarding.pushConfigUpdate({ stepDefinitions: { picker: { existingFavorites: null } } });
 
-            await expect(page.getByRole('switch', { name: 'YouTube' })).toBeVisible();
-            await expect(page.getByRole('switch', { name: 'Gmail' })).toBeVisible();
+            await expect(page.getByRole('switch', { name: 'YouTube', exact: true })).toBeVisible();
+            await expect(page.getByRole('switch', { name: 'Gmail', exact: true })).toBeVisible();
         });
 
         test('Skip sends no addFavorites', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             await onboarding.goToPicker();
-            await page.getByRole('switch', { name: 'YouTube' }).click();
+            await page.getByRole('switch', { name: 'YouTube', exact: true }).click();
             await page.getByRole('button', { name: 'Skip' }).click();
 
             await page.getByRole('heading', { name: 'Want easy access to private AI Chat?' }).waitFor({ timeout: 1000 });
@@ -604,13 +604,13 @@ test.describe('onboarding v4', () => {
             await onboarding.goToPicker();
             await onboarding.pushConfigUpdate({ stepDefinitions: { picker: { existingFavorites: ['https://youtube.com/feed'] } } });
 
-            const youtubeSwitch = page.getByRole('switch', { name: 'YouTube' });
+            const youtubeSwitch = page.getByRole('switch', { name: 'YouTube', exact: true });
             await expect(youtubeSwitch).toHaveAttribute('aria-checked', 'true');
             await expect(youtubeSwitch).toBeDisabled();
             // only existingFavorites was sent, so the default sites survive the merge
             for (const name of ['Gmail', 'Outlook', 'Yahoo Mail', 'Wikipedia']) {
-                await expect(page.getByRole('switch', { name })).toHaveAttribute('aria-checked', 'false');
-                await expect(page.getByRole('switch', { name })).toBeEnabled();
+                await expect(page.getByRole('switch', { name, exact: true })).toHaveAttribute('aria-checked', 'false');
+                await expect(page.getByRole('switch', { name, exact: true })).toBeEnabled();
             }
             // an existing favorite alone is not a pick
             await expect(page.getByRole('button', { name: 'Add to Favorites' })).toBeDisabled();
@@ -620,7 +620,7 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             await onboarding.goToPicker();
             await onboarding.pushConfigUpdate({ stepDefinitions: { picker: { existingFavorites: ['https://www.youtube.com'] } } });
-            await page.getByRole('switch', { name: 'Wikipedia' }).click();
+            await page.getByRole('switch', { name: 'Wikipedia', exact: true }).click();
             await page.getByRole('button', { name: 'Add to Favorites' }).click();
 
             await onboarding.didAddFavorites([wikipedia]);
@@ -629,11 +629,11 @@ test.describe('onboarding v4', () => {
         test('A late update locks a toggled site and drops it from the picks', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             await onboarding.goToPicker();
-            await page.getByRole('switch', { name: 'YouTube' }).click();
-            await page.getByRole('switch', { name: 'Gmail' }).click();
+            await page.getByRole('switch', { name: 'YouTube', exact: true }).click();
+            await page.getByRole('switch', { name: 'Gmail', exact: true }).click();
             await onboarding.pushConfigUpdate({ stepDefinitions: { picker: { existingFavorites: ['https://www.youtube.com'] } } });
-            await expect(page.getByRole('switch', { name: 'YouTube' })).toBeDisabled();
-            await expect(page.getByRole('switch', { name: 'YouTube' })).toHaveAttribute('aria-checked', 'true');
+            await expect(page.getByRole('switch', { name: 'YouTube', exact: true })).toBeDisabled();
+            await expect(page.getByRole('switch', { name: 'YouTube', exact: true })).toHaveAttribute('aria-checked', 'true');
             await page.getByRole('button', { name: 'Add to Favorites' }).click();
 
             await onboarding.didAddFavorites([gmail]);
@@ -642,7 +642,7 @@ test.describe('onboarding v4', () => {
         test('Amazon points at the store for init.region', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             await onboarding.goToPicker({ init: { region: 'GB' } });
-            await page.getByRole('switch', { name: 'Amazon' }).click();
+            await page.getByRole('switch', { name: 'Amazon', exact: true }).click();
             await page.getByRole('button', { name: 'Add to Favorites' }).click();
 
             await onboarding.didAddFavorites([{ id: 'amazon', url: 'https://www.amazon.co.uk' }]);
@@ -651,7 +651,7 @@ test.describe('onboarding v4', () => {
         test('Amazon falls back to amazon.com without a region', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             await onboarding.goToPicker();
-            await page.getByRole('switch', { name: 'Amazon' }).click();
+            await page.getByRole('switch', { name: 'Amazon', exact: true }).click();
             await page.getByRole('button', { name: 'Add to Favorites' }).click();
 
             await onboarding.didAddFavorites([{ id: 'amazon', url: 'https://www.amazon.com' }]);
@@ -661,7 +661,7 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             const amazon = { id: 'amazon', url: 'https://www.amazon.com', title: 'Amazon', section: 'popular' };
             await onboarding.goToPicker({ init: { region: 'GB', stepDefinitions: { picker: { sites: [amazon] } } } });
-            await page.getByRole('switch', { name: 'Amazon' }).click();
+            await page.getByRole('switch', { name: 'Amazon', exact: true }).click();
             await page.getByRole('button', { name: 'Add to Favorites' }).click();
 
             await onboarding.didAddFavorites([{ id: 'amazon', url: 'https://www.amazon.com' }]);
@@ -678,7 +678,7 @@ test.describe('onboarding v4', () => {
 
             await expect(page.getByRole('heading', { name: 'Email' })).toBeVisible();
             for (const name of ['Gmail', 'Outlook', 'Yahoo Mail']) {
-                await expect(page.getByRole('switch', { name })).toBeDisabled();
+                await expect(page.getByRole('switch', { name, exact: true })).toBeDisabled();
             }
         });
 
@@ -711,8 +711,8 @@ test.describe('onboarding v4', () => {
 
             await page.getByRole('button', { name: 'Skip' }).waitFor({ timeout: 1000 });
             await expect(page.getByText('2 of 3')).toBeVisible();
-            await expect(page.getByRole('switch', { name: 'YouTube' })).toBeDisabled();
-            await expect(page.getByRole('switch', { name: 'YouTube' })).toHaveAttribute('aria-checked', 'true');
+            await expect(page.getByRole('switch', { name: 'YouTube', exact: true })).toBeDisabled();
+            await expect(page.getByRole('switch', { name: 'YouTube', exact: true })).toHaveAttribute('aria-checked', 'true');
             await onboarding.didFireStepCompleted({ id: 'customize', next: 'picker' });
         });
 

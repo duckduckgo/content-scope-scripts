@@ -90,17 +90,22 @@ export function PickerContent({ step, addFavorites, advance }) {
                             <h3 class={styles.heading}>{headers[section].heading}</h3>
                             <p class={styles.description}>{headers[section].description}</p>
                         </div>
-                        <div class={styles.sites} data-section={section}>
+                        <div class={cn(styles.sites, styles[section])}>
                             {sectionSites.map((site) => {
                                 const existing = existingIds.includes(site.id);
                                 const on = existing || pickedIds.includes(site.id);
                                 const description = siteDescriptions[site.id];
+                                // The description sits inside the switch, so name it by the title alone
+                                const titleId = `picker-${site.id}-title`;
+                                const descriptionId = `picker-${site.id}-description`;
                                 return (
                                     <button
                                         key={site.id}
                                         type="button"
                                         role="switch"
                                         aria-checked={on}
+                                        aria-labelledby={titleId}
+                                        aria-describedby={description ? descriptionId : undefined}
                                         class={styles.site}
                                         data-on={on}
                                         disabled={done || existing}
@@ -110,41 +115,21 @@ export function PickerContent({ step, addFavorites, advance }) {
                                         <span class={styles.icon} aria-hidden="true">
                                             {site.title.charAt(0)}
                                             <span class={cn(styles.badge, styles.plus)}>
-                                                <img
-                                                    class={styles.light}
-                                                    src="assets/img/v4/icons/picker-plus.svg"
-                                                    width="20.6667"
-                                                    height="20.6667"
-                                                    alt=""
-                                                />
-                                                <img
-                                                    class={styles.dark}
-                                                    src="assets/img/v4/icons/picker-plus-dark.svg"
-                                                    width="20.6667"
-                                                    height="20.6667"
-                                                    alt=""
-                                                />
+                                                <PlusBadge />
                                             </span>
                                             <span class={cn(styles.badge, styles.check)}>
-                                                <img
-                                                    class={styles.light}
-                                                    src="assets/img/v4/icons/picker-check.svg"
-                                                    width="24"
-                                                    height="24"
-                                                    alt=""
-                                                />
-                                                <img
-                                                    class={styles.dark}
-                                                    src="assets/img/v4/icons/picker-check-dark.svg"
-                                                    width="24"
-                                                    height="24"
-                                                    alt=""
-                                                />
+                                                <CheckBadge />
                                             </span>
                                         </span>
                                         <span class={styles.text}>
-                                            <span class={styles.title}>{site.title}</span>
-                                            {description && <span class={styles.siteDescription}>{description}</span>}
+                                            <span id={titleId} class={styles.title}>
+                                                {site.title}
+                                            </span>
+                                            {description && (
+                                                <span id={descriptionId} class={styles.siteDescription}>
+                                                    {description}
+                                                </span>
+                                            )}
                                         </span>
                                     </button>
                                 );
@@ -162,5 +147,33 @@ export function PickerContent({ step, addFavorites, advance }) {
                 </Button>
             </div>
         </Container>
+    );
+}
+
+// Figma's badges: a disc in the badge colour, a white glyph and a 2px white ring. The colours come from CSS.
+
+function PlusBadge() {
+    return (
+        <svg width="20.6667" height="20.6667" viewBox="0 0 20.6667 20.6667" aria-hidden="true">
+            <circle cx="10.3333" cy="10.3333" r="10.3333" fill="#fff" />
+            <circle cx="10.3333" cy="10.3333" r="8.3333" fill="currentColor" />
+            <path
+                class={styles.plusGlyph}
+                d="M9.58333 14.0833V11.0833H6.33333C5.91912 11.0833 5.58333 10.7475 5.58333 10.3333C5.58334 9.91913 5.91912 9.58333 6.33333 9.58333H9.58333V6.58333C9.58333 6.16912 9.91912 5.83333 10.3333 5.83333C10.7475 5.83333 11.0833 6.16912 11.0833 6.58333V9.58333H14.3333L14.3719 9.58431C14.7682 9.60439 15.0833 9.93206 15.0833 10.3333C15.0833 10.7346 14.7682 11.0623 14.3719 11.0824L14.3333 11.0833H11.0833V14.0833C11.0833 14.4975 10.7475 14.8333 10.3333 14.8333C9.91912 14.8333 9.58333 14.4975 9.58333 14.0833Z"
+            />
+        </svg>
+    );
+}
+
+function CheckBadge() {
+    return (
+        <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="12" fill="#fff" />
+            <circle cx="12" cy="12" r="10" fill="currentColor" />
+            <path
+                fill="#fff"
+                d="M16.7858 10.2748C17.0756 9.97891 17.0707 9.50406 16.7748 9.2142C16.4789 8.92434 16.0041 8.92924 15.7142 9.22513L11.2201 13.8129C11.0237 14.0134 10.7008 14.0134 10.5043 13.8129L8.28577 11.5481C7.99591 11.2522 7.52106 11.2473 7.22516 11.5372C6.92927 11.827 6.92437 12.3019 7.21423 12.5978L9.43279 14.8625C10.2174 15.6635 11.507 15.6635 12.2916 14.8625L16.7858 10.2748Z"
+            />
+        </svg>
     );
 }

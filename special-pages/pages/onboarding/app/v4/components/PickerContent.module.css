@@ -7,13 +7,17 @@
     --picker-hover-border: var(--ds-accent-alt-primary);
     --picker-picked-border: #90c4ef;
     --picker-icon-background: #fff;
+    --picker-plus-fill: #90c4ef;
+    --picker-plus-glyph: #fff;
 
     :global(.theme-dark) & {
-        --picker-text-primary: rgba(255, 255, 255, 0.84);
-        --picker-text-secondary: rgba(255, 255, 255, 0.5);
-        --picker-hover-border: rgba(161, 207, 247, 0.16);
-        --picker-picked-border: rgba(161, 207, 247, 0.24);
+        --picker-text-primary: var(--color-white-at-84);
+        --picker-text-secondary: var(--color-white-at-50);
+        --picker-hover-border: rgba(161, 208, 247, 0.16);
+        --picker-picked-border: rgba(161, 208, 247, 0.24);
         --picker-icon-background: #f5fbfe;
+        --picker-plus-fill: var(--ds-accent-primary);
+        --picker-plus-glyph: rgba(255, 255, 255, 0.78);
     }
 }
 
@@ -27,7 +31,7 @@
 .header {
     display: flex;
     flex-direction: column;
-    gap: var(--sp-2); /* 8px: Figma's 16px gap is between trimmed text boxes */
+    gap: var(--sp-4); /* 16px */
 }
 
 .heading {
@@ -36,6 +40,8 @@
     font-size: calc(15 * var(--px-in-rem));
     font-weight: 700;
     line-height: calc(18 * var(--px-in-rem));
+    text-box-trim: trim-both;
+    text-box-edge: cap alphabetic;
 }
 
 .description {
@@ -43,6 +49,8 @@
     color: var(--picker-text-secondary);
     font-size: calc(14 * var(--px-in-rem));
     line-height: calc(17 * var(--px-in-rem));
+    text-box-trim: trim-both;
+    text-box-edge: cap alphabetic;
 }
 
 .sites {
@@ -51,13 +59,13 @@
     gap: var(--sp-2); /* 8px */
     align-items: start;
 
-    &[data-section='email'] {
+    &.email {
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 }
 
+/* The hover and picked rings are inset, so they never shift the layout */
 .site {
-
     position: relative;
     display: flex;
     align-items: center;
@@ -71,12 +79,11 @@
     text-align: left;
     cursor: pointer;
 
-    [data-section='email'] > & {
+    .email > & {
         gap: var(--sp-3); /* 12px */
     }
 
-    /* Inset ring, so the border never shifts the layout */
-    &:hover:not(:disabled) {
+    &:hover:not(:disabled, [data-on='true']) {
         box-shadow: inset 0 0 0 2px var(--picker-hover-border);
     }
 
@@ -108,7 +115,7 @@
     font-size: calc(20 * var(--px-in-rem));
     font-weight: 700;
 
-    [data-section='email'] & {
+    .email & {
         width: 48px;
         height: 48px;
     }
@@ -118,11 +125,16 @@
 .badge {
     position: absolute;
     display: none;
+
+    & > svg {
+        display: block;
+    }
 }
 
 .check {
     top: -8px;
     left: 30px;
+    color: var(--ds-accent-secondary);
 
     .site[data-on='true'] & {
         display: block;
@@ -132,36 +144,22 @@
 .plus {
     top: -6.33px;
     left: 31.67px;
+    color: var(--picker-plus-fill);
 
     .site:hover:not(:disabled, [data-on='true']) & {
         display: block;
     }
 }
 
-/* Each badge has a light and a dark image, as the Figma frames use different blues */
-.light {
-    display: block;
-}
-
-.dark {
-    display: none;
-}
-
-:global(.theme-dark) {
-    .light {
-        display: none;
-    }
-
-    .dark {
-        display: block;
-    }
+.plusGlyph {
+    fill: var(--picker-plus-glyph);
 }
 
 .text {
     display: flex;
     flex: 1 1 0;
     flex-direction: column;
-    gap: var(--sp-1); /* 4px: Figma's 12px gap is between trimmed text boxes */
+    gap: var(--sp-3); /* 12px */
     min-width: 0;
 }
 
@@ -169,12 +167,16 @@
     font-size: calc(14 * var(--px-in-rem));
     font-weight: 700;
     line-height: calc(18 * var(--px-in-rem));
+    text-box-trim: trim-both;
+    text-box-edge: cap alphabetic;
 }
 
 .siteDescription {
     color: var(--picker-text-secondary);
     font-size: calc(12 * var(--px-in-rem));
     line-height: calc(17 * var(--px-in-rem));
+    text-box-trim: trim-both;
+    text-box-edge: cap alphabetic;
 }
 
 .actions {
