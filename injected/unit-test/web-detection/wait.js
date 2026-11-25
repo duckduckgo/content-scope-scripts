@@ -252,6 +252,38 @@ describe('The wait source', () => {
             expect(sent(instance).length).toBe(1);
         });
 
+        /** @type {Array<[string, { n: number, first: number }]>} */
+        const queuedRuns = [
+            ['skip', { n: 1, first: 1 }],
+            ['batch', { n: 3, first: 1 }],
+            ['replace', { n: 1, first: 3 }],
+        ];
+        for (const [whenPending, data] of queuedRuns) {
+            it(`queues one run for arrivals with \`whenPending: "${whenPending}"\`, which acts on the queued run`, () => {
+                const ranWith = {
+                    fireEvent: {
+                        type: 'ran',
+                        data: {
+                            n: { value: { trigger: { event: 'click' }, using: 'length' } },
+                            first: { value: { trigger: { event: 'click', field: 'clientX' }, using: { path: 'at', args: [0] } } },
+                        },
+                    },
+                };
+                const instance = onClick([WAIT, ranWith], { sync: false, whenBusy: 'queue', whenPending });
+                dispatch('click', { clientX: 0 });
+                jasmine.clock().tick(0);
+                for (const clientX of [1, 2, 3]) {
+                    dispatch('click', { clientX });
+                    jasmine.clock().tick(0);
+                }
+                // The first run ends, and the one queued run suspends in its own wait
+                dispatch('scroll');
+                dispatch('scroll');
+                dispatch('scroll');
+                expect(sent(instance).map((event) => event.data)).toEqual([{ n: 1, first: 0 }, data]);
+            });
+        }
+
         it('makes the detector done when an abandoned run held a `done`', () => {
             const instance = onClick([{ done: true }, WAIT, RAN], { whenBusy: 'interrupt' });
             dispatch('click');

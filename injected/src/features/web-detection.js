@@ -43,7 +43,8 @@ import { selectItems } from './web-detection/sources/common.js';
  * @property {Generator<unknown, DetectorRun, unknown>} steps
  * @property {WaitBody} [waiting] - the `wait` it's suspended in
  * @property {() => void} [stop] - stops listening and the timeout, while it's suspended
- * @property {TriggerInfo[]} queue - the runs arrivals queued while it's suspended, in order
+ * @property {Array<TriggerInfo | PendingRun>} queue - the runs queued while it's suspended, in order: an arrival's as a
+ * pending run, which later arrivals act on as their `whenPending` sets
  */
 
 /**
@@ -60,14 +61,15 @@ import { selectItems } from './web-detection/sources/common.js';
  */
 
 /**
- * A run an arrival scheduled with `delayMs`, from then until it's due. Later arrivals act on it as their
- * `on` body's `whenPending` sets.
+ * A run an arrival scheduled with `delayMs`, from then until it's due, or queued behind a suspended run
+ * until it runs. Later arrivals act on it as their `on` body's `whenPending` sets.
  *
  * @typedef {object} PendingRun
  * @property {DetectorEntry} detector
  * @property {RunArrival} arrival - what the run's `trigger` reads
  * @property {WhenBusy} whenBusy - what it does if a run of the detector is suspended when it's due
- * @property {Timer & { runs: PendingRun[] }} timer - the timer the run is due at, with every run due at it
+ * @property {Timer & { runs: PendingRun[] }} [timer] - the timer the run is due at, with every run due at it, until it's due
+ * @property {boolean} [cancelled] - whether a later arrival cancelled it while it was queued
  */
 
 /**
@@ -385,12 +387,12 @@ export default class WebDetection extends ContentFeature {
      * @param {DetectorEntry} detector
      * @param {RunArrival} arrival
      * @param {WhenBusy} whenBusy
-     * @param {PendingRun['timer']} timer - the timer it's due at
+     * @param {PendingRun['timer']} [timer] - the timer it's due at, or none for a run queued behind a suspended run
      * @returns {PendingRun}
      */
     _pend(detector, arrival, whenBusy, timer) {
         /** @type {PendingRun} */
-        const run = { detector, arrival, whenBusy, timer };
+        const run = { detector, arrival, whenBusy, ...(timer && { timer }) };
         getOrCreate(this.#pending, detector.detectorId, () => []).push(run);
         return run;
     }
@@ -409,13 +411,18 @@ export default class WebDetection extends ContentFeature {
     }
 
     /**
-     * Cancel a pending run, and its timer once no other run is due at it.
+     * Cancel a pending run: drop it from its timer, cancelling the timer once no other run is due at it,
+     * or mark it so the queue it's in skips it.
      *
      * @param {PendingRun} run
      */
     _cancelPending(run) {
         this._unpend(run);
         const { timer } = run;
+        if (!timer) {
+            run.cancelled = true;
+            return;
+        }
         const i = timer.runs.indexOf(run);
         timer.runs.splice(i, 1);
         timer.detectors.splice(i, 1);
@@ -757,8 +764,14 @@ export default class WebDetection extends ContentFeature {
                 next.queue.push(...queue);
                 return;
             }
-            const triggerInfo = /** @type {TriggerInfo} */ (queue.shift());
-            this._runAll([{ detector: run.detector, triggerInfo, whenBusy: 'queue' }]);
+            const queued = /** @type {TriggerInfo | PendingRun} */ (queue.shift());
+            if ('trigger' in queued) {
+                this._runAll([{ detector: run.detector, triggerInfo: queued, whenBusy: 'queue' }]);
+                continue;
+            }
+            if (queued.cancelled) continue;
+            this._unpend(queued);
+            this._runAll([{ detector: run.detector, triggerInfo: { trigger: 'observe', arrival: queued.arrival }, whenBusy: 'queue' }]);
         }
     }
 
@@ -933,7 +946,7 @@ export default class WebDetection extends ContentFeature {
             if (busy) {
                 if (whenBusy === 'skip') continue;
                 if (whenBusy === 'queue') {
-                    busy.queue.push(triggerInfo);
+                    busy.queue.push(triggerInfo.trigger === 'observe' ? this._pend(detector, triggerInfo.arrival, whenBusy) : triggerInfo);
                     continue;
                 }
                 this._abandon(busy);
