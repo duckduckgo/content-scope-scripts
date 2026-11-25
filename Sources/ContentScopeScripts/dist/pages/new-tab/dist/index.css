@@ -2704,6 +2704,38 @@ body[data-rebrand=true]:not([data-background-kind=default]) .themeContext[data-t
   --ntp-btn-dismiss-hover: var(--ds-ntp-dark-button-dismiss-hover-background-color);
   --ntp-control-primary-background-color: rgba(255, 255, 255, 0.12);
 }
+body[data-rebrand=true] {
+  --default-light-background-color: var(--ds-color-theme-default-light-surface-primary);
+  --default-dark-background-color: var(--ds-color-theme-default-dark-surface-primary);
+}
+body[data-rebrand=true][data-theme-variant=coolGray] {
+  --default-light-background-color: var(--ds-color-theme-cool-gray-light-surface-primary);
+  --default-dark-background-color: var(--ds-color-theme-cool-gray-dark-surface-primary);
+}
+body[data-rebrand=true][data-theme-variant=slateBlue] {
+  --default-light-background-color: var(--ds-color-theme-slate-blue-light-surface-primary);
+  --default-dark-background-color: var(--ds-color-theme-slate-blue-dark-surface-primary);
+}
+body[data-rebrand=true][data-theme-variant=green] {
+  --default-light-background-color: var(--ds-color-theme-green-light-surface-primary);
+  --default-dark-background-color: var(--ds-color-theme-green-dark-surface-primary);
+}
+body[data-rebrand=true][data-theme-variant=violet] {
+  --default-light-background-color: var(--ds-color-theme-violet-light-surface-primary);
+  --default-dark-background-color: var(--ds-color-theme-violet-dark-surface-primary);
+}
+body[data-rebrand=true][data-theme-variant=rose] {
+  --default-light-background-color: var(--ds-color-theme-rose-light-surface-primary);
+  --default-dark-background-color: var(--ds-color-theme-rose-dark-surface-primary);
+}
+body[data-rebrand=true][data-theme-variant=orange] {
+  --default-light-background-color: var(--ds-color-theme-orange-light-surface-primary);
+  --default-dark-background-color: var(--ds-color-theme-orange-dark-surface-primary);
+}
+body[data-rebrand=true][data-theme-variant=desert] {
+  --default-light-background-color: var(--ds-color-theme-desert-light-surface-primary);
+  --default-dark-background-color: var(--ds-color-theme-desert-dark-surface-primary);
+}
 :root:has(body[data-platform-name=windows]) {
   --body-font-size: 14px;
   --body-font-weight: 400;
@@ -5190,9 +5222,12 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
   }
 }
 body[data-rebrand=true] .TabSwitcher_tabSwitcher {
-  background: var(--ds-color-theme-control-fill-primary);
+  background: var(--ds-color-theme-ntp-on-custom-background-light-input-control-tertiary-background-color);
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
+}
+[data-theme=dark] :is(body[data-rebrand=true] .TabSwitcher_tabSwitcher) {
+  background: var(--ds-color-theme-ntp-on-custom-background-dark-input-control-tertiary-background-color);
 }
 body[data-rebrand=true] .TabSwitcher_tab:not([aria-selected=true]) {
   color: var(--ds-color-theme-text-secondary);

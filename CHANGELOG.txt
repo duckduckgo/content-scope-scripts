@@ -1,5 +1,2 @@
-- refactor(onboarding): define messages in JSON schemas and document them (#3213)
-- Onboarding: wrap step titles with text-wrap: pretty (#3233)
-- Replace Prettier with oxfmt (#3218)
-- build(deps-dev): bump web-ext from 10.6.0 to 10.8.0 (#3165)
-- Reduce per-frame heap: named captured-globals imports, tracker lookup as JSON string (#3231)
+- NTP rebrand: use Surface/Primary page background and Fill-Tertiary tab switcher track (#3202)
+- build(deps-dev): bump typescript-eslint from 8.72.1 to 8.72.2 (#3242)
