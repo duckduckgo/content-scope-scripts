@@ -1,7 +1,9 @@
 // eslint-disable-next-line no-redeclare
 import { isArray, Map, performanceNow, ReflectApply, Set } from '../../../captured-globals.js';
+import { isFailure, mismatch, thrownFailure } from '../model/core.js';
 
 /**
+ * @import { Failure } from '../model/core.js'
  * @import { CompiledExpression } from '../model/types.js'
  * @import { CompiledField } from '../predicates/fields.js'
  * @import { CompiledPredicate } from '../predicates/predicates.js'
@@ -311,24 +313,28 @@ export class Recorders {
     _listen(target, type) {
         const recorder = new Recorder('event', type, target, this.now);
         const stop = this.listen(target, type, (event) => recorder.record([event]));
-        if (!stop) return undefined;
+        if (!stop || isFailure(stop)) return undefined;
         recorder.stop = stop;
         return recorder;
     }
 
     /**
      * Listen for trusted events of a type on a target, in the capture phase and passively, with the
-     * listener methods captured. Gives the function that stops listening, or `undefined` when the
-     * target can't be listened on.
+     * listener methods captured. Gives the function that stops listening, a `Failure` when the target
+     * isn't an object or adding the listener throws, or `undefined` when the engine has no listener
+     * methods.
      *
      * @param {unknown} target
      * @param {string} type
      * @param {(event: Event) => void} onEvent
-     * @returns {(() => void) | undefined}
+     * @returns {(() => void) | Failure | undefined}
      */
     listen(target, type, onEvent) {
         const { addEventListener: add, removeEventListener: remove } = this.#globals;
-        if (!add || !remove || (typeof target !== 'object' && typeof target !== 'function') || target === null) return undefined;
+        if (!add || !remove) return undefined;
+        if ((typeof target !== 'object' && typeof target !== 'function') || target === null) {
+            return mismatch('a `target` that is not an event target');
+        }
         /** @param {Event} event */
         const listener = (event) => {
             if (!event.isTrusted) return;
@@ -338,20 +344,21 @@ export class Recorders {
         const options = { capture: true, passive: true };
         try {
             ReflectApply(add, target, [type, listener, options]);
-        } catch {
-            return undefined;
+        } catch (e) {
+            return thrownFailure(e);
         }
         return () => ReflectApply(remove, target, [type, listener, options]);
     }
 
     /**
      * Observe a node's mutations with the `MutationObserver` captured, giving each callback's records.
-     * Gives the function that disconnects it, or `undefined` when the node can't be observed.
+     * Gives the function that disconnects it, a `Failure` when observing throws, such as on a target
+     * that isn't a node, or `undefined` when the engine has no `MutationObserver`.
      *
      * @param {unknown} target
      * @param {Record<string, unknown>} options - the options of `MutationObserver.observe()`
      * @param {(records: MutationRecord[]) => void} onRecords
-     * @returns {(() => void) | undefined}
+     * @returns {(() => void) | Failure | undefined}
      */
     observeMutations(target, options, onRecords) {
         const { MutationObserver: Observer, observeMutations: observe, disconnectMutations: disconnect } = this.#globals;
@@ -360,9 +367,8 @@ export class Recorders {
             const observer = new Observer((records) => onRecords(records));
             ReflectApply(observe, observer, [target, options]);
             return () => ReflectApply(disconnect, observer, []);
-        } catch {
-            // A target that isn't a node, or options the engine rejects
-            return undefined;
+        } catch (e) {
+            return thrownFailure(e);
         }
     }
 

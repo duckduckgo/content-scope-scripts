@@ -23,6 +23,7 @@ import { selectItems } from './web-detection/sources/common.js';
  * @import { DetectorRun } from './web-detection/evaluate/run.js'
  * @import { WaitBody, WaitRequest } from './web-detection/sources/wait.js'
  * @import { SliceKind } from './detector-perf.js'
+ * @import { Failure } from './web-detection/model/core.js'
  */
 
 /**
@@ -636,8 +637,8 @@ export default class WebDetection extends ContentFeature {
 
     /**
      * Suspend a run in a `wait`: listen on the recorder its type registered, or on its `target`, until
-     * an item passes its `where` or `timeoutMs` passes. A `target` that failed resumes the run with
-     * the failure.
+     * an item passes its `where` or `timeoutMs` passes. A `target` that failed, or that can't be
+     * observed or listened on, resumes the run with the failure.
      *
      * @param {SuspendableRun} run
      * @param {WaitRequest} request
@@ -647,27 +648,31 @@ export default class WebDetection extends ContentFeature {
             this._step(run, target, 'continue');
             return;
         }
-        run.waiting = body;
-        /** @type {Array<() => void>} */
-        const stops = [];
         /** @param {unknown[]} items */
         const onItems = (items) => this._onWaitItems(run, items);
+        /** @type {(() => void) | Failure | undefined} */
+        let stop;
         if (body.kind === 'mutation') {
-            const stop = this.#recorders.observeMutations(target, body.mutation ?? {}, (records) => {
+            stop = this.#recorders.observeMutations(target, body.mutation ?? {}, (records) => {
                 // A record has no time of its own
                 const timeStamp = performanceNow();
                 for (const record of records) this._reader.pin(record, 'timeStamp', timeStamp);
                 onItems(records);
             });
-            if (stop) stops.push(stop);
         } else if (body.target !== undefined) {
-            const stop = this.#recorders.listen(target, body.type, (event) => onItems([event]));
-            if (stop) stops.push(stop);
+            stop = this.#recorders.listen(target, body.type, (event) => onItems([event]));
         } else if (body.recorder) {
             const recorder = body.recorder;
             recorder.listeners.set(run, (arrival) => onItems(arrival.items));
-            stops.push(() => recorder.listeners.delete(run));
+            stop = () => recorder.listeners.delete(run);
         }
+        if (isFailure(stop)) {
+            this._step(run, body.target ? stop.at(body.target.path) : stop, 'continue');
+            return;
+        }
+        run.waiting = body;
+        /** @type {Array<() => void>} */
+        const stops = stop ? [stop] : [];
         if (body.timeoutMs !== null) {
             const timer = setTimeout(() => this._onWaitTimeout(run), body.timeoutMs);
             stops.push(() => clearTimeout(timer));

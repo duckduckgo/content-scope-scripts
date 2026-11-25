@@ -213,6 +213,36 @@ describe('The wait source', () => {
         ]);
     });
 
+    /** @type {Array<[string, Record<string, unknown>]>} */
+    const unobservable = [
+        ['observing mutations on it throws', { mutation: { childList: true }, target: { api: 'wdMissing' } }],
+        ['it is not an event target', { event: 'scroll', target: { api: 'wdCount' } }],
+    ];
+    for (const [name, body] of unobservable) {
+        it(`fails at its \`target\` straight away when ${name}`, () => {
+            testGlobal.wdCount = 3;
+            try {
+                const instance = onClick([{ define: { got: { wait: { ...body, timeoutMs: 1000 } } } }, SEND_GOT]);
+                dispatch('click');
+                expect(sent(instance)).toEqual([]);
+                expect(instance.getBreakageReportData()).toEqual([
+                    { detectorId: 'g.d', errors: { 'actions.0.define.got.wait.target.api': 'aborted' } },
+                ]);
+            } finally {
+                delete testGlobal.wdCount;
+            }
+        });
+    }
+
+    it('lets `fails` catch a `target` it cannot observe', () => {
+        const instance = onClick({
+            if: { wait: { mutation: { childList: true }, target: { api: 'wdMissing' }, timeoutMs: 1000 }, is: { fails: true } },
+            then: { fireEvent: { type: 'caught' } },
+        });
+        dispatch('click');
+        expect(sent(instance)).toEqual([{ type: 'caught' }]);
+    });
+
     describe('while a run is suspended', () => {
         const WAIT = { define: { got: { wait: { event: 'scroll', timeoutMs: 1000 } } } };
         const RAN = { fireEvent: { type: 'ran' } };
