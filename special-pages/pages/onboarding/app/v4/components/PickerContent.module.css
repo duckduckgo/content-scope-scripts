@@ -133,7 +133,7 @@
     top: -6.33px;
     left: 31.67px;
 
-    .site:hover:not(:disabled):not([data-on='true']) & {
+    .site:hover:not(:disabled, [data-on='true']) & {
         display: block;
     }
 }
