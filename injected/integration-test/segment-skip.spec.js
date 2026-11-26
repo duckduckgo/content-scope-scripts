@@ -373,6 +373,19 @@ test.describe('SegmentSkip', () => {
         await expect(page.locator(SKIP_BUTTON)).toHaveCount(0);
     });
 
+    test('auto mode: the undo button hides while an ad is showing', async ({ page }, testInfo) => {
+        await loadPlayer(page, testInfo, { responses: { getConfig: CONFIG_AUTO } });
+        await expect(page.locator(MARKER)).toHaveCount(1);
+
+        await seekTo(page, 1.5);
+        await play(page);
+        await expect.poll(() => currentTime(page), { timeout: 2500 }).toBeGreaterThanOrEqual(5);
+        await expect(page.locator(SKIP_BUTTON)).toBeVisible();
+
+        await page.evaluate(() => document.querySelector('#movie_player')?.classList.add('ad-showing'));
+        await expect(page.locator(SKIP_BUTTON)).toHaveCount(0);
+    });
+
     test("auto mode: skips with YouTube's controls visible", async ({ page }, testInfo) => {
         await loadPlayer(page, testInfo, { responses: { getConfig: CONFIG_AUTO } });
         await expect(page.locator(MARKER)).toHaveCount(1);

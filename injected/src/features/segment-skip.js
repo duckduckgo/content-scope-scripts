@@ -627,7 +627,8 @@ export class SegmentSkip extends ContentFeature {
         // Inside a segment the skip button takes over from an undo offer.
         if (uuid) this.clearUndo();
         const skippable = uuid && !this.#skipButtonTimedOut;
-        const kind = skippable ? 'skip' : this.#undoSegment ? 'undo' : null;
+        // No undo over an ad: it plays in the same video element, so the tap would seek the ad.
+        const kind = skippable ? 'skip' : this.#undoSegment && !this.inAd() ? 'undo' : null;
         const host = kind ? findFirstVisible(this.#doc, this.#skipButtonHostSelectors) : null;
         if (!host || !kind) {
             this.hideSkipButton();
