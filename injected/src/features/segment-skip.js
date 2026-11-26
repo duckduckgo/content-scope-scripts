@@ -59,7 +59,12 @@ const COLLAPSE_FADE_AT_MS = 620;
 const COLLAPSE_DONE_MS = 840;
 const OVERLAY_CLASS = 'ddg-segmentskip-overlay';
 const SKIP_BUTTON_CLASS = 'ddg-segmentskip-skip';
+// On <html> while playback is inside a segment or the skip or undo button is up. Set on the root, not the player,
+// since YouTube rewrites the player's classes.
+const BUSY_ATTR = 'data-ddg-segmentskip-busy';
 const STYLES = `
+/* Duck Player's in-player "Watch in Duck Player" icon sits where the skip button does; keep it out of the way. */
+[${BUSY_ATTR}] .ddg-overlay[data-size^="video-player"] { display: none !important; }
 .${OVERLAY_CLASS} { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
 .${OVERLAY_CLASS} > div { position: absolute; top: 0; bottom: 0; min-width: 2px; background: #FAB341; }
 /* Mobile: the playhead dot is a sibling of the bar host with no z-index of its own; keep it above the overlay. */
@@ -482,7 +487,8 @@ export class SegmentSkip extends ContentFeature {
         this.#undoSegment = segment;
         this.#undoTimer = setTimeout(() => {
             this.#undoSegment = null;
-            this.hideSkipButton();
+            // Not just hideSkipButton: a paused video fires no timeupdate, and the busy flag must clear too.
+            this.updateSkip();
         }, UNDO_TIMEOUT_MS);
     }
 
@@ -628,6 +634,7 @@ export class SegmentSkip extends ContentFeature {
         const skippable = uuid && !this.#skipButtonTimedOut;
         // No undo over an ad: it plays in the same video element, so the tap would seek the ad.
         const kind = skippable ? 'skip' : this.#undoSegment && !this.inAd() ? 'undo' : null;
+        this.#doc.documentElement.toggleAttribute(BUSY_ATTR, Boolean(uuid || kind));
         const host = kind ? findFirstVisible(this.#doc, this.#skipButtonHostSelectors) : null;
         if (!host || !kind) {
             this.hideSkipButton();

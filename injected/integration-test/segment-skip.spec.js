@@ -304,6 +304,26 @@ test.describe('SegmentSkip', () => {
         expect(await currentTime(page)).toBeCloseTo(5, 1);
     });
 
+    test("hides Duck Player's in-player icon inside a segment", async ({ page }, testInfo) => {
+        await loadPlayer(page, testInfo);
+        await expect(page.locator(MARKER)).toHaveCount(1);
+        // Stands in for the icon Duck Player's video overlay adds to the player.
+        await page.evaluate(() => {
+            const icon = document.createElement('div');
+            icon.className = 'ddg-overlay';
+            icon.dataset.size = 'video-player';
+            icon.textContent = 'Dax';
+            document.querySelector('#movie_player')?.append(icon);
+        });
+        const icon = page.locator('.ddg-overlay');
+        await expect(icon).toBeVisible();
+        await seekTo(page, 3);
+        await expect(page.locator(SKIP_BUTTON)).toBeVisible();
+        await expect(icon).toBeHidden();
+        await seekTo(page, 6);
+        await expect(icon).toBeVisible();
+    });
+
     test("manual mode: desktop YouTube's controls don't hide the skip button", async ({ page }, testInfo) => {
         await loadPlayer(page, testInfo);
         await expect(page.locator(MARKER)).toHaveCount(1);
