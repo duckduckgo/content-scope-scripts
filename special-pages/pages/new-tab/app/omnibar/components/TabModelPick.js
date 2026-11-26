@@ -15,7 +15,6 @@ import { resolveModel, resolveReasoningEffort } from './modelPick.js';
  * @property {(modelId: string) => void} pickModel - the user picked a model
  * @property {(effort: ReasoningEffort) => void} pickReasoningEffort - the user picked an effort
  * @property {(modelId: string) => void} switchToModel - native already switched the model, so the tab follows
- * @property {() => void} endPick - the tab sent its prompt
  * @typedef {import('preact').ContextType<typeof OmnibarContext>} OmnibarActions
  */
 
@@ -67,7 +66,6 @@ function nativeModelPick({ config, omnibar }) {
         pickModel: omnibar.setSelectedModelId,
         pickReasoningEffort: omnibar.setSelectedReasoningEffort,
         switchToModel: () => {},
-        endPick: () => {},
     };
 }
 
@@ -104,6 +102,5 @@ function tabModelPick({ pick, setPick, models, config, omnibar }) {
             omnibar.selectReasoningEffort(effort);
         },
         switchToModel,
-        endPick: () => setPick(null),
     };
 }

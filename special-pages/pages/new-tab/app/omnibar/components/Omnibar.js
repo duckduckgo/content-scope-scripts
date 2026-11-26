@@ -129,8 +129,6 @@ export function Omnibar({
     const rebrand = useNewTabPageRebranding();
     const { keyboardFocusWithinProps } = useKeyboardFocusWithin({ enabled: rebrand });
     const { openSuggestion, submitSearch, submitChat, setShowCustomizePopover } = useContext(OmnibarContext);
-    const { endPick } = useModelPick();
-
     const { open: openCustomizer } = useDrawerControls();
     useDrawerEventListeners(
         {
@@ -174,7 +172,6 @@ export function Omnibar({
     /** @type {(params: SubmitChatAction) => void} */
     const submitChatOnTab = (params) => {
         submitChat(launcherPromoVisibleRef.current ? { ...params, launcherPromoVisible: true } : params);
-        endPick();
     };
 
     /** @type {(params: SubmitChatAction) => void} */

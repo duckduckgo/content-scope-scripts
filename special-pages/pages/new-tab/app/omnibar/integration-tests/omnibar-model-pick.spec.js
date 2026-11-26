@@ -99,8 +99,8 @@ test.describe('omnibar per-tab model pick', () => {
         await expect(omnibar.modelSelectorButton()).toContainText('GPT-5');
     });
 
-    test('sends the pick with the prompt, then starts the tab on the default again', async ({ page }, workerInfo) => {
-        const { ntp, omnibar } = await openPerTabOmnibar(page, workerInfo);
+    test('sends the pick with the prompt and keeps it until the tab leaves the New Tab Page', async ({ page }, workerInfo) => {
+        const { omnibar } = await openPerTabOmnibar(page, workerInfo);
 
         await pickModel(omnibar, 'GPT-OSS');
         await omnibar.chatInput().fill('hello');
@@ -111,12 +111,11 @@ test.describe('omnibar per-tab model pick', () => {
             target: 'same-tab',
             modelId: 'openai_gpt-oss-120b',
         });
-        await expect(omnibar.modelSelectorButton()).toContainText('Haiku 4.5');
+        await expect(omnibar.modelSelectorButton()).toContainText('GPT-OSS');
 
-        await omnibar.chatInput().fill('again');
-        await omnibar.chatInput().press('Enter');
-        const submits = await ntp.mocks.waitForCallCount({ method: 'omnibar_submitChat', count: 2 });
-        expect(submits[1].payload.params).toMatchObject({ chat: 'again', modelId: 'claude-haiku-4-5' });
+        await omnibar.didSwitchToTab('02', ['02']);
+        await omnibar.didSwitchToTab('01', ['01', '02']);
+        await expect(omnibar.modelSelectorButton()).toContainText('Haiku 4.5');
     });
 
     test('keeps a reasoning effort pick on its tab', async ({ page }, workerInfo) => {
