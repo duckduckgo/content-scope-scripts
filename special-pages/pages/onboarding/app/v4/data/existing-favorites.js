@@ -12,11 +12,7 @@
  * @returns {string | null} the lowercased hostname without a leading `www.`, or null if the URL doesn't parse
  */
 export function hostKey(url) {
-    try {
-        return new URL(url).hostname.replace(/^www\./, '');
-    } catch {
-        return null;
-    }
+    return urlKey(url)?.host ?? null;
 }
 
 /**
@@ -24,9 +20,12 @@ export function hostKey(url) {
  * @returns {{ host: string, path: string } | null} the host key and the path without a trailing `/`, or null if the URL doesn't parse
  */
 function urlKey(url) {
-    const host = hostKey(url);
-    if (host === null) return null;
-    return { host, path: new URL(url).pathname.replace(/\/+$/, '') };
+    try {
+        const { hostname, pathname } = new URL(url);
+        return { host: hostname.replace(/^www\./, ''), path: pathname.replace(/\/+$/, '') };
+    } catch {
+        return null;
+    }
 }
 
 /**

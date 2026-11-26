@@ -259,16 +259,17 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
              * the page asks only when the user is about to reach the step, and drops it if the answer is no.
              * The ask runs in the effect below, and its answer advances the page.
              */
-            if (msg.kind === 'advance' && state.order[state.order.indexOf(state.activeStep) + 1] === 'picker') {
+            if (msg.kind === 'advance' && nextStepId(state.order, state.activeStep) === 'picker') {
                 dispatch({ kind: 'picker-ask' });
                 return;
             }
 
             /**
-             * Past the last step there is nowhere to go. Under reduced motion the exit fade's callback can fire again on
-             * a re-render, e.g. after a no from native finished onboarding, and must not report the step twice.
+             * Past the last step there is nowhere to go. Under reduced motion, Bubble's ref callback calls onExitComplete
+             * again on every re-render while `exiting` is true, e.g. after a no from native finished onboarding. This
+             * drops those repeats so the step isn't reported twice.
              */
-            if (msg.kind === 'advance' && state.order.indexOf(state.activeStep) + 1 >= state.order.length) {
+            if (msg.kind === 'advance' && nextStepId(state.order, state.activeStep) === null) {
                 return;
             }
 
@@ -341,9 +342,8 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
             // eslint-disable-next-line promise/prefer-await-to-then
             .then((answer) => {
                 const nextOrder = answer.show ? order : order.filter((id) => id !== 'picker');
-                const hasNext = nextOrder.indexOf(state.activeStep) + 1 < nextOrder.length;
                 dispatch({ kind: 'picker-answer', ...answer });
-                if (hasNext) {
+                if (nextStepId(nextOrder, state.activeStep) !== null) {
                     dispatch({ kind: 'advance' });
                     reportStepCompleted(state, nextOrder, messaging);
                 } else {
@@ -399,6 +399,15 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
 }
 
 /**
+ * @param {import('./types').Step['id'][]} order
+ * @param {import('./types').Step['id']} activeStep
+ * @returns {import('./types').Step['id'] | null} the step after `activeStep` in `order`, or null if there is none
+ */
+function nextStepId(order, activeStep) {
+    return order[order.indexOf(activeStep) + 1] ?? null;
+}
+
+/**
  * Tells native the active step is done, and which step comes after it.
  *
  * @param {GlobalState} state
@@ -406,7 +415,7 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
  * @param {import("../src/index.js").OnboardingPage} messaging
  */
 function reportStepCompleted(state, order, messaging) {
-    const next = order[order.indexOf(state.activeStep) + 1] ?? null;
+    const next = nextStepId(order, state.activeStep);
     messaging.stepCompleted({ id: state.activeStep, next });
     // Fire row_shown for the first row of the incoming settings step
     if (next) {

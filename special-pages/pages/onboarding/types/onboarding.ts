@@ -300,7 +300,7 @@ export interface PickerStep {
    */
   sites?: PickerSite[];
   /**
-   * URLs of the favorites the user already has, filled in from the shouldShowTopSitesPicker answer. Never more than 4, because native answers no at 5 or more. The page shows any suggested site whose hostname matches one of these, after dropping a leading "www.", as picked and locked, and leaves it out of addFavorites. Unparseable URLs are skipped.
+   * URLs of the favorites the user already has, filled in from the shouldShowTopSitesPicker answer. Never more than 4, because native answers no at 5 or more. A suggested site matches a favorite when their hostnames match after dropping a leading "www.". A site whose URL has a path, such as https://www.bbc.com/news, also needs the favorite's path to be that path or a path below it. The page shows matching sites as picked and locked, and leaves them out of addFavorites. Unparseable URLs are skipped.
    */
   existingFavorites?: string[];
 }
@@ -369,7 +369,7 @@ export interface ShouldShowTopSitesPickerRequest {
  */
 export interface TopSitesPickerAnswer {
   /**
-   * true shows the picker. false drops it, and the page moves on to the step after it.
+   * true shows the picker. false drops it, and the page moves on to the step after it, or ends onboarding with dismissToAddressBar when the picker is the last step.
    */
   show: boolean;
   /**

@@ -499,7 +499,7 @@ test.describe('onboarding v4', () => {
 
             await onboarding.didAddFavorites([youtube]);
             await onboarding.didDismissToAddressBar();
-            expect(await onboarding.mocks.outgoing({ names: ['stepCompleted'] })).toHaveLength(0);
+            await onboarding.didNotFireStepCompleted();
         });
 
         test('As the last step, Skip finishes onboarding', async ({ page }, workerInfo) => {
@@ -509,7 +509,7 @@ test.describe('onboarding v4', () => {
 
             await onboarding.didNotAddFavorites();
             await onboarding.didDismissToAddressBar();
-            expect(await onboarding.mocks.outgoing({ names: ['stepCompleted'] })).toHaveLength(0);
+            await onboarding.didNotFireStepCompleted();
         });
 
         test('The primary button comes first on Windows and last on macOS', async ({ page }, workerInfo) => {
@@ -772,7 +772,7 @@ test.describe('onboarding v4', () => {
             await page.getByRole('button', { name: 'Next' }).click();
 
             await onboarding.didDismissToAddressBar();
-            expect(await onboarding.mocks.outgoing({ names: ['stepCompleted'] })).toHaveLength(0);
+            await onboarding.didNotFireStepCompleted();
         });
 
         test('An answer without show skips the picker', async ({ page }, workerInfo) => {

@@ -7,7 +7,7 @@
   "properties": {
     "show": {
       "type": "boolean",
-      "description": "true shows the picker. false drops it, and the page moves on to the step after it."
+      "description": "true shows the picker. false drops it, and the page moves on to the step after it, or ends onboarding with dismissToAddressBar when the picker is the last step."
     },
     "existingFavorites": {
       "type": "array",

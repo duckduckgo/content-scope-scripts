@@ -346,6 +346,11 @@ export class OnboardingPage {
         ]);
     }
 
+    async didNotFireStepCompleted() {
+        const calls = await this.mocks.outgoing({ names: ['stepCompleted'] });
+        expect(calls).toHaveLength(0);
+    }
+
     /**
      * Asserts that telemetryEvent notifications were fired matching the expected attributes list.
      * @param {{name: string, value?: string}[]} expectedAttributes
