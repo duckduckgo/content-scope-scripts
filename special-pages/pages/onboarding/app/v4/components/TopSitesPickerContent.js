@@ -5,15 +5,15 @@ import { useTypedTranslation } from '../../types';
 import { existingSiteIds } from '../data/existing-favorites';
 import { Button } from './Button';
 import { Container } from './Container';
-import styles from './PickerContent.module.css';
+import styles from './TopSitesPickerContent.module.css';
 
 /**
- * @typedef {import('../../types').PickerStep} PickerStep
- * @typedef {import('../../types').PickerSite} PickerSite
+ * @typedef {import('../../types').TopSitesPickerStep} TopSitesPickerStep
+ * @typedef {import('../../types').TopSitesPickerSite} TopSitesPickerSite
  * @typedef {import('../../types').AddFavoritesParams} AddFavoritesParams
  */
 
-/** @type {PickerSite['section'][]} */
+/** @type {TopSitesPickerSite['section'][]} */
 const SECTIONS = ['email', 'popular'];
 
 /**
@@ -21,11 +21,11 @@ const SECTIONS = ['email', 'popular'];
  * and locked, and stay out of addFavorites.
  *
  * @param {object} props
- * @param {PickerStep} props.step
+ * @param {TopSitesPickerStep} props.step
  * @param {(params: AddFavoritesParams) => void} props.addFavorites
  * @param {() => void} props.advance
  */
-export function PickerContent({ step, addFavorites, advance }) {
+export function TopSitesPickerContent({ step, addFavorites, advance }) {
     const { t } = useTypedTranslation();
     const idPrefix = useId();
     const [pickedIds, setPickedIds] = useState(/** @type {string[]} */ ([]));
@@ -40,7 +40,7 @@ export function PickerContent({ step, addFavorites, advance }) {
     const existingIds = existingSiteIds(sites, step.existingFavorites ?? []);
     const picks = sites.filter((site) => pickedIds.includes(site.id) && !existingIds.includes(site.id));
 
-    /** @param {PickerSite} site */
+    /** @param {TopSitesPickerSite} site */
     const toggle = (site) => {
         setPickedIds((ids) => {
             if (ids.includes(site.id)) return ids.filter((id) => id !== site.id);
@@ -65,19 +65,19 @@ export function PickerContent({ step, addFavorites, advance }) {
     };
 
     const headers = {
-        email: { heading: t('picker_section_email'), description: t('picker_section_email_description') },
-        popular: { heading: t('picker_section_popular'), description: t('picker_section_popular_description') },
+        email: { heading: t('topSitesPicker_section_email'), description: t('topSitesPicker_section_email_description') },
+        popular: { heading: t('topSitesPicker_section_popular'), description: t('topSitesPicker_section_popular_description') },
     };
 
     // Only popular sites carry a line of copy. A site without one, like Wikipedia for now, shows its name alone.
     /** @type {Record<string, string>} */
     const siteDescriptions = {
-        youtube: t('picker_site_youtube'),
-        reddit: t('picker_site_reddit'),
-        amazon: t('picker_site_amazon'),
-        facebook: t('picker_site_facebook'),
-        bbcNews: t('picker_site_bbcNews'),
-        netflix: t('picker_site_netflix'),
+        youtube: t('topSitesPicker_site_youtube'),
+        reddit: t('topSitesPicker_site_reddit'),
+        amazon: t('topSitesPicker_site_amazon'),
+        facebook: t('topSitesPicker_site_facebook'),
+        bbcNews: t('topSitesPicker_site_bbcNews'),
+        netflix: t('topSitesPicker_site_netflix'),
     };
 
     return (
@@ -142,10 +142,10 @@ export function PickerContent({ step, addFavorites, advance }) {
             })}
             <div class={styles.actions}>
                 <Button variant="secondary" onClick={skip} disabled={done}>
-                    {t('picker_skip')}
+                    {t('topSitesPicker_skip')}
                 </Button>
                 <Button variant="primary" onClick={add} disabled={done || picks.length === 0}>
-                    {t('picker_add')}
+                    {t('topSitesPicker_add')}
                 </Button>
             </div>
         </Container>

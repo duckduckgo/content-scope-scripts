@@ -437,11 +437,11 @@ test.describe('onboarding v4', () => {
             await onboarding.didFireStepCompleted({ id: 'customize', next: 'addressBarMode' });
         });
 
-        test('With picker in steps, customize advances to the picker', async ({ page }, workerInfo) => {
+        test('With topSitesPicker in steps, customize advances to the picker', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({
                 stepDefinitions: null,
-                steps: ['welcome', 'getStarted', 'customize', 'picker', 'addressBarMode'],
+                steps: ['welcome', 'getStarted', 'customize', 'topSitesPicker', 'addressBarMode'],
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'customize' });
@@ -451,7 +451,7 @@ test.describe('onboarding v4', () => {
             await page.getByRole('button', { name: 'Next' }).click();
 
             await page.getByRole('button', { name: 'Skip' }).waitFor({ timeout: 1000 });
-            await onboarding.didFireStepCompleted({ id: 'customize', next: 'picker' });
+            await onboarding.didFireStepCompleted({ id: 'customize', next: 'topSitesPicker' });
         });
 
         test('Shows only the listed steps in the page order, ignoring unknown entries and exclude', async ({ page }, workerInfo) => {
@@ -472,7 +472,7 @@ test.describe('onboarding v4', () => {
         });
     });
 
-    test.describe('Given I am on the picker step', () => {
+    test.describe('Given I am on the Top Sites picker step', () => {
         const gmail = { id: 'gmail', url: 'https://mail.google.com', title: 'Gmail' };
         const outlook = { id: 'outlook', url: 'https://outlook.live.com', title: 'Outlook' };
         const youtube = { id: 'youtube', url: 'https://www.youtube.com', title: 'YouTube' };
@@ -480,7 +480,7 @@ test.describe('onboarding v4', () => {
 
         test('Add sends the toggled sites', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
-            await onboarding.goToPicker();
+            await onboarding.goToTopSitesPicker();
             await page.getByRole('switch', { name: 'YouTube', exact: true }).click();
             await page.getByRole('switch', { name: 'Gmail', exact: true }).click();
             await page.getByRole('button', { name: 'Add to Favorites' }).click();
@@ -488,12 +488,12 @@ test.describe('onboarding v4', () => {
             await page.getByRole('heading', { name: 'Want easy access to private AI Chat?' }).waitFor({ timeout: 1000 });
             // in list order, not click order
             await onboarding.didAddFavorites([gmail, youtube]);
-            await onboarding.didFireStepCompleted({ id: 'picker', next: 'addressBarMode' });
+            await onboarding.didFireStepCompleted({ id: 'topSitesPicker', next: 'addressBarMode' });
         });
 
         test('As the last step, Add finishes onboarding', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
-            await onboarding.goToPicker({ init: { steps: ['welcome', 'getStarted', 'customize', 'picker'] } });
+            await onboarding.goToTopSitesPicker({ init: { steps: ['welcome', 'getStarted', 'customize', 'topSitesPicker'] } });
             await page.getByRole('switch', { name: 'YouTube', exact: true }).click();
             await page.getByRole('button', { name: 'Add to Favorites' }).click();
 
@@ -504,7 +504,7 @@ test.describe('onboarding v4', () => {
 
         test('As the last step, Skip finishes onboarding', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
-            await onboarding.goToPicker({ init: { steps: ['welcome', 'getStarted', 'customize', 'picker'] } });
+            await onboarding.goToTopSitesPicker({ init: { steps: ['welcome', 'getStarted', 'customize', 'topSitesPicker'] } });
             await page.getByRole('button', { name: 'Skip' }).click();
 
             await onboarding.didNotAddFavorites();
@@ -514,7 +514,7 @@ test.describe('onboarding v4', () => {
 
         test('The primary button comes first on Windows and last on macOS', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
-            await onboarding.goToPicker();
+            await onboarding.goToTopSitesPicker();
             const add = await page.getByRole('button', { name: 'Add to Favorites' }).boundingBox();
             const skip = await page.getByRole('button', { name: 'Skip' }).boundingBox();
             if (!add || !skip) throw new Error('picker buttons not rendered');
@@ -527,7 +527,7 @@ test.describe('onboarding v4', () => {
 
         test('Add is disabled until a site is toggled', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
-            await onboarding.goToPicker();
+            await onboarding.goToTopSitesPicker();
             await expect(page.getByRole('button', { name: 'Add to Favorites' })).toBeDisabled();
             await page.getByRole('switch', { name: 'YouTube', exact: true }).click();
             await expect(page.getByRole('button', { name: 'Add to Favorites' })).toBeEnabled();
@@ -537,8 +537,8 @@ test.describe('onboarding v4', () => {
 
         test('Several email providers can be picked, next to a locked one', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
-            await onboarding.goToPicker();
-            await onboarding.pushConfigUpdate({ stepDefinitions: { picker: { existingFavorites: ['https://mail.yahoo.com'] } } });
+            await onboarding.goToTopSitesPicker();
+            await onboarding.pushConfigUpdate({ stepDefinitions: { topSitesPicker: { existingFavorites: ['https://mail.yahoo.com'] } } });
             await page.getByRole('switch', { name: 'Gmail', exact: true }).click();
             await page.getByRole('switch', { name: 'Outlook', exact: true }).click();
             for (const name of ['Gmail', 'Outlook', 'Yahoo Mail']) {
@@ -551,7 +551,7 @@ test.describe('onboarding v4', () => {
 
         test('Double click on Add sends one addFavorites', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
-            await onboarding.goToPicker();
+            await onboarding.goToTopSitesPicker();
             await page.getByRole('switch', { name: 'YouTube', exact: true }).click();
             await page.getByRole('button', { name: 'Add to Favorites' }).dblclick();
 
@@ -566,7 +566,7 @@ test.describe('onboarding v4', () => {
 
         test('During the exit fade, a second Add or a late Skip does nothing', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
-            await onboarding.goToPicker({ reducedMotion: false });
+            await onboarding.goToTopSitesPicker({ reducedMotion: false });
             await page.getByRole('switch', { name: 'YouTube', exact: true }).click();
             const add = page.getByRole('button', { name: 'Add to Favorites' });
             await add.click();
@@ -581,7 +581,7 @@ test.describe('onboarding v4', () => {
 
         test('Skip during the exit fade keeps Add from sending', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
-            await onboarding.goToPicker({ reducedMotion: false });
+            await onboarding.goToTopSitesPicker({ reducedMotion: false });
             await page.getByRole('switch', { name: 'YouTube', exact: true }).click();
             await page.getByRole('button', { name: 'Skip' }).click();
             await expect(page.getByRole('button', { name: 'Add to Favorites' })).toBeDisabled();
@@ -592,18 +592,18 @@ test.describe('onboarding v4', () => {
 
         test('Excluding the picker while it is shown still moves on to the next step', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
-            await onboarding.goToPicker();
-            await onboarding.pushConfigUpdate({ exclude: ['picker'] });
+            await onboarding.goToTopSitesPicker();
+            await onboarding.pushConfigUpdate({ exclude: ['topSitesPicker'] });
             await page.getByRole('button', { name: 'Skip' }).click();
 
             await page.getByRole('heading', { name: 'Want easy access to private AI Chat?' }).waitFor({ timeout: 1000 });
-            await onboarding.didFireStepCompleted({ id: 'picker', next: 'addressBarMode' });
+            await onboarding.didFireStepCompleted({ id: 'topSitesPicker', next: 'addressBarMode' });
         });
 
         test('existingFavorites: null shows every site instead of breaking the page', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
-            await onboarding.goToPicker();
-            await onboarding.pushConfigUpdate({ stepDefinitions: { picker: { existingFavorites: null } } });
+            await onboarding.goToTopSitesPicker();
+            await onboarding.pushConfigUpdate({ stepDefinitions: { topSitesPicker: { existingFavorites: null } } });
 
             await expect(page.getByRole('switch', { name: 'YouTube', exact: true })).toBeVisible();
             await expect(page.getByRole('switch', { name: 'Gmail', exact: true })).toBeVisible();
@@ -611,19 +611,19 @@ test.describe('onboarding v4', () => {
 
         test('Skip sends no addFavorites', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
-            await onboarding.goToPicker();
+            await onboarding.goToTopSitesPicker();
             await page.getByRole('switch', { name: 'YouTube', exact: true }).click();
             await page.getByRole('button', { name: 'Skip' }).click();
 
             await page.getByRole('heading', { name: 'Want easy access to private AI Chat?' }).waitFor({ timeout: 1000 });
-            await onboarding.didFireStepCompleted({ id: 'picker', next: 'addressBarMode' });
+            await onboarding.didFireStepCompleted({ id: 'topSitesPicker', next: 'addressBarMode' });
             await onboarding.didNotAddFavorites();
         });
 
         test('Existing favorites show as picked and locked, and the rest stay open', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
-            await onboarding.goToPicker();
-            await onboarding.pushConfigUpdate({ stepDefinitions: { picker: { existingFavorites: ['https://youtube.com/feed'] } } });
+            await onboarding.goToTopSitesPicker();
+            await onboarding.pushConfigUpdate({ stepDefinitions: { topSitesPicker: { existingFavorites: ['https://youtube.com/feed'] } } });
 
             const youtubeSwitch = page.getByRole('switch', { name: 'YouTube', exact: true });
             await expect(youtubeSwitch).toHaveAttribute('aria-checked', 'true');
@@ -639,8 +639,8 @@ test.describe('onboarding v4', () => {
 
         test('Add leaves existing favorites out of addFavorites', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
-            await onboarding.goToPicker();
-            await onboarding.pushConfigUpdate({ stepDefinitions: { picker: { existingFavorites: ['https://www.youtube.com'] } } });
+            await onboarding.goToTopSitesPicker();
+            await onboarding.pushConfigUpdate({ stepDefinitions: { topSitesPicker: { existingFavorites: ['https://www.youtube.com'] } } });
             await page.getByRole('switch', { name: 'Wikipedia', exact: true }).click();
             await page.getByRole('button', { name: 'Add to Favorites' }).click();
 
@@ -649,10 +649,10 @@ test.describe('onboarding v4', () => {
 
         test('A late update locks a toggled site and drops it from the picks', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
-            await onboarding.goToPicker();
+            await onboarding.goToTopSitesPicker();
             await page.getByRole('switch', { name: 'YouTube', exact: true }).click();
             await page.getByRole('switch', { name: 'Gmail', exact: true }).click();
-            await onboarding.pushConfigUpdate({ stepDefinitions: { picker: { existingFavorites: ['https://www.youtube.com'] } } });
+            await onboarding.pushConfigUpdate({ stepDefinitions: { topSitesPicker: { existingFavorites: ['https://www.youtube.com'] } } });
             await expect(page.getByRole('switch', { name: 'YouTube', exact: true })).toBeDisabled();
             await expect(page.getByRole('switch', { name: 'YouTube', exact: true })).toHaveAttribute('aria-checked', 'true');
             await page.getByRole('button', { name: 'Add to Favorites' }).click();
@@ -662,7 +662,7 @@ test.describe('onboarding v4', () => {
 
         test('Amazon points at the store for init.region', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
-            await onboarding.goToPicker({ init: { region: 'GB' } });
+            await onboarding.goToTopSitesPicker({ init: { region: 'GB' } });
             await page.getByRole('switch', { name: 'Amazon', exact: true }).click();
             await page.getByRole('button', { name: 'Add to Favorites' }).click();
 
@@ -671,7 +671,7 @@ test.describe('onboarding v4', () => {
 
         test('Amazon falls back to amazon.com without a region', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
-            await onboarding.goToPicker();
+            await onboarding.goToTopSitesPicker();
             await page.getByRole('switch', { name: 'Amazon', exact: true }).click();
             await page.getByRole('button', { name: 'Add to Favorites' }).click();
 
@@ -687,7 +687,7 @@ test.describe('onboarding v4', () => {
                 title: 'Amazon',
                 section: 'popular',
             };
-            await onboarding.goToPicker({ init: { region: 'GB', stepDefinitions: { picker: { sites: [amazon] } } } });
+            await onboarding.goToTopSitesPicker({ init: { region: 'GB', stepDefinitions: { topSitesPicker: { sites: [amazon] } } } });
             await page.getByRole('switch', { name: 'Amazon', exact: true }).click();
             await page.getByRole('button', { name: 'Add to Favorites' }).click();
 
@@ -697,7 +697,7 @@ test.describe('onboarding v4', () => {
         test('A site from native without urlByRegion keeps its URL', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             const amazon = { id: 'amazon', url: 'https://www.amazon.com', title: 'Amazon', section: 'popular' };
-            await onboarding.goToPicker({ init: { region: 'GB', stepDefinitions: { picker: { sites: [amazon] } } } });
+            await onboarding.goToTopSitesPicker({ init: { region: 'GB', stepDefinitions: { topSitesPicker: { sites: [amazon] } } } });
             await page.getByRole('switch', { name: 'Amazon', exact: true }).click();
             await page.getByRole('button', { name: 'Add to Favorites' }).click();
 
@@ -706,10 +706,12 @@ test.describe('onboarding v4', () => {
 
         test('A section with every site already a favorite keeps its heading', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
-            await onboarding.goToPicker();
+            await onboarding.goToTopSitesPicker();
             await onboarding.pushConfigUpdate({
                 stepDefinitions: {
-                    picker: { existingFavorites: ['https://mail.google.com', 'https://outlook.live.com', 'https://mail.yahoo.com'] },
+                    topSitesPicker: {
+                        existingFavorites: ['https://mail.google.com', 'https://outlook.live.com', 'https://mail.yahoo.com'],
+                    },
                 },
             });
 
@@ -721,12 +723,15 @@ test.describe('onboarding v4', () => {
 
         test('exclude removes the picker mid-flow', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
-            onboarding.withInitData({ stepDefinitions: null, steps: ['welcome', 'getStarted', 'customize', 'picker', 'addressBarMode'] });
+            onboarding.withInitData({
+                stepDefinitions: null,
+                steps: ['welcome', 'getStarted', 'customize', 'topSitesPicker', 'addressBarMode'],
+            });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'customize' });
             await expect(page.getByText('1 of 3')).toBeVisible();
 
-            await onboarding.pushConfigUpdate({ exclude: ['picker'] });
+            await onboarding.pushConfigUpdate({ exclude: ['topSitesPicker'] });
             await expect(page.getByText('1 of 2')).toBeVisible();
             await onboarding.skippedBookmarksBar();
             await onboarding.skippedSessionRestore();
@@ -741,8 +746,8 @@ test.describe('onboarding v4', () => {
     test.describe('Given I am leaving the step before the picker', () => {
         test('A yes shows the picker with the existing favorites locked', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
-            onboarding.withPickerAnswer({ show: true, existingFavorites: ['https://www.youtube.com'] });
-            await onboarding.goToStepBeforePicker();
+            onboarding.withTopSitesPickerAnswer({ show: true, existingFavorites: ['https://www.youtube.com'] });
+            await onboarding.goToStepBeforeTopSitesPicker();
             await expect(page.getByText('1 of 3')).toBeVisible();
             await page.getByRole('button', { name: 'Next' }).click();
 
@@ -750,13 +755,13 @@ test.describe('onboarding v4', () => {
             await expect(page.getByText('2 of 3')).toBeVisible();
             await expect(page.getByRole('switch', { name: 'YouTube', exact: true })).toBeDisabled();
             await expect(page.getByRole('switch', { name: 'YouTube', exact: true })).toHaveAttribute('aria-checked', 'true');
-            await onboarding.didFireStepCompleted({ id: 'customize', next: 'picker' });
+            await onboarding.didFireStepCompleted({ id: 'customize', next: 'topSitesPicker' });
         });
 
         test('A no skips the picker and shrinks the counter', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
-            onboarding.withPickerAnswer({ show: false });
-            await onboarding.goToStepBeforePicker();
+            onboarding.withTopSitesPickerAnswer({ show: false });
+            await onboarding.goToStepBeforeTopSitesPicker();
             await expect(page.getByText('1 of 3')).toBeVisible();
             await page.getByRole('button', { name: 'Next' }).click();
 
@@ -767,8 +772,8 @@ test.describe('onboarding v4', () => {
 
         test('A no with nothing after the picker finishes onboarding', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
-            onboarding.withPickerAnswer({ show: false });
-            await onboarding.goToStepBeforePicker({ steps: ['welcome', 'getStarted', 'customize', 'picker'] });
+            onboarding.withTopSitesPickerAnswer({ show: false });
+            await onboarding.goToStepBeforeTopSitesPicker({ steps: ['welcome', 'getStarted', 'customize', 'topSitesPicker'] });
             await page.getByRole('button', { name: 'Next' }).click();
 
             await onboarding.didDismissToAddressBar();
@@ -777,8 +782,8 @@ test.describe('onboarding v4', () => {
 
         test('An answer without show skips the picker', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
-            onboarding.withPickerAnswer({});
-            await onboarding.goToStepBeforePicker();
+            onboarding.withTopSitesPickerAnswer({});
+            await onboarding.goToStepBeforeTopSitesPicker();
             await page.getByRole('button', { name: 'Next' }).click();
 
             await page.getByRole('heading', { name: 'Want easy access to private AI Chat?' }).waitFor({ timeout: 1000 });
@@ -789,7 +794,7 @@ test.describe('onboarding v4', () => {
             test.skip(workerInfo.project.name !== 'windows', 'holdRequests works on the Windows transport only');
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.holdRequests(['shouldShowTopSitesPicker']);
-            await onboarding.goToStepBeforePicker();
+            await onboarding.goToStepBeforeTopSitesPicker();
             await page.getByRole('button', { name: 'Next' }).click();
 
             await page.getByRole('heading', { name: 'Want easy access to private AI Chat?' }).waitFor({ timeout: 4000 });
@@ -801,7 +806,7 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             // Held, so the second click lands while the page still waits rather than on the picker
             onboarding.holdRequests(['shouldShowTopSitesPicker']);
-            await onboarding.goToStepBeforePicker();
+            await onboarding.goToStepBeforeTopSitesPicker();
             await page.getByRole('button', { name: 'Next' }).dblclick();
 
             await page.getByRole('heading', { name: 'Want easy access to private AI Chat?' }).waitFor({ timeout: 4000 });
@@ -812,7 +817,7 @@ test.describe('onboarding v4', () => {
             test.skip(workerInfo.project.name !== 'windows', 'holdRequests works on the Windows transport only');
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.holdRequests(['shouldShowTopSitesPicker']);
-            await onboarding.goToStepBeforePicker();
+            await onboarding.goToStepBeforeTopSitesPicker();
             await page.getByRole('button', { name: 'Next' }).click();
 
             await expect(page.getByRole('button', { name: 'Next' })).toBeDisabled();

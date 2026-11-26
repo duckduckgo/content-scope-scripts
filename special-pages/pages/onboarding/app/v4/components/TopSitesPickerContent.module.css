@@ -7,30 +7,30 @@
  */
 .section {
     /* Figma --ds-accent-alt-tertiary, missing from the onboarding set */
-    --picker-accent-alt-tertiary: #90c4ef;
+    --top-sites-picker-accent-alt-tertiary: #90c4ef;
 
-    --picker-text-primary: var(--ds-text-primary);
-    --picker-text-secondary: var(--ds-text-secondary);
+    --top-sites-picker-text-primary: var(--ds-text-primary);
+    --top-sites-picker-text-secondary: var(--ds-text-secondary);
     /* Figma --ds-accent-alt-primary. The package sets it to #cbeaff, not Figma's #d6efff, and the package value is kept */
-    --picker-hover-border: var(--ds-accent-alt-primary);
-    --picker-picked-border: var(--picker-accent-alt-tertiary);
-    --picker-icon-background: #fff;
-    --picker-plus-fill: var(--picker-accent-alt-tertiary);
-    --picker-plus-glyph: #fff;
+    --top-sites-picker-hover-border: var(--ds-accent-alt-primary);
+    --top-sites-picker-picked-border: var(--top-sites-picker-accent-alt-tertiary);
+    --top-sites-picker-icon-background: #fff;
+    --top-sites-picker-plus-fill: var(--top-sites-picker-accent-alt-tertiary);
+    --top-sites-picker-plus-glyph: #fff;
 
     :global(.theme-dark) & {
-        --picker-accent-alt-tertiary: rgba(161, 207, 247, 0.24);
+        --top-sites-picker-accent-alt-tertiary: rgba(161, 207, 247, 0.24);
 
         /* Figma Text/Primary and Text/Secondary */
-        --picker-text-primary: var(--color-white-at-84);
-        --picker-text-secondary: var(--color-white-at-50);
+        --top-sites-picker-text-primary: var(--color-white-at-84);
+        --top-sites-picker-text-secondary: var(--color-white-at-50);
         /* Figma --ds-accent-alt-primary; the package's dark value is an opaque #034180 */
-        --picker-hover-border: rgba(161, 207, 247, 0.16);
+        --top-sites-picker-hover-border: rgba(161, 207, 247, 0.16);
         /* Figma --ds-accent-alt-secondary-content-color, missing from the onboarding set */
-        --picker-icon-background: #f5fbfe;
-        --picker-plus-fill: var(--ds-accent-primary);
+        --top-sites-picker-icon-background: #f5fbfe;
+        --top-sites-picker-plus-fill: var(--ds-accent-primary);
         /* Figma --ds-icons-primary, missing from the onboarding set but in the package's default theme */
-        --picker-plus-glyph: var(--ds-color-theme-default-dark-icons-primary);
+        --top-sites-picker-plus-glyph: var(--ds-color-theme-default-dark-icons-primary);
     }
 }
 
@@ -49,7 +49,7 @@
 
 .heading {
     margin: 0;
-    color: var(--picker-text-primary);
+    color: var(--top-sites-picker-text-primary);
     font-size: calc(15 * var(--px-in-rem));
     font-weight: 700;
     line-height: calc(18 * var(--px-in-rem));
@@ -59,7 +59,7 @@
 
 .description {
     margin: 0;
-    color: var(--picker-text-secondary);
+    color: var(--top-sites-picker-text-secondary);
     font-size: calc(14 * var(--px-in-rem));
     line-height: calc(17 * var(--px-in-rem));
     text-box-trim: trim-both;
@@ -87,7 +87,7 @@
     border: none;
     border-radius: 24px;
     background: var(--ds-accent-alt-glow-primary);
-    color: var(--picker-text-primary);
+    color: var(--top-sites-picker-text-primary);
     font-family: var(--font-product);
     text-align: left;
     cursor: pointer;
@@ -97,11 +97,11 @@
     }
 
     &:hover:not(:disabled, [data-on='true']) {
-        box-shadow: inset 0 0 0 2px var(--picker-hover-border);
+        box-shadow: inset 0 0 0 2px var(--top-sites-picker-hover-border);
     }
 
     &[data-on='true'] {
-        box-shadow: inset 0 0 0 2px var(--picker-picked-border);
+        box-shadow: inset 0 0 0 2px var(--top-sites-picker-picked-border);
     }
 
     &:focus-visible {
@@ -123,7 +123,7 @@
     width: 50px;
     height: 50px;
     border-radius: 50%;
-    background: var(--picker-icon-background);
+    background: var(--top-sites-picker-icon-background);
     color: rgba(0, 0, 0, 0.84);
     font-size: calc(20 * var(--px-in-rem));
     font-weight: 700;
@@ -157,7 +157,7 @@
 .plus {
     top: -6.33px;
     left: 31.67px;
-    color: var(--picker-plus-fill);
+    color: var(--top-sites-picker-plus-fill);
 
     .site:hover:not(:disabled, [data-on='true']) & {
         display: block;
@@ -165,7 +165,7 @@
 }
 
 .plusGlyph {
-    fill: var(--picker-plus-glyph);
+    fill: var(--top-sites-picker-plus-glyph);
 }
 
 .text {
@@ -185,7 +185,7 @@
 }
 
 .siteDescription {
-    color: var(--picker-text-secondary);
+    color: var(--top-sites-picker-text-secondary);
     font-size: calc(12 * var(--px-in-rem));
     line-height: calc(17 * var(--px-in-rem));
     text-box-trim: trim-both;

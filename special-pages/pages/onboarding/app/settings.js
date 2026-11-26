@@ -132,11 +132,14 @@ export class Settings {
      * @return {Settings}
      */
     withResolvedSiteUrls(where) {
-        const picker = this.stepDefinitions.picker;
-        if (picker?.id !== 'picker' || !picker.sites) return this;
+        const topSitesPicker = this.stepDefinitions.topSitesPicker;
+        if (topSitesPicker?.id !== 'topSitesPicker' || !topSitesPicker.sites) return this;
         return new Settings({
             ...this,
-            stepDefinitions: { ...this.stepDefinitions, picker: { ...picker, sites: resolveSiteUrls(picker.sites, where) } },
+            stepDefinitions: {
+                ...this.stepDefinitions,
+                topSitesPicker: { ...topSitesPicker, sites: resolveSiteUrls(topSitesPicker.sites, where) },
+            },
         });
     }
 

@@ -115,7 +115,7 @@ export class OnboardingPage {
     }
 
     /**
-     * Sent when the user is about to reach the picker step. Native checks the favorites threshold and,
+     * Sent when the user is about to reach the topSitesPicker step. Native checks the favorites threshold and,
      * only when the user is under it, enrolls them in the experiment, then answers whether to show the step.
      *
      * @returns {Promise<import('../types/onboarding.ts').ShouldShowTopSitesPickerRequest['result']>}
@@ -169,7 +169,7 @@ export class OnboardingPage {
     }
 
     /**
-     * Sent once when the user clicks Add to Favorites on the picker step. Native creates the favorites.
+     * Sent once when the user clicks Add to Favorites on the topSitesPicker step. Native creates the favorites.
      * @param {import('../types/onboarding.ts').AddFavorites} params
      */
     addFavorites(params) {

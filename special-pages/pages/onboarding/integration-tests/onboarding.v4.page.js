@@ -235,10 +235,14 @@ export class OnboardingV4Page extends OnboardingPage {
      * @param {{ reducedMotion?: boolean, init?: Record<string, any> }} [options] - without reduced motion the step stays
      *   mounted through its exit fade; `init` adds to or replaces fields of the init response
      */
-    async goToPicker({ reducedMotion = true, init = {} } = {}) {
-        this.withInitData({ stepDefinitions: null, steps: ['welcome', 'getStarted', 'customize', 'picker', 'addressBarMode'], ...init });
+    async goToTopSitesPicker({ reducedMotion = true, init = {} } = {}) {
+        this.withInitData({
+            stepDefinitions: null,
+            steps: ['welcome', 'getStarted', 'customize', 'topSitesPicker', 'addressBarMode'],
+            ...init,
+        });
         if (reducedMotion) await this.reducedMotion();
-        await this.openPage({ env: 'app', page: 'picker' });
+        await this.openPage({ env: 'app', page: 'topSitesPicker' });
         await this.page.getByRole('button', { name: 'Skip' }).waitFor({ timeout: 1000 });
     }
 
@@ -246,7 +250,7 @@ export class OnboardingV4Page extends OnboardingPage {
      * Opens customize with the picker listed after it, so leaving customize asks native about the picker.
      * @param {{ steps?: string[] }} [options] - replaces the default steps, which put addressBarMode after the picker
      */
-    async goToStepBeforePicker({ steps = ['welcome', 'getStarted', 'customize', 'picker', 'addressBarMode'] } = {}) {
+    async goToStepBeforeTopSitesPicker({ steps = ['welcome', 'getStarted', 'customize', 'topSitesPicker', 'addressBarMode'] } = {}) {
         this.withInitData({ stepDefinitions: null, steps });
         await this.reducedMotion();
         await this.openPage({ env: 'app', page: 'customize' });

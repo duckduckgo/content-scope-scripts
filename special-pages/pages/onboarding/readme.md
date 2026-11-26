@@ -41,14 +41,14 @@ Instead, make your changes in `src/' and then run `npm run build.pages` from the
 URL parameters can be used to override the default values of the onboarding flow's configuration. Supported parameters are:
 
 - `locale` - Specifies the language to use for translations. Expects a language code (e.g., `en`, `de`, `fr`).
-- `region` - Overrides `init.region`, the OS region the picker uses to look up each site's `urlByRegion` entry. Expects an ISO 3166-1 alpha-2 code (e.g., `GB`, `DE`). In the default list only Amazon has entries, and unlisted regions get amazon.com.
+- `region` - Overrides `init.region`, the OS region the Top Sites picker uses to look up each site's `urlByRegion` entry. Expects an ISO 3166-1 alpha-2 code (e.g., `GB`, `DE`). In the default list only Amazon has entries, and unlisted regions get amazon.com.
 - `textLength` - Adjusts the length of translated strings, for testing layout with different text sizes (e.g., `short`, `long`).
 - `display` - Controls which view is rendered. `app` renders the main onboarding flow.
 - `platform` - Overrides the detected platform, for testing platform-specific styling (e.g., `macos`, `windows`).
 - `steps` - Shows only these steps, in the page's own order, like `init.steps`. Can be used multiple times (e.g., `&steps=addressBarMode&steps=searchOrChat`). Takes precedence over `exclude`.
 - `exclude` - Removes specific steps from the onboarding flow. Can be used multiple times (e.g., `&exclude=welcome&exclude=systemSettings`).
-- `existingFavorites` - Comma-separated favorite URLs the mock returns from `shouldShowTopSitesPicker`, so the picker shows matching sites as picked and locked (e.g., `&steps=customize&steps=picker&existingFavorites=https://www.youtube.com`).
-- `topSitesPicker=hide` - The mock answers `shouldShowTopSitesPicker` with `show: false`, as native does at 5 or more favorites or for the control cohort, so the page skips the picker (e.g., `&steps=customize&steps=picker&steps=addressBarMode&topSitesPicker=hide`).
+- `existingFavorites` - Comma-separated favorite URLs the mock returns from `shouldShowTopSitesPicker`, so the picker shows matching sites as picked and locked (e.g., `&steps=customize&steps=topSitesPicker&existingFavorites=https://www.youtube.com`).
+- `topSitesPicker=hide` - The mock answers `shouldShowTopSitesPicker` with `show: false`, as native does at 5 or more favorites or for the control cohort, so the page skips the picker (e.g., `&steps=customize&steps=topSitesPicker&steps=addressBarMode&topSitesPicker=hide`).
 - `page` - Sets the initial step to start the onboarding flow on (e.g., `systemSettings`).
 - `adBlocking` - If set to `enabled`, adds a step for enabling ad blocking. If set to `youtube`, adds a step for enabling YouTube-only ad blocking.
 

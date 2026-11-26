@@ -2,9 +2,9 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { resolveSiteUrl, resolveSiteUrls } from '../app/v4/data/site-urls.js';
 
-/** @typedef {import('../types/onboarding.ts').PickerSite} PickerSite */
+/** @typedef {import('../types/onboarding.ts').TopSitesPickerSite} TopSitesPickerSite */
 
-/** @type {PickerSite} */
+/** @type {TopSitesPickerSite} */
 const store = {
     id: 'store',
     url: 'https://store.example',
@@ -14,7 +14,7 @@ const store = {
     section: 'popular',
 };
 
-/** @type {PickerSite} */
+/** @type {TopSitesPickerSite} */
 const plain = { id: 'plain', url: 'https://plain.example', title: 'Plain', section: 'popular' };
 
 test('resolveSiteUrl picks the region entry, in any case', () => {

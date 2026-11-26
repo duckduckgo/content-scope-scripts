@@ -11,7 +11,7 @@ import { SystemSettingsBackground, SystemSettingsForeground } from '../component
 import { FadeTransition } from '../components/FadeTransition';
 import { DockInstructionsContent } from '../components/DockInstructionsContent';
 import { SearchOrChatContent } from '../components/SearchOrChatContent';
-import { PickerContent } from '../components/PickerContent';
+import { TopSitesPickerContent } from '../components/TopSitesPickerContent';
 
 /**
  * This sets up individual steps in the v4 (bubbles) version of onboarding
@@ -124,20 +124,26 @@ export const stepsConfig = {
         };
     },
     // Only shown to clients that list it in `init.steps`.
-    picker: ({ t, globalState, addFavorites, enqueueNext, dismiss, onTitleComplete }) => {
+    topSitesPicker: ({ t, globalState, addFavorites, enqueueNext, dismiss, onTitleComplete }) => {
         const { order, activeStep } = globalState;
-        const step = /** @type {import('../../types').PickerStep} */ (globalState.step);
+        const step = /** @type {import('../../types').TopSitesPickerStep} */ (globalState.step);
         // With no step after the picker, Add and Skip finish onboarding, as they would hit the end of the order
         const isLastStep = order[order.length - 1] === activeStep;
         return {
             topBubble: {
-                content: <StepHeader title={t('picker_title')} subtitle={t('picker_subtitle')} onTitleComplete={onTitleComplete} />,
+                content: (
+                    <StepHeader
+                        title={t('topSitesPicker_title')}
+                        subtitle={t('topSitesPicker_subtitle')}
+                        onTitleComplete={onTitleComplete}
+                    />
+                ),
             },
             bottomBubble: {
-                content: <PickerContent step={step} addFavorites={addFavorites} advance={isLastStep ? dismiss : enqueueNext} />,
+                content: <TopSitesPickerContent step={step} addFavorites={addFavorites} advance={isLastStep ? dismiss : enqueueNext} />,
             },
             showProgress: true,
-            bubbleWidth: 'picker',
+            bubbleWidth: 'topSitesPicker',
         };
     },
     addressBarMode: ({ t, globalState, enqueueNext, dismiss, onTitleComplete, updateSystemValue }) => {
@@ -322,8 +328,8 @@ export const stepDefinitions = {
         id: 'searchOrChat',
         kind: 'info',
     },
-    picker: {
-        id: 'picker',
+    topSitesPicker: {
+        id: 'topSitesPicker',
         kind: 'info',
         // The experiment's list. Each id keys the site's copy and bundled icon. Gmail and Outlook use the hosts
         // their short domains redirect to, so they match the favorites people import. Settings.withResolvedSiteUrls

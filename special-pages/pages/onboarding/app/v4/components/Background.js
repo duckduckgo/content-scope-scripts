@@ -18,7 +18,7 @@ const backgroundForStep = {
     systemSettings: 'background-02',
     duckPlayerSingle: 'background-02',
     customize: 'background-03',
-    picker: 'background-04',
+    topSitesPicker: 'background-04',
     addressBarMode: 'background-04',
     searchOrChat: 'background-02',
 };

@@ -29,7 +29,7 @@ function urlKey(url) {
 }
 
 /**
- * @param {import('../../../types/onboarding.ts').PickerSite[]} sites
+ * @param {import('../../../types/onboarding.ts').TopSitesPickerSite[]} sites
  * @param {string[]} existingFavorites - favorite URLs; unparseable ones are skipped
  * @returns {string[]} the ids of the sites that are already favorites, in their original order
  */

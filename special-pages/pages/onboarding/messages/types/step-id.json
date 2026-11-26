@@ -3,5 +3,5 @@
   "title": "Step ID",
   "type": "string",
   "description": "A unique identifier for each onboarding step",
-  "enum": ["welcome", "getStarted", "systemSettings", "makeDefaultSingle", "duckPlayerSingle", "customize", "picker", "addressBarMode", "searchOrChat"]
+  "enum": ["welcome", "getStarted", "systemSettings", "makeDefaultSingle", "duckPlayerSingle", "customize", "topSitesPicker", "addressBarMode", "searchOrChat"]
 }

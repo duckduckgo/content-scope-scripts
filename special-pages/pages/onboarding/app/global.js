@@ -51,7 +51,7 @@ export function reducer(state, action) {
         case 'idle': {
             switch (action.kind) {
                 case 'update-system-value':
-                case 'picker-ask': {
+                case 'top-sites-picker-ask': {
                     return { ...state, status: { kind: 'executing', action } };
                 }
                 case 'error-boundary': {
@@ -105,9 +105,9 @@ export function reducer(state, action) {
         case 'executing': {
             // While the page waits for native's picker answer, the answer is the only way out. Clicks on the
             // step before the picker are dropped, since the answer advances the page itself.
-            if (state.status.action.kind === 'picker-ask') {
-                if (action.kind !== 'picker-answer') return state;
-                return { ...applyPickerAnswer(state, action), status: { kind: 'idle' } };
+            if (state.status.action.kind === 'top-sites-picker-ask') {
+                if (action.kind !== 'top-sites-picker-answer') return state;
+                return { ...applyTopSitesPickerAnswer(state, action), status: { kind: 'idle' } };
             }
             switch (action.kind) {
                 case 'telemetry':
@@ -194,20 +194,20 @@ export function reducer(state, action) {
  * Drops the picker from the order on a no, and hands the picker native's favorites on a yes.
  *
  * @param {GlobalState} state
- * @param {import('./types').PickerAnswerEvent} action
+ * @param {import('./types').TopSitesPickerAnswerEvent} action
  * @return {GlobalState}
  */
-function applyPickerAnswer(state, action) {
+function applyTopSitesPickerAnswer(state, action) {
     if (!action.show) {
-        return { ...state, order: state.order.filter((id) => id !== 'picker') };
+        return { ...state, order: state.order.filter((id) => id !== 'topSitesPicker') };
     }
-    const picker = state.stepDefinitions.picker;
-    if (!action.existingFavorites || picker?.id !== 'picker') return state;
+    const topSitesPicker = state.stepDefinitions.topSitesPicker;
+    if (!action.existingFavorites || topSitesPicker?.id !== 'topSitesPicker') return state;
     return {
         ...state,
         stepDefinitions: {
             ...state.stepDefinitions,
-            picker: { ...picker, existingFavorites: action.existingFavorites },
+            topSitesPicker: { ...topSitesPicker, existingFavorites: action.existingFavorites },
         },
     };
 }
@@ -259,8 +259,8 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
              * the page asks only when the user is about to reach the step, and drops it if the answer is no.
              * The ask runs in the effect below, and its answer advances the page.
              */
-            if (msg.kind === 'advance' && nextStepId(state.order, state.activeStep) === 'picker') {
-                dispatch({ kind: 'picker-ask' });
+            if (msg.kind === 'advance' && nextStepId(state.order, state.activeStep) === 'topSitesPicker') {
+                dispatch({ kind: 'top-sites-picker-ask' });
                 return;
             }
 
@@ -333,16 +333,16 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
         // eslint-disable-next-line react-hooks/exhaustive-deps -- workaround during eslint react rollout; consider removing and addressing deps
     }, [state.status.kind, messaging]);
 
-    // handle 'picker-ask': ask native, then advance past the step before the picker with its answer applied.
+    // handle 'top-sites-picker-ask': ask native, then advance past the step before the picker with its answer applied.
     // A no with nothing after the picker finishes onboarding, since there is no step left to advance to.
     useEffect(() => {
-        if (state.status.kind !== 'executing' || state.status.action.kind !== 'picker-ask') return;
+        if (state.status.kind !== 'executing' || state.status.action.kind !== 'top-sites-picker-ask') return;
         const order = state.order;
         askTopSitesPicker(messaging)
             // eslint-disable-next-line promise/prefer-await-to-then
             .then((answer) => {
-                const nextOrder = answer.show ? order : order.filter((id) => id !== 'picker');
-                dispatch({ kind: 'picker-answer', ...answer });
+                const nextOrder = answer.show ? order : order.filter((id) => id !== 'topSitesPicker');
+                dispatch({ kind: 'top-sites-picker-answer', ...answer });
                 if (nextStepId(nextOrder, state.activeStep) !== null) {
                     dispatch({ kind: 'advance' });
                     reportStepCompleted(state, nextOrder, messaging);
@@ -438,7 +438,7 @@ const PICKER_ANSWER_TIMEOUT_MS = 2000;
  *
  * @param {import("../src/index.js").OnboardingPage} messaging
  * @param {number} [timeoutMs]
- * @returns {Promise<Omit<import('./types').PickerAnswerEvent, 'kind'>>}
+ * @returns {Promise<Omit<import('./types').TopSitesPickerAnswerEvent, 'kind'>>}
  */
 async function askTopSitesPicker(messaging, timeoutMs = PICKER_ANSWER_TIMEOUT_MS) {
     /** @type {ReturnType<typeof setTimeout> | undefined} */

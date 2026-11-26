@@ -16,7 +16,7 @@ export type StepID =
   | "makeDefaultSingle"
   | "duckPlayerSingle"
   | "customize"
-  | "picker"
+  | "topSitesPicker"
   | "addressBarMode"
   | "searchOrChat";
 
@@ -56,7 +56,7 @@ export interface AddFavoritesNotification {
   params: AddFavorites;
 }
 /**
- * Sent once when the user clicks Add to Favorites on the picker step. Native creates a favorite for each site, with its title, and uses its id to find the bundled icon. Skip sends nothing.
+ * Sent once when the user clicks Add to Favorites on the topSitesPicker step. Native creates a favorite for each site, with its title, and uses its id to find the bundled icon. Skip sends nothing.
  */
 export interface AddFavorites {
   /**
@@ -277,7 +277,7 @@ export interface InitResponse {
   env?: "development" | "production";
   locale?: string;
   /**
-   * The OS region as an ISO 3166-1 alpha-2 code (e.g. "GB"). The picker uses it to look up each site's urlByRegion entry. A site keeps its url when the region is missing or has no entry.
+   * The OS region as an ISO 3166-1 alpha-2 code (e.g. "GB"). The Top Sites picker uses it to look up each site's urlByRegion entry. A site keeps its url when the region is missing or has no entry.
    */
   region?: string;
   platform?: {
@@ -288,23 +288,23 @@ export interface InitResponse {
  * Per-step overrides keyed by step ID, for example `{ "systemSettings": { "rows": ["dock", "import"] } }`. Each entry is merged over the page's default definition for that step. Entries for steps that aren't in the running order are ignored.
  */
 export interface StepDefinitions {
-  picker?: PickerStep;
+  topSitesPicker?: TopSitesPickerStep;
   [k: string]: unknown;
 }
 /**
- * Overrides for the picker step. Each field replaces the page's default as a whole.
+ * Overrides for the topSitesPicker step. Each field replaces the page's default as a whole.
  */
-export interface PickerStep {
+export interface TopSitesPickerStep {
   /**
    * The suggested sites, in display order. The page groups them by section. Every id needs a bundled icon and translated copy, so a new site still needs a page release.
    */
-  sites?: PickerSite[];
+  sites?: TopSitesPickerSite[];
   /**
    * URLs of the favorites the user already has, filled in from the shouldShowTopSitesPicker answer. Never more than 4, because native answers no at 5 or more. A suggested site matches a favorite when their hostnames match after dropping a leading "www.". A site whose URL has a path, such as https://www.bbc.com/news, also needs the favorite's path to be that path or a path below it. The page shows matching sites as picked and locked, and leaves them out of addFavorites. Unparseable URLs are skipped.
    */
   existingFavorites?: string[];
 }
-export interface PickerSite {
+export interface TopSitesPickerSite {
   /**
    * Stable key for the site's copy, its bundled icon and the addFavorites message
    */
@@ -365,7 +365,7 @@ export interface ShouldShowTopSitesPickerRequest {
   result: TopSitesPickerAnswer;
 }
 /**
- * Whether to show the picker step, sent right before the user would reach it. Native shows it only when the user is under the favorites threshold and enrolled in the treatment cohort.
+ * Whether to show the topSitesPicker step, sent right before the user would reach it. Native shows it only when the user is under the favorites threshold and enrolled in the treatment cohort.
  */
 export interface TopSitesPickerAnswer {
   /**
@@ -373,7 +373,7 @@ export interface TopSitesPickerAnswer {
    */
   show: boolean;
   /**
-   * URLs of the favorites the user already has. The page merges them into the picker's step definition (see PickerStep.existingFavorites). Ignored when show is false.
+   * URLs of the favorites the user already has. The page merges them into the picker's step definition (see TopSitesPickerStep.existingFavorites). Ignored when show is false.
    */
   existingFavorites?: string[];
 }

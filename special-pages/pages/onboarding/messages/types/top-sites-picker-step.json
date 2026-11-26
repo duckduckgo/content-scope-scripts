@@ -1,14 +1,14 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "PickerStep",
-  "description": "Overrides for the picker step. Each field replaces the page's default as a whole.",
+  "title": "TopSitesPickerStep",
+  "description": "Overrides for the topSitesPicker step. Each field replaces the page's default as a whole.",
   "type": "object",
   "properties": {
     "sites": {
       "type": "array",
       "description": "The suggested sites, in display order. The page groups them by section. Every id needs a bundled icon and translated copy, so a new site still needs a page release.",
       "items": {
-        "title": "PickerSite",
+        "title": "TopSitesPickerSite",
         "type": "object",
         "additionalProperties": false,
         "required": ["id", "url", "title", "section"],

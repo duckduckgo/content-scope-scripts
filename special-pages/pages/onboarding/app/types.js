@@ -32,7 +32,7 @@ import { useContext } from 'preact/hooks';
  *   | DuckPlayerSingleStep
  *   | AddressBarModeStep
  *   | SearchOrChatStep
- *   | PickerStep
+ *   | TopSitesPickerStep
  * } Step
  * @typedef {Record<Step['id'], Step>} StepDefinitions
  * @typedef {{ kind: 'info'; id: 'welcome' }} WelcomeStep
@@ -44,8 +44,8 @@ import { useContext } from 'preact/hooks';
  * @typedef {{ kind: 'info'; id: 'duckPlayerSingle'; variant?: 'ad-free' }} DuckPlayerSingleStep
  * @typedef {{ kind: 'info'; id: 'addressBarMode' }} AddressBarModeStep
  * @typedef {{ kind: 'info'; id: 'searchOrChat' }} SearchOrChatStep
- * @typedef {{ kind: 'info'; id: 'picker'; sites: PickerSite[]; existingFavorites: string[] }} PickerStep
- * @typedef {import('../types/onboarding.ts').PickerSite} PickerSite
+ * @typedef {{ kind: 'info'; id: 'topSitesPicker'; sites: TopSitesPickerSite[]; existingFavorites: string[] }} TopSitesPickerStep
+ * @typedef {import('../types/onboarding.ts').TopSitesPickerSite} TopSitesPickerSite
  */
 
 /** @type {Step['id'][]} */
@@ -56,7 +56,7 @@ export const EVERY_PAGE_ID = [
     'makeDefaultSingle',
     'duckPlayerSingle',
     'customize',
-    'picker',
+    'topSitesPicker',
     'addressBarMode',
     'searchOrChat',
 ];
@@ -72,7 +72,7 @@ export const STEPS_ORDER = [
     'systemSettings',
     'duckPlayerSingle',
     'customize',
-    'picker',
+    'topSitesPicker',
     'addressBarMode',
     'searchOrChat',
 ];
@@ -81,7 +81,7 @@ export const STEPS_ORDER = [
  * Steps a client must opt into by listing them in `init.steps`.
  * @type {Step['id'][]}
  */
-const OPT_IN_STEPS = ['picker', 'searchOrChat'];
+const OPT_IN_STEPS = ['topSitesPicker', 'searchOrChat'];
 
 /**
  * Today's onboarding. Used when native doesn't send `steps`, so it never includes steps a client must opt into.
@@ -131,8 +131,8 @@ export const ORDER_V4 = STEPS_ORDER.filter((id) => !OPT_IN_STEPS.includes(id));
  *   | ShowOverlayEvent
  *   | DismissOverlayEvent
  *   | ConfigUpdateEvent
- *   | PickerAskEvent
- *   | PickerAnswerEvent
+ *   | TopSitesPickerAskEvent
+ *   | TopSitesPickerAnswerEvent
  *   | TelemetryEvent
  *   | RequestChromeExtensionEvent
  *   | SetOnboardingInstallOptionsEvent
@@ -151,8 +151,8 @@ export const ORDER_V4 = STEPS_ORDER.filter((id) => !OPT_IN_STEPS.includes(id));
  * @typedef {{ kind: "show-overlay"; overlay: OverlayId }} ShowOverlayEvent
  * @typedef {{ kind: "dismiss-overlay" }} DismissOverlayEvent
  * @typedef {{ kind: "config-update"; stepDefinitions?: Record<string, any>; exclude?: Step['id'][] }} ConfigUpdateEvent
- * @typedef {{ kind: "picker-ask" }} PickerAskEvent
- * @typedef {{ kind: "picker-answer"; show: boolean; existingFavorites?: string[] }} PickerAnswerEvent
+ * @typedef {{ kind: "top-sites-picker-ask" }} TopSitesPickerAskEvent
+ * @typedef {{ kind: "top-sites-picker-answer"; show: boolean; existingFavorites?: string[] }} TopSitesPickerAnswerEvent
  * @typedef {{ kind: "telemetry"; attributes: import('../types/onboarding.ts').TelemetryEvent['attributes'] }} TelemetryEvent
  * @typedef {{ kind: "request-chrome-extension" }} RequestChromeExtensionEvent
  * @typedef {{ kind: "set-onboarding-install-options"; payload: import('../types/onboarding.ts').OnboardingInstallOptions }} SetOnboardingInstallOptionsEvent

@@ -5,8 +5,8 @@
   "type": "object",
   "additionalProperties": true,
   "properties": {
-    "picker": {
-      "$ref": "./picker-step.json"
+    "topSitesPicker": {
+      "$ref": "./top-sites-picker-step.json"
     }
   }
 }

@@ -5,10 +5,10 @@
  * The region entry comes first, then the template, then `url`.
  */
 
-/** @typedef {import('../../../types/onboarding.ts').PickerSite} PickerSite */
+/** @typedef {import('../../../types/onboarding.ts').TopSitesPickerSite} TopSitesPickerSite */
 
 /**
- * @param {PickerSite} site
+ * @param {TopSitesPickerSite} site
  * @param {{ locale?: string | null, region?: string | null }} where - region as ISO 3166-1 alpha-2 in any case, locale
  *   as the two-letter language code `Environment.locale` holds
  * @returns {string}
@@ -33,9 +33,9 @@ export function resolveSiteUrl(site, { locale, region }) {
 /**
  * Returns the sites with each `url` resolved for the user. The input is not mutated.
  *
- * @param {PickerSite[]} sites
+ * @param {TopSitesPickerSite[]} sites
  * @param {{ locale?: string | null, region?: string | null }} where
- * @returns {PickerSite[]}
+ * @returns {TopSitesPickerSite[]}
  */
 export function resolveSiteUrls(sites, where) {
     return sites.map((site) => {
