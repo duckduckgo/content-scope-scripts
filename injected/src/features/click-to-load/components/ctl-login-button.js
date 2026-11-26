@@ -32,22 +32,21 @@ export class DDGCtlLoginButton {
      * @param {boolean=} params.useSlimCard - Flag for using less padding on card (ie YT CTL on mobile)
      * @param {HTMLElement} params.originalElement - The original element this placeholder is replacing.
      * @param {LearnMoreParams} params.learnMore - Localized strings for "Learn More" link.
-     * @param {(originalElement: HTMLIFrameElement | HTMLElement, replacementElement: HTMLElement) => (e: any) => void} params.onClick
+     * @param {(originalElement: HTMLIFrameElement | HTMLElement, replacementElement: HTMLElement) => (e: Event) => void} params.onClick
      */
     constructor(params) {
         this.params = params;
 
         /**
          * Create the placeholder element to be inject in the page
-         * @type {HTMLDivElement}
          */
-        this.element = document.createElement('div');
+        this.#element = document.createElement('div');
 
         /**
          * Create the shadow root, closed to prevent any outside observers
          * @type {ShadowRoot}
          */
-        const shadow = this.element.attachShadow({
+        const shadow = this.#element.attachShadow({
             mode: this.params.devMode ? 'open' : 'closed',
         });
 
