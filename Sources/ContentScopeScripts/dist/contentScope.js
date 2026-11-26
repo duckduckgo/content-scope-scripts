@@ -833,6 +833,12 @@
   var importKey = globalThis.crypto?.subtle?.importKey?.bind(globalThis.crypto?.subtle);
   var encrypt = globalThis.crypto?.subtle?.encrypt?.bind(globalThis.crypto?.subtle);
   var decrypt = globalThis.crypto?.subtle?.decrypt?.bind(globalThis.crypto?.subtle);
+  var NO_ARGS = [];
+  function captureGetter(prototype, name) {
+    const getter = prototype && getOwnPropertyDescriptor(prototype, name)?.get;
+    if (!getter) return (target) => target[name];
+    return (target) => ReflectApply(getter, target, NO_ARGS);
+  }
 
   // src/features.js
   var baseFeatures = (
@@ -9461,6 +9467,9 @@ ul.messages {
   var shouldInjectStyleTag = false;
   var styleTagInjected = false;
   var mediaAndFormSelectors = "video,canvas,embed,object,audio,map,form,input,textarea,select,option,button";
+  var emptyCheck = "domParser";
+  var compactAdLabels = [];
+  var adLabelTextLimit = 1;
   var hideTimeouts = [0, 100, 300, 500, 1e3, 2e3, 3e3];
   var unhideTimeouts = [1250, 2250, 3e3];
   var featureInstance;
@@ -9550,7 +9559,118 @@ ul.messages {
     hiddenElements.delete(element);
     element.hidden = false;
   }
+  var ElementPrototype = globalThis.Element?.prototype;
+  var readFirstChild = captureGetter(NodePrototype, "firstChild");
+  var readNextSibling = captureGetter(NodePrototype, "nextSibling");
+  var readParentNode = captureGetter(NodePrototype, "parentNode");
+  var readNodeType = captureGetter(NodePrototype, "nodeType");
+  var readLocalName = captureGetter(ElementPrototype, "localName");
+  var readTextData = captureGetter(globalThis.CharacterData?.prototype, "data");
+  var readHidden = captureGetter(globalThis.HTMLElement?.prototype, "hidden");
+  var readFrameSrc = captureGetter(globalThis.HTMLIFrameElement?.prototype, "src");
+  var nativeMatches = ElementPrototype?.matches;
+  var TEXT_NODE = 3;
+  var ELEMENT_NODE = 1;
+  var walkSkippedTags = /* @__PURE__ */ new Set(["base", "link", "meta", "script", "style", "template", "title", "desc", "noscript"]);
+  var voidTags = /* @__PURE__ */ new Set([
+    "area",
+    "base",
+    "basefont",
+    "bgsound",
+    "br",
+    "col",
+    "embed",
+    "frame",
+    "hr",
+    "img",
+    "input",
+    "keygen",
+    "link",
+    "meta",
+    "param",
+    "source",
+    "track",
+    "wbr"
+  ]);
+  var MAX_WALK_NODES = 1e4;
+  function compactText(text) {
+    return text.replace(/\s+/g, " ").trim().toLocaleLowerCase().replace(/:$/, "");
+  }
+  function isContentElement(el, localName) {
+    const matches = nativeMatches ? ReflectApply(nativeMatches, el, [mediaAndFormSelectors]) : el.matches(mediaAndFormSelectors);
+    if (matches) return true;
+    if (localName === "iframe") {
+      return !(readHidden(el) || readFrameSrc(el) === "about:blank");
+    }
+    return false;
+  }
+  function walkForContent(root, maxText) {
+    let text = "";
+    let cap = maxText;
+    let visited = 0;
+    let climbs = 0;
+    let current = root;
+    while (current) {
+      if (++visited > MAX_WALK_NODES) return { content: true, text };
+      let descend = false;
+      const nodeType = readNodeType(current);
+      if (nodeType === TEXT_NODE) {
+        text += readTextData(current);
+        if (text.length > cap) {
+          if (compactText(text).length > maxText) return { content: true, text };
+          cap = text.length * 2;
+        }
+      } else if (nodeType === ELEMENT_NODE) {
+        const el = (
+          /** @type {Element} */
+          current
+        );
+        const localName = readLocalName(el);
+        if (localName === "br") {
+          text += " ";
+        } else if (!walkSkippedTags.has(localName)) {
+          if (isContentElement(el, localName)) return { content: true, text };
+          descend = !voidTags.has(localName) && readFirstChild(el) !== null;
+        }
+      }
+      if (descend) {
+        current = readFirstChild(current);
+        continue;
+      }
+      if (current === root) break;
+      while (current && readNextSibling(current) === null) {
+        if (++climbs > MAX_WALK_NODES) return { content: true, text };
+        current = readParentNode(current);
+        if (!current || current === root) current = null;
+      }
+      if (current) current = readNextSibling(current);
+    }
+    return { content: false, text };
+  }
+  function isDomNodeEmptyWalk(node) {
+    if (node.tagName === "BODY") {
+      return false;
+    }
+    try {
+      const found = walkForContent(node, adLabelTextLimit);
+      if (found.content) return false;
+      const visibleText = compactText(found.text);
+      if (visibleText !== "" && !compactAdLabels.includes(visibleText)) return false;
+      const visibleImages = [...node.querySelectorAll("img,svg")].some((image) => {
+        return image.getBoundingClientRect().width > 20 || image.getBoundingClientRect().height > 20;
+      });
+      return !visibleImages;
+    } catch {
+      return false;
+    }
+  }
   function isDomNodeEmpty(node) {
+    if (emptyCheck === "walk") {
+      return isDomNodeEmptyWalk(node);
+    }
+    return isDomNodeEmptyParser(node);
+  }
+  function isDomNodeEmptyParser(node) {
     if (node.tagName === "BODY") {
       return false;
     }
@@ -9665,6 +9785,9 @@ ul.messages {
       hideTimeouts = this.getFeatureSetting("hideTimeouts") || hideTimeouts;
       unhideTimeouts = this.getFeatureSetting("unhideTimeouts") || unhideTimeouts;
       mediaAndFormSelectors = this.getFeatureSetting("mediaAndFormSelectors");
+      emptyCheck = this.getFeatureSetting("emptyCheck") ?? "domParser";
+      compactAdLabels = adLabelStrings.map((label) => compactText(label));
+      adLabelTextLimit = compactAdLabels.reduce((max, label) => Math.max(max, label.length), 0) + 1;
       if (!mediaAndFormSelectors) {
         mediaAndFormSelectors = "video,canvas,embed,object,audio,map,form,input,textarea,select,option,button";
       }
@@ -13971,7 +14094,7 @@ ${iframeContent}
     const importConfig = {
       trackerLookup: void 0,
       injectName: "apple",
-      contentScopeScriptsVersion: "23.5.0"
+      contentScopeScriptsVersion: "23.6.0"
     };
     const bundledFeatureNames = typeof importConfig.injectName === "string" ? platformSupport[importConfig.injectName] ?? [] : [];
     const featuresToLoad = isGloballyDisabled(args) ? platformSpecificFeatures : args.site.enabledFeatures || bundledFeatureNames;

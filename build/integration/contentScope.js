@@ -2362,6 +2362,12 @@
   var importKey = globalThis.crypto?.subtle?.importKey?.bind(globalThis.crypto?.subtle);
   var encrypt = globalThis.crypto?.subtle?.encrypt?.bind(globalThis.crypto?.subtle);
   var decrypt = globalThis.crypto?.subtle?.decrypt?.bind(globalThis.crypto?.subtle);
+  var NO_ARGS = [];
+  function captureGetter(prototype, name) {
+    const getter = prototype && getOwnPropertyDescriptor(prototype, name)?.get;
+    if (!getter) return (target) => target[name];
+    return (target) => ReflectApply(getter, target, NO_ARGS);
+  }
 
   // src/features.js
   init_define_import_meta_trackerLookup();
@@ -11021,6 +11027,9 @@
   var shouldInjectStyleTag = false;
   var styleTagInjected = false;
   var mediaAndFormSelectors = "video,canvas,embed,object,audio,map,form,input,textarea,select,option,button";
+  var emptyCheck = "domParser";
+  var compactAdLabels = [];
+  var adLabelTextLimit = 1;
   var hideTimeouts = [0, 100, 300, 500, 1e3, 2e3, 3e3];
   var unhideTimeouts = [1250, 2250, 3e3];
   var featureInstance;
@@ -11110,7 +11119,118 @@
     hiddenElements.delete(element);
     element.hidden = false;
   }
+  var ElementPrototype = globalThis.Element?.prototype;
+  var readFirstChild = captureGetter(NodePrototype, "firstChild");
+  var readNextSibling = captureGetter(NodePrototype, "nextSibling");
+  var readParentNode = captureGetter(NodePrototype, "parentNode");
+  var readNodeType = captureGetter(NodePrototype, "nodeType");
+  var readLocalName = captureGetter(ElementPrototype, "localName");
+  var readTextData = captureGetter(globalThis.CharacterData?.prototype, "data");
+  var readHidden = captureGetter(globalThis.HTMLElement?.prototype, "hidden");
+  var readFrameSrc = captureGetter(globalThis.HTMLIFrameElement?.prototype, "src");
+  var nativeMatches = ElementPrototype?.matches;
+  var TEXT_NODE = 3;
+  var ELEMENT_NODE = 1;
+  var walkSkippedTags = /* @__PURE__ */ new Set(["base", "link", "meta", "script", "style", "template", "title", "desc", "noscript"]);
+  var voidTags = /* @__PURE__ */ new Set([
+    "area",
+    "base",
+    "basefont",
+    "bgsound",
+    "br",
+    "col",
+    "embed",
+    "frame",
+    "hr",
+    "img",
+    "input",
+    "keygen",
+    "link",
+    "meta",
+    "param",
+    "source",
+    "track",
+    "wbr"
+  ]);
+  var MAX_WALK_NODES = 1e4;
+  function compactText(text2) {
+    return text2.replace(/\s+/g, " ").trim().toLocaleLowerCase().replace(/:$/, "");
+  }
+  function isContentElement(el, localName) {
+    const matches = nativeMatches ? ReflectApply(nativeMatches, el, [mediaAndFormSelectors]) : el.matches(mediaAndFormSelectors);
+    if (matches) return true;
+    if (localName === "iframe") {
+      return !(readHidden(el) || readFrameSrc(el) === "about:blank");
+    }
+    return false;
+  }
+  function walkForContent(root, maxText) {
+    let text2 = "";
+    let cap = maxText;
+    let visited = 0;
+    let climbs = 0;
+    let current = root;
+    while (current) {
+      if (++visited > MAX_WALK_NODES) return { content: true, text: text2 };
+      let descend = false;
+      const nodeType = readNodeType(current);
+      if (nodeType === TEXT_NODE) {
+        text2 += readTextData(current);
+        if (text2.length > cap) {
+          if (compactText(text2).length > maxText) return { content: true, text: text2 };
+          cap = text2.length * 2;
+        }
+      } else if (nodeType === ELEMENT_NODE) {
+        const el = (
+          /** @type {Element} */
+          current
+        );
+        const localName = readLocalName(el);
+        if (localName === "br") {
+          text2 += " ";
+        } else if (!walkSkippedTags.has(localName)) {
+          if (isContentElement(el, localName)) return { content: true, text: text2 };
+          descend = !voidTags.has(localName) && readFirstChild(el) !== null;
+        }
+      }
+      if (descend) {
+        current = readFirstChild(current);
+        continue;
+      }
+      if (current === root) break;
+      while (current && readNextSibling(current) === null) {
+        if (++climbs > MAX_WALK_NODES) return { content: true, text: text2 };
+        current = readParentNode(current);
+        if (!current || current === root) current = null;
+      }
+      if (current) current = readNextSibling(current);
+    }
+    return { content: false, text: text2 };
+  }
+  function isDomNodeEmptyWalk(node) {
+    if (node.tagName === "BODY") {
+      return false;
+    }
+    try {
+      const found = walkForContent(node, adLabelTextLimit);
+      if (found.content) return false;
+      const visibleText2 = compactText(found.text);
+      if (visibleText2 !== "" && !compactAdLabels.includes(visibleText2)) return false;
+      const visibleImages = [...node.querySelectorAll("img,svg")].some((image) => {
+        return image.getBoundingClientRect().width > 20 || image.getBoundingClientRect().height > 20;
+      });
+      return !visibleImages;
+    } catch {
+      return false;
+    }
+  }
   function isDomNodeEmpty(node) {
+    if (emptyCheck === "walk") {
+      return isDomNodeEmptyWalk(node);
+    }
+    return isDomNodeEmptyParser(node);
+  }
+  function isDomNodeEmptyParser(node) {
     if (node.tagName === "BODY") {
       return false;
     }
@@ -11225,6 +11345,9 @@
       hideTimeouts = this.getFeatureSetting("hideTimeouts") || hideTimeouts;
       unhideTimeouts = this.getFeatureSetting("unhideTimeouts") || unhideTimeouts;
       mediaAndFormSelectors = this.getFeatureSetting("mediaAndFormSelectors");
+      emptyCheck = this.getFeatureSetting("emptyCheck") ?? "domParser";
+      compactAdLabels = adLabelStrings.map((label) => compactText(label));
+      adLabelTextLimit = compactAdLabels.reduce((max, label) => Math.max(max, label.length), 0) + 1;
       if (!mediaAndFormSelectors) {
         mediaAndFormSelectors = "video,canvas,embed,object,audio,map,form,input,textarea,select,option,button";
       }
@@ -33212,8 +33335,8 @@ img { display: block; width: 16px; height: 16px; }
   // src/features/page-translation/units.js
   init_define_import_meta_trackerLookup();
   var computedStyle = window.getComputedStyle.bind(window);
-  var ELEMENT_NODE = 1;
-  var TEXT_NODE = 3;
+  var ELEMENT_NODE2 = 1;
+  var TEXT_NODE2 = 3;
   var BLOCK_TAGS = new Set(
     "address article aside blockquote caption center dd details dialog div dl dt fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 header hgroup hr legend li main menu nav ol p pre search section summary table tbody td tfoot th thead tr ul".split(
       " "
@@ -33339,7 +33462,7 @@ img { display: block; width: 16px; height: 16px; }
       }
       let run = [];
       for (const child of el.childNodes) {
-        if (child.nodeType !== ELEMENT_NODE) {
+        if (child.nodeType !== ELEMENT_NODE2) {
           run.push(child);
           continue;
         }
@@ -33366,7 +33489,7 @@ img { display: block; width: 16px; height: 16px; }
     addRun(parent, nodes, units) {
       const isBlank = (i) => {
         const node = nodes[i];
-        return !!node && node.nodeType !== ELEMENT_NODE && !(node.nodeType === TEXT_NODE && (node.nodeValue || "").trim());
+        return !!node && node.nodeType !== ELEMENT_NODE2 && !(node.nodeType === TEXT_NODE2 && (node.nodeValue || "").trim());
       };
       let start = 0;
       let end = nodes.length;
@@ -33426,8 +33549,8 @@ img { display: block; width: 16px; height: 16px; }
     }
     /** @param {ChildNode} node */
     nodeHasLetter(node) {
-      if (node.nodeType === TEXT_NODE) return LETTER.test(node.nodeValue || "");
-      if (node.nodeType !== ELEMENT_NODE) return false;
+      if (node.nodeType === TEXT_NODE2) return LETTER.test(node.nodeValue || "");
+      if (node.nodeType !== ELEMENT_NODE2) return false;
       const el = (
         /** @type {Element} */
         node
@@ -33440,8 +33563,8 @@ img { display: block; width: 16px; height: 16px; }
 
   // src/features/page-translation/serialize.js
   init_define_import_meta_trackerLookup();
-  var ELEMENT_NODE2 = 1;
-  var TEXT_NODE2 = 3;
+  var ELEMENT_NODE3 = 1;
+  var TEXT_NODE3 = 3;
   var VOID = /* @__PURE__ */ new Set(["area", "br", "hr", "img", "input", "wbr"]);
   var NEVER_SENT = /* @__PURE__ */ new Set(["script", "style", "template"]);
   function serializeUnit(target) {
@@ -33453,19 +33576,19 @@ img { display: block; width: 16px; height: 16px; }
     const html2 = serializeNodes(nodes, elements);
     if (elements.length === 0) {
       return {
-        text: stripSoftHyphens(nodes.map((node) => node.nodeType === TEXT_NODE2 ? node.nodeValue : "").join("")),
+        text: stripSoftHyphens(nodes.map((node) => node.nodeType === TEXT_NODE3 ? node.nodeValue : "").join("")),
         html: false,
         wrapped: false,
         elements
       };
     }
     const first = nodes.find(
-      (node) => node.nodeType === ELEMENT_NODE2 && !NEVER_SENT.has(
+      (node) => node.nodeType === ELEMENT_NODE3 && !NEVER_SENT.has(
         /** @type {Element} */
         node.localName
-      ) || node.nodeType === TEXT_NODE2 && (node.nodeValue || "").trim()
+      ) || node.nodeType === TEXT_NODE3 && (node.nodeValue || "").trim()
     );
-    if (first?.nodeType === ELEMENT_NODE2) {
+    if (first?.nodeType === ELEMENT_NODE3) {
       return { text: `<div>${html2}</div>`, html: true, wrapped: true, elements };
     }
     return { text: html2, html: true, wrapped: false, elements };
@@ -33473,9 +33596,9 @@ img { display: block; width: 16px; height: 16px; }
   function serializeNodes(nodes, elements) {
     let out = "";
     for (const node of nodes) {
-      if (node.nodeType === TEXT_NODE2) {
+      if (node.nodeType === TEXT_NODE3) {
         out += escapeXML(stripSoftHyphens(node.nodeValue || ""));
-      } else if (node.nodeType === ELEMENT_NODE2) {
+      } else if (node.nodeType === ELEMENT_NODE3) {
         const el = (
           /** @type {Element} */
           node
@@ -33582,8 +33705,8 @@ img { display: block; width: 16px; height: 16px; }
   var removeChild = Node.prototype.removeChild;
   var createTextNode = Document.prototype.createTextNode;
   var cloneNode = Node.prototype.cloneNode;
-  var ELEMENT_NODE3 = 1;
-  var TEXT_NODE3 = 3;
+  var ELEMENT_NODE4 = 1;
+  var TEXT_NODE4 = 3;
   function writeText(target, text2) {
     if (target.kind === "attribute") {
       target.element.setAttribute(target.attribute, text2);
@@ -33592,7 +33715,7 @@ img { display: block; width: 16px; height: 16px; }
     const nodes = target.kind === "run" ? target.nodes : [...target.element.childNodes];
     const texts = (
       /** @type {Text[]} */
-      nodes.filter((node) => node.nodeType === TEXT_NODE3)
+      nodes.filter((node) => node.nodeType === TEXT_NODE4)
     );
     texts.forEach((node, i) => setText(node, i === 0 ? text2 : ""));
   }
@@ -33656,7 +33779,7 @@ img { display: block; width: 16px; height: 16px; }
     into(parent, current, parsed, anchor, copying = false) {
       const texts = (
         /** @type {Text[]} */
-        current.filter((node) => node.nodeType === TEXT_NODE3)
+        current.filter((node) => node.nodeType === TEXT_NODE4)
       );
       const next = [];
       for (const item of parsed) {
@@ -33687,14 +33810,14 @@ img { display: block; width: 16px; height: 16px; }
         next.push(live);
       }
       for (const node of current) {
-        if (node.nodeType !== ELEMENT_NODE3 || next.includes(node)) continue;
+        if (node.nodeType !== ELEMENT_NODE4 || next.includes(node)) continue;
         const id = this.elements.indexOf(
           /** @type {Element} */
           node
         );
         if (id !== -1 && !this.used.has(id)) next.push(node);
       }
-      const isContent = (node) => node.nodeType === TEXT_NODE3 || node.nodeType === ELEMENT_NODE3 && this.elements.includes(
+      const isContent = (node) => node.nodeType === TEXT_NODE4 || node.nodeType === ELEMENT_NODE4 && this.elements.includes(
         /** @type {Element} */
         node
       );
@@ -33971,7 +34094,7 @@ img { display: block; width: 16px; height: 16px; }
     const importConfig = {
       trackerLookup: define_import_meta_trackerLookup_default,
       injectName: "integration",
-      contentScopeScriptsVersion: "23.5.0"
+      contentScopeScriptsVersion: "23.6.0"
     };
     const bundledFeatureNames = typeof importConfig.injectName === "string" ? platformSupport[importConfig.injectName] ?? [] : [];
     const featuresToLoad = isGloballyDisabled(args) ? platformSpecificFeatures : args.site.enabledFeatures || bundledFeatureNames;

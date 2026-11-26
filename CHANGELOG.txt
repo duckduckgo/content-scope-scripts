@@ -1,2 +1,1 @@
-- Enable SegmentSkip on Windows (#3254)
-- build(deps-dev): bump fast-check from 4.9.0 to 4.10.2 (#3082)
+- Element hiding: add a walk-based empty check behind the emptyCheck setting (#3257)
