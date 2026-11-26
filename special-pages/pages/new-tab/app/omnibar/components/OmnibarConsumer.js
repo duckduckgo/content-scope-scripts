@@ -8,7 +8,7 @@ import styles from './Omnibar.module.css';
 import { OmnibarContext } from './OmnibarProvider.js';
 import { ArrowIndentCenteredIcon, LogoStacked } from '../../components/Icons.js';
 import { useModeWithLocalPersistence } from './PersistentOmnibarValuesProvider.js';
-import { useTabState } from '../../tabs/TabsProvider.js';
+import { useShownTab } from '../../tabs/TabsProvider.js';
 import { TabModelPickProvider } from './TabModelPick.js';
 
 /**
@@ -31,7 +31,7 @@ import { TabModelPickProvider } from './TabModelPick.js';
  */
 export function OmnibarConsumer() {
     const { state, setEnableAi } = useContext(OmnibarContext);
-    const { current } = useTabState();
+    const shown = useShownTab();
     const { visibility } = useVisibility();
     const visible = visibility.value === 'visible';
 
@@ -44,7 +44,9 @@ export function OmnibarConsumer() {
             {state.config.showAiSetting && (
                 <AiSetting enableAi={state.config?.enableAi === true} setEnableAi={setEnableAi} omnibarVisible={visible} />
             )}
-            {visible && <OmnibarReadyState config={state.config} key={current.value} tabId={current.value} />}
+            {visible && (
+                <OmnibarReadyState config={state.config} key={`${shown.value.tabId}:${shown.value.showing}`} tabId={shown.value.tabId} />
+            )}
         </>
     );
 }

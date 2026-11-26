@@ -113,7 +113,9 @@ test.describe('omnibar per-tab model pick', () => {
         });
         await expect(omnibar.modelSelectorButton()).toContainText('GPT-OSS');
 
-        await omnibar.didSwitchToTab('02', ['02']);
+        await omnibar.didSwitchToTab('', ['02']);
+        await expect(omnibar.modelSelectorButton()).toContainText('GPT-OSS');
+
         await omnibar.didSwitchToTab('01', ['01', '02']);
         await expect(omnibar.modelSelectorButton()).toContainText('Haiku 4.5');
     });
