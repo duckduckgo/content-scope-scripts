@@ -100,11 +100,27 @@ jobs:
               uses: actions/download-artifact@v8
               with:
                   name: build-output
+                  # Keep it out of the work tree: the artifact is produced
+                  # alongside third-party build tooling, so treat it as untrusted.
+                  path: ${{ runner.temp }}/build-output
 
             - name: Unpack build output
+              # Unpack outside the work tree, reject anything but plain files
+              # and directories (no links, nothing named .git), then copy only
+              # the three expected paths in. Unfiltered, the archive could plant
+              # .git/hooks or .git/config that the git commands below would run
+              # with the write token.
               run: |
-                  tar -xzf build-output.tar.gz
-                  rm build-output.tar.gz
+                  staging="${RUNNER_TEMP}/build-output-unpacked"
+                  mkdir "${staging}"
+                  tar -xzf "${RUNNER_TEMP}/build-output/build-output.tar.gz" -C "${staging}"
+                  unexpected="$(find "${staging}" -mindepth 1 \( ! -type f ! -type d -o -name .git \) -print)"
+                  if [ -n "${unexpected}" ]; then
+                      echo "::error::Build output contains links, special files or .git entries"
+                      echo "${unexpected}"
+                      exit 1
+                  fi
+                  tar -C "${staging}" -cf - build Sources/ContentScopeScripts/dist docs | tar -xf -
 
             - name: Create and push build branch
               id: create_branch
