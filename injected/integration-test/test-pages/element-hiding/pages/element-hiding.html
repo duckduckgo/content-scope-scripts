@@ -122,11 +122,29 @@ label</span>
             }
         </script>
         <div class="container hide-empty-test" id="hide-empty-parentnode-loop"><span id="hide-empty-parentnode-loop-child"></span></div>
+        <div class="container hide-empty-test" id="hide-empty-firstchild-override">Real content behind an overridden firstChild</div>
         <script>
-            // a page can override tree properties. Without the cap this child would make the walk climb forever.
+            // A page can override tree properties. The walk reads the browser's own getters, so neither override
+            // can stall it (parentNode pointing at itself) or make it miss content (firstChild reporting null).
             {
                 const child = document.getElementById('hide-empty-parentnode-loop-child');
                 Object.defineProperty(child, 'parentNode', { get: () => child });
+                const withContent = document.getElementById('hide-empty-firstchild-override');
+                Object.defineProperty(withContent, 'firstChild', { get: () => null });
+            }
+        </script>
+        <div class="container hide-empty-test" id="hide-empty-void-child">
+            <img id="hide-empty-void-child-img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==" width="1" height="1"/>
+        </div>
+        <div class="container hide-empty-test" id="hide-empty-shadow-open"><div id="hide-empty-shadow-open-host"></div></div>
+        <div class="container hide-empty-test" id="hide-empty-shadow-closed"><div id="hide-empty-shadow-closed-host"></div></div>
+        <script>
+            // img cannot have children in HTML, but a script can attach one. It is never rendered.
+            document.getElementById('hide-empty-void-child-img').appendChild(document.createTextNode('Text attached to an img by script'));
+            // neither check looks inside a shadow root, open or closed
+            for (const mode of ['open', 'closed']) {
+                const root = document.getElementById(`hide-empty-shadow-${mode}-host`).attachShadow({ mode });
+                root.appendChild(document.createElement('p')).textContent = 'Text inside a shadow root';
             }
         </script>
         <div class="container hide-empty-test" id="hide-empty-custom-element-empty">
@@ -408,6 +426,26 @@ label</span>
                     expected: true
                 },
                 {
+                    name: "Empty element is hidden when a child's parentNode is overridden to point at itself",
+                    result: isElementHidden('hide-empty-parentnode-loop'),
+                    expected: true
+                },
+                {
+                    name: "Text attached by script to a void element (img) is ignored",
+                    result: isElementHidden('hide-empty-void-child'),
+                    expected: true
+                },
+                {
+                    name: "Content only inside an open shadow root is not seen (existing behaviour of both checks)",
+                    result: isElementHidden('hide-empty-shadow-open'),
+                    expected: true
+                },
+                {
+                    name: "Content only inside a closed shadow root is not seen (existing behaviour of both checks)",
+                    result: isElementHidden('hide-empty-shadow-closed'),
+                    expected: true
+                },
+                {
                     name: "Element with tracking pixel is hidden",
                     result: isElementHidden('hide-empty-pixel-element'),
                     expected: true
@@ -424,6 +462,11 @@ label</span>
             await new Promise(resolve => setTimeout(resolve, 100));
             
             return [
+                {
+                    name: "Element with content is NOT hidden when its firstChild is overridden to report null",
+                    result: isElementHidden('hide-empty-firstchild-override'),
+                    expected: false
+                },
                 {
                     name: "Element with text content is NOT hidden",
                     result: isElementHidden('hide-empty-text-content'),
@@ -502,11 +545,6 @@ label</span>
                     name: "Empty element under the node cap is hidden by both",
                     result: isElementHidden('hide-empty-under-node-cap'),
                     expected: true
-                },
-                {
-                    name: "Child whose parentNode points at itself: walk stops and keeps it visible, parser hides",
-                    result: isElementHidden('hide-empty-parentnode-loop'),
-                    expected: !walk
                 },
                 {
                     name: "Empty element over the node cap: walk stops and keeps it visible, parser hides",

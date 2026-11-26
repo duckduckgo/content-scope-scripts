@@ -1,5 +1,6 @@
 import ContentFeature from '../content-feature';
 import { isBeingFramed, injectGlobalStyles } from '../utils';
+import { getOwnPropertyDescriptor, NodePrototype, ReflectApply } from '../captured-globals.js';
 
 /**
  * @typedef {Object} ElementHidingValue
@@ -68,7 +69,7 @@ let styleTagInjected = false;
 let mediaAndFormSelectors = 'video,canvas,embed,object,audio,map,form,input,textarea,select,option,button';
 /** @type {'domParser' | 'walk'} */
 let emptyCheck = 'domParser';
-/** @type {string[]} adLabelStrings with whitespace compacted, for the walk check */
+/** @type {string[]} adLabelStrings after compactText, for the walk check */
 let compactAdLabels = [];
 // one more than the longest ad label: text longer than this cannot be an ad label
 let adLabelTextLimit = 1;
@@ -208,9 +209,63 @@ function unhideNode(element) {
     element.hidden = false;
 }
 
+/** @type {unknown[]} */
+const NO_ARGS = [];
+
+/**
+ * Returns a reader for a DOM property that calls the browser's own getter, captured when this script loads.
+ * A page that later replaces the property, on a node or on its prototype, cannot change what the reader returns.
+ * @param {object | undefined} prototype
+ * @param {string} name
+ * @returns {(target: any) => any}
+ */
+function captureGetter(prototype, name) {
+    const getter = prototype && getOwnPropertyDescriptor(prototype, name)?.get;
+    if (!getter) return (target) => target[name];
+    return (target) => ReflectApply(getter, target, NO_ARGS);
+}
+
+// What the walk check reads from the page, captured at load so page overrides cannot steer or stall the walk.
+const ElementPrototype = globalThis.Element?.prototype;
+const readFirstChild = captureGetter(NodePrototype, 'firstChild');
+const readNextSibling = captureGetter(NodePrototype, 'nextSibling');
+const readParentNode = captureGetter(NodePrototype, 'parentNode');
+const readNodeType = captureGetter(NodePrototype, 'nodeType');
+const readLocalName = captureGetter(ElementPrototype, 'localName');
+const readTextData = captureGetter(globalThis.CharacterData?.prototype, 'data');
+const readHidden = captureGetter(globalThis.HTMLElement?.prototype, 'hidden');
+const readFrameSrc = captureGetter(globalThis.HTMLIFrameElement?.prototype, 'src');
+const nativeMatches = ElementPrototype?.matches;
+
+const TEXT_NODE = 3;
+const ELEMENT_NODE = 1;
+
 // Tags the walk check ignores, with everything inside them. The DOMParser check removes the first eight from its copy.
 // The walk also skips noscript: on a live page its contents are text the user never sees.
 const walkSkippedTags = new Set(['base', 'link', 'meta', 'script', 'style', 'template', 'title', 'desc', 'noscript']);
+
+// Tags that cannot have children in HTML. A script can still attach children to one, but they are never rendered
+// and the DOMParser check never sees them, so the walk does not look inside.
+const voidTags = new Set([
+    'area',
+    'base',
+    'basefont',
+    'bgsound',
+    'br',
+    'col',
+    'embed',
+    'frame',
+    'hr',
+    'img',
+    'input',
+    'keygen',
+    'link',
+    'meta',
+    'param',
+    'source',
+    'track',
+    'wbr',
+]);
 
 // A walk that visits more nodes than this stops and leaves the element visible.
 const MAX_WALK_NODES = 10000;
@@ -228,13 +283,14 @@ function compactText(text) {
  * True for elements that count as content on their own: media and form elements,
  * and iframes that are not hidden or about:blank
  * @param {Element} el
+ * @param {string} localName
  * @returns {boolean}
  */
-function isContentElement(el) {
-    if (el.matches(mediaAndFormSelectors)) return true;
-    if (el.localName === 'iframe') {
-        const frame = /** @type {HTMLIFrameElement} */ (el);
-        return !(frame.hidden || frame.src === 'about:blank');
+function isContentElement(el, localName) {
+    const matches = nativeMatches ? ReflectApply(nativeMatches, el, [mediaAndFormSelectors]) : el.matches(mediaAndFormSelectors);
+    if (matches) return true;
+    if (localName === 'iframe') {
+        return !(readHidden(el) || readFrameSrc(el) === 'about:blank');
     }
     return false;
 }
@@ -260,36 +316,38 @@ function walkForContent(root, maxText) {
         if (++visited > MAX_WALK_NODES) return { content: true, text };
         let descend = false;
         // nodeType and localName instead of instanceof: they also work for nodes created in another frame
-        if (current.nodeType === Node.TEXT_NODE) {
-            text += /** @type {Text} */ (current).data;
+        const nodeType = readNodeType(current);
+        if (nodeType === TEXT_NODE) {
+            text += readTextData(current);
             if (text.length > cap) {
                 if (compactText(text).length > maxText) return { content: true, text };
                 cap = text.length * 2;
             }
-        } else if (current.nodeType === Node.ELEMENT_NODE) {
+        } else if (nodeType === ELEMENT_NODE) {
             const el = /** @type {Element} */ (current);
-            if (el.localName === 'br') {
+            const localName = readLocalName(el);
+            if (localName === 'br') {
                 // a line break separates words, whatever the engine's innerText does with it
                 text += ' ';
-            } else if (!walkSkippedTags.has(el.localName)) {
-                if (isContentElement(el)) return { content: true, text };
+            } else if (!walkSkippedTags.has(localName)) {
+                if (isContentElement(el, localName)) return { content: true, text };
                 // a blank or hidden iframe is not content itself, but text inside it still counts
-                descend = !!el.firstChild;
+                descend = !voidTags.has(localName) && readFirstChild(el) !== null;
             }
         }
         if (descend) {
-            current = /** @type {Node} */ (current).firstChild;
+            current = readFirstChild(current);
             continue;
         }
         if (current === root) break;
         // next node in document order: next sibling, or the next sibling of the nearest ancestor that has one
-        while (current && !current.nextSibling) {
-            // a real tree never climbs more than it visited. This only trips if the page has overridden parentNode.
+        while (current && readNextSibling(current) === null) {
+            // a real tree never climbs more than it visited, so this is only a backstop
             if (++climbs > MAX_WALK_NODES) return { content: true, text };
-            current = current.parentNode;
+            current = readParentNode(current);
             if (!current || current === root) current = null;
         }
-        if (current) current = current.nextSibling;
+        if (current) current = readNextSibling(current);
     }
     return { content: false, text };
 }
@@ -318,7 +376,7 @@ function isDomNodeEmptyWalk(node) {
         });
         return !visibleImages;
     } catch {
-        // The page can override the DOM properties the walk reads, so a throw here is possible.
+        // Not expected, but the walk touches live page nodes, so do not let a throw escape into the hide pass.
         // Report "not empty" so the element stays visible: wrongly showing an empty ad slot is safer than hiding content.
         return false;
     }
@@ -542,7 +600,8 @@ export default class ElementHiding extends ContentFeature {
         mediaAndFormSelectors = this.getFeatureSetting('mediaAndFormSelectors');
         // anything other than 'walk' (missing or unknown) keeps the DOMParser check
         emptyCheck = this.getFeatureSetting('emptyCheck') === 'walk' ? 'walk' : 'domParser';
-        compactAdLabels = adLabelStrings.map((label) => label.replace(/\s+/g, ' ').trim());
+        // the labels get the same clean-up as the text they are compared with
+        compactAdLabels = adLabelStrings.map((label) => compactText(label));
         adLabelTextLimit = compactAdLabels.reduce((max, label) => Math.max(max, label.length), 0) + 1;
         // Fall back to default value if setting is missing, null, empty, or other falsy values
         if (!mediaAndFormSelectors) {
