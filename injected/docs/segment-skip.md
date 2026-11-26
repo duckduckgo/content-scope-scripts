@@ -13,7 +13,7 @@ Shipped in the Apple **isolated-world** bundle (`contentScopeIsolated.js`) and i
 - **Video detection:** reads the video ID from watch, shorts, live and embed URLs on load, on SPA navigation and whenever a video element starts loading. Responses that arrive after the user moved to another video are discarded.
 - **Config:** on init it subscribes to `onConfigChanged`, then calls `getConfig`. Nothing is requested or drawn until native says `enabled`. A rejected `getConfig` (no handler on this build) leaves the feature disabled.
 - **Rendering:** draws the segments on the player's progress bar in `#FAB341`. The skip button is mounted in a closed shadow root over the player, so YouTube's scripts cannot query or restyle it.
-- **Skip:** in `manual` mode a button appears while playback is inside a segment and seeks to its end on click. It shows only while YouTube's player controls are hidden (matched by `controlsVisibleSelectors`), paused or not, so it never covers them. It hides after 8 seconds of playback with the button on screen and stays hidden until playback leaves that segment. In `auto` mode playback seeks past a segment as soon as it enters it naturally; a segment the user seeks into gets the button instead, so seeking back never re-skips.
+- **Skip:** in `manual` mode a button appears while playback is inside a segment and seeks to its end on click. On m.youtube.com and the mobile Duck Player embed it shows only while YouTube's controls layer is hidden (matched by `controlsVisibleSelectors`), paused or not, so it never covers it. On desktop youtube.com and its embed (macOS, iPad) it stays up whether the controls show or not. It hides after 8 seconds of playback with the button on screen and stays hidden until playback leaves that segment. In `auto` mode playback seeks past a segment as soon as it enters it naturally; a segment the user seeks into gets the button instead, so seeking back never re-skips.
 - **Duration check:** a segment whose `videoDuration` differs from the player's duration by more than 2 s is ignored, since the video was re-cut after submission.
 - **Ads:** while an ad plays (matched by `adShowingSelectors`) no markers are drawn, no button is shown and nothing is seeked.
 - **Selector miss:** no UI and no errors.
@@ -53,14 +53,14 @@ Schemas live in `injected/src/messages/segment-skip/`; `npm run build-types -w i
     "progressBarSelectors": [".ytp-progress-bar", "..."],
     "skipButtonHostSelectors": ["#player-container-id", "#player-controls", "#movie_player", ".html5-video-player"],
     "adShowingSelectors": [".ad-showing"],
-    "controlsVisibleSelectors": ["#movie_player:not(.ytp-autohide):not(.ytp-hide-controls)", "#player-control-overlay.fadein"]
+    "controlsVisibleSelectors": ["#player-control-overlay.fadein"]
   }
 }
 ```
 
 Each selector list is ordered: the first selector with a visible match wins. The feature falls back to in-code defaults when a key is absent, drops malformed entries, and treats an empty list as "no UI for this piece".
 
-`controlsVisibleSelectors` fails open: an empty list, or no visible match, counts as "controls hidden", so a selector that breaks after a YouTube change leaves the button showing as it did before the check existed. The first default covers desktop youtube.com and the desktop embed, where YouTube adds `ytp-autohide` to the player when its controls fade out. The second covers m.youtube.com and the mobile Duck Player embed, which turn the player's own controls off (`ytp-hide-controls`) and add `fadein` to their controls layer while it shows. While the button is mounted, a `MutationObserver` on its host's `class` attributes re-checks it, since toggling the controls fires no media event. `categories` and `actionTypes` are read by native only.
+`controlsVisibleSelectors` fails open: an empty list, or no visible match, counts as "controls hidden", so a selector that breaks after a YouTube change leaves the button showing as it did before the check existed. The default covers m.youtube.com and the mobile Duck Player embed, which add `fadein` to their controls layer while it shows. Desktop youtube.com and its embed (macOS, and iPad, which gets the desktop site) have no such layer, so the button ignores their controls on purpose. While the button is mounted, a `MutationObserver` on its host's `class` attributes re-checks it, since toggling the controls fires no media event. `categories` and `actionTypes` are read by native only.
 
 The feature loads only when the remote config names `segmentSkip` with a state that resolves to enabled for the platform; without an entry, or with `disabled`, its `init` never runs and no message is sent. To test before the entry ships, point the app at a custom privacy config that includes it.
 

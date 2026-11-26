@@ -154,11 +154,32 @@ async function pause(page) {
 }
 
 /**
- * Shows or hides the fake player's controls the way desktop YouTube does: ytp-autohide on the player while they are faded out.
+ * Shows or hides the fake player's controls the way m.youtube.com does: the player's own controls are off
+ * (ytp-hide-controls) and a separate #player-control-overlay gets fadein while it shows.
  * @param {import('@playwright/test').Page} page
  * @param {boolean} visible
  */
 async function setControlsVisible(page, visible) {
+    await page.evaluate((v) => {
+        const player = /** @type {HTMLElement} */ (document.querySelector('#movie_player'));
+        player.classList.replace('ytp-autohide', 'ytp-hide-controls');
+        let overlay = document.querySelector('#player-control-overlay');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.id = 'player-control-overlay';
+            /** @type {HTMLElement} */ (overlay).style.cssText = 'position: absolute; inset: 0; pointer-events: none';
+            player.append(overlay);
+        }
+        overlay.classList.toggle('fadein', v);
+    }, visible);
+}
+
+/**
+ * Shows or hides the fake player's controls the way desktop YouTube does: ytp-autohide on the player while they are faded out.
+ * @param {import('@playwright/test').Page} page
+ * @param {boolean} visible
+ */
+async function setDesktopControlsVisible(page, visible) {
     await page.evaluate((v) => document.querySelector('#movie_player')?.classList.toggle('ytp-autohide', !v), visible);
 }
 
@@ -283,25 +304,16 @@ test.describe('SegmentSkip', () => {
         expect(await currentTime(page)).toBeCloseTo(5, 1);
     });
 
-    test('manual mode: mobile controls layer hides the skip button while it fades in', async ({ page }, testInfo) => {
+    test("manual mode: desktop YouTube's controls don't hide the skip button", async ({ page }, testInfo) => {
         await loadPlayer(page, testInfo);
         await expect(page.locator(MARKER)).toHaveCount(1);
-        // m.youtube.com and the mobile embed turn the player's own controls off and draw them in a separate layer, so the
-        // player never gets ytp-autohide there. That must not count as controls showing.
-        await page.evaluate(() => {
-            const player = /** @type {HTMLElement} */ (document.querySelector('#movie_player'));
-            player.classList.replace('ytp-autohide', 'ytp-hide-controls');
-            const overlay = document.createElement('div');
-            overlay.id = 'player-control-overlay';
-            overlay.style.cssText = 'position: absolute; inset: 0; pointer-events: none';
-            player.append(overlay);
-        });
-
+        // Desktop youtube.com and its embed (macOS, iPad) show their controls on hover; the button stays up then.
+        await setDesktopControlsVisible(page, true);
         await seekTo(page, 3);
         await expect(page.locator(SKIP_BUTTON)).toBeVisible();
-        await page.evaluate(() => document.querySelector('#player-control-overlay')?.classList.add('fadein'));
-        await expect(page.locator(SKIP_BUTTON)).toBeHidden();
-        await page.evaluate(() => document.querySelector('#player-control-overlay')?.classList.remove('fadein'));
+        await setDesktopControlsVisible(page, false);
+        await expect(page.locator(SKIP_BUTTON)).toBeVisible();
+        await setDesktopControlsVisible(page, true);
         await expect(page.locator(SKIP_BUTTON)).toBeVisible();
     });
 

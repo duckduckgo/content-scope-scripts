@@ -41,12 +41,11 @@ const DEFAULT_PROGRESS_BAR_SELECTORS = [
 const DEFAULT_SKIP_BUTTON_HOST_SELECTORS = ['#player-container-id', '#player-controls', '#movie_player', '.html5-video-player'];
 // Present while YouTube plays an ad in the player; the video element then plays the ad, not the video.
 const DEFAULT_AD_SHOWING_SELECTORS = ['.ad-showing'];
-// Present while YouTube's player controls are on screen; the skip button hides then, so it never covers them. Desktop
-// youtube.com and the macOS embed add ytp-autohide to the player when the controls fade out. m.youtube.com and the
-// mobile embed (Duck Player) turn the player's own controls off (ytp-hide-controls) and draw their controls layer in
-// #player-control-overlay, which gets fadein while it shows. No match means "controls hidden", so a broken selector
-// leaves the button as it was before this check existed.
-const DEFAULT_CONTROLS_VISIBLE_SELECTORS = ['#movie_player:not(.ytp-autohide):not(.ytp-hide-controls)', '#player-control-overlay.fadein'];
+// Present while YouTube's mobile controls layer is on screen; the skip button hides then, so it never covers it.
+// m.youtube.com and the mobile embed (Duck Player) draw their controls in #player-control-overlay, which gets fadein
+// while it shows. Desktop youtube.com and its embed (macOS, iPad) have no such layer, so there the button stays up
+// whether the controls show or not. No match means "controls hidden", so a broken selector leaves the button showing.
+const DEFAULT_CONTROLS_VISIBLE_SELECTORS = ['#player-control-overlay.fadein'];
 
 // How long the skip button stays up after it appears for a segment, unless playback leaves the segment first. Counted
 // only while the video plays and the button is on screen, so a paused or buffering video keeps the button, and time
