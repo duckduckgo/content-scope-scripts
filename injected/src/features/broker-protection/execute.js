@@ -2,7 +2,6 @@ import {
     navigate,
     extract,
     click,
-    // eslint-disable-next-line no-redeclare
     scroll,
     expectation,
     fillForm,

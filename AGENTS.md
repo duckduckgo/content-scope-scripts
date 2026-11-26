@@ -89,7 +89,7 @@ Run from root. Use `nvm use` to set the correct Node version.
 | `npm run build` | Build all workspaces |
 | `npm run test-unit` | Unit tests (all workspaces) |
 | `npm run test-int` | Integration tests (Playwright) |
-| `npm run lint` | ESLint + TypeScript + oxfmt (run `npm run build` first; it also lints the built output) |
+| `npm run lint` | oxlint + TypeScript + oxfmt (run `npm run build` first; it also lints the built output) |
 | `npm run lint-fix` | Auto-fix lint issues |
 | `npm run format` | Format all files with oxfmt (about a second) |
 | `npm run check-format` | Check formatting without writing |

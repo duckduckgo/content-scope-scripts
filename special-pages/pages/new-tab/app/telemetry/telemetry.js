@@ -93,7 +93,7 @@ class MessagingObserver {
      * @param {string} method
      * @param {Record<string, any>} params
      */
-    request(method, params) {
+    async request(method, params) {
         const timestamp = Date.now();
         const json = {
             kind: 'request',
@@ -102,21 +102,15 @@ class MessagingObserver {
             timestamp,
         };
         this.record(Telemetry.EVENT_REQUEST, json);
-        return (
-            this.messaging
-                .request(method, params)
-                // eslint-disable-next-line promise/prefer-await-to-then
-                .then((x) => {
-                    const resJson = {
-                        kind: 'response',
-                        method,
-                        result: x,
-                        timestamp,
-                    };
-                    this.record(Telemetry.EVENT_RESPONSE, resJson);
-                    return x;
-                })
-        );
+        const x = await this.messaging.request(method, params);
+        const resJson = {
+            kind: 'response',
+            method,
+            result: x,
+            timestamp,
+        };
+        this.record(Telemetry.EVENT_RESPONSE, resJson);
+        return x;
     }
 
     /**

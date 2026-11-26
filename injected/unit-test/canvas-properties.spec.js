@@ -1,5 +1,4 @@
 import { modifyPixelData } from '../src/canvas.js';
-// eslint-disable-next-line no-redeclare
 import ImageData from '@canvas/image-data';
 
 describe('canvas modifyPixelData', () => {

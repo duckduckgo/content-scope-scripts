@@ -385,7 +385,7 @@ function querySelectorFor(selector) {
 
 export default class ElementHiding extends ContentFeature {
     init() {
-        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        // eslint-disable-next-line ddg/no-this-alias
         featureInstance = this;
 
         if (isBeingFramed()) {

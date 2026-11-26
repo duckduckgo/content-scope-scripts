@@ -7,9 +7,7 @@ import { formatErrors } from '@duckduckgo/privacy-configuration/tests/schema-val
 import ApiManipulation from '../src/features/api-manipulation.js';
 
 // TODO: Ignore eslint redeclare as we're linting for esm and cjs
-// eslint-disable-next-line no-redeclare
 const __filename = fileURLToPath(import.meta.url);
-// eslint-disable-next-line no-redeclare
 const __dirname = path.dirname(__filename);
 
 // Using node's lookup to resolve schema generator

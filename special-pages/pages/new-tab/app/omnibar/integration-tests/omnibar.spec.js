@@ -1500,7 +1500,6 @@ test.describe('omnibar widget', () => {
     });
 
     // 1x1 red pixel PNG
-    // eslint-disable-next-line no-undef
     const TINY_PNG = Buffer.from(
         'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwADhQGAWjR9awAAAABJRU5ErkJggg==',
         'base64',
@@ -3150,7 +3149,6 @@ test.describe('omnibar widget', () => {
             await omnibar.aiTab().click();
             await omnibar.expectMode('ai');
 
-            // eslint-disable-next-line no-undef
             const gifBuffer = Buffer.from('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', 'base64');
             await omnibar.fileInput().setInputFiles({ name: 'test.gif', mimeType: 'image/gif', buffer: gifBuffer });
 

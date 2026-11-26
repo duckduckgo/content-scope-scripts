@@ -78,7 +78,7 @@ npm run tsc
 npm run tsc-watch
 ```
 
-**Lint the codebase using ESLint**:
+**Lint the codebase using oxlint**:
 ```sh
 npm run lint
 ```

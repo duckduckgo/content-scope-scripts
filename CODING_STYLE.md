@@ -21,7 +21,7 @@ We use [oxfmt](https://oxc.rs/docs/guide/usage/formatter), a Prettier-compatible
 # Format all files
 npm run format
 
-# Format, plus ESLint fixes and type check
+# Format, plus lint fixes and type check
 npm run lint-fix
 
 # Check formatting (without making changes)
@@ -232,14 +232,13 @@ function validateUrl(url) {
 ### VS Code
 
 Recommended extensions:
-- Oxc - Code formatter
+- Oxc - Linting and formatting
 - TypeScript and JavaScript Language Features (built-in)
-- ESLint
 
 
 ## Linting
 
-We use ESLint for code quality checks. See [`eslint.config.js`](eslint.config.js) for the current linting configuration.
+We use [oxlint](https://oxc.rs/docs/guide/usage/linter) for code quality checks. See [`.oxlintrc.json`](.oxlintrc.json) for the current linting configuration. oxlint reads disable comments that use ESLint rule names, such as `// eslint-disable-next-line no-unused-vars`.
 
 Run linting with:
 

@@ -6,7 +6,6 @@ import { getElement } from '../utils/utils';
  * @param {Document} root
  * @return {import('../types.js').ActionResponse}
  */
-// eslint-disable-next-line no-redeclare
 export function scroll(action, root = document) {
     const element = getElement(root, action.selector);
     if (!element) return new ErrorResponse({ actionID: action.id, message: 'missing element' });

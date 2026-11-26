@@ -19,7 +19,7 @@ $WATCH: (() => {
 
     const es = new EventSource('/esbuild');
     es.addEventListener('change', (e) => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // eslint-disable-next-line ddg/ban-ts-comment
         // @ts-ignore - this will always be present in watch mode
         // eslint-disable-next-line promise/prefer-await-to-then
         import('../timestamp.json').then((x) => {

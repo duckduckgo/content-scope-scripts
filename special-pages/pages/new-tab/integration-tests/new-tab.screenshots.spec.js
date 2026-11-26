@@ -1,4 +1,3 @@
-/* global Buffer */
 import { expect, test } from '@playwright/test';
 import { NewtabPage } from './new-tab.page.js';
 import { ActivityPage } from '../app/activity/integration-tests/activity.page.js';

@@ -3,7 +3,6 @@
  * @see injected/docs/coding-guidelines.md for general patterns
  */
 import ContentFeature from '../content-feature.js';
-// eslint-disable-next-line no-redeclare
 import { URL } from '../captured-globals.js';
 import { DDGProxy, DDGReflect } from '../utils.js';
 import { wrapToString, wrapFunction } from '../wrapper-utils.js';
@@ -60,7 +59,6 @@ function canShare(data) {
 }
 
 // Shadowned class for PermissionStatus for use in shimming
-// eslint-disable-next-line no-redeclare
 class PermissionStatus extends EventTarget {
     #hasChangeListener = false;
 
@@ -328,7 +326,7 @@ export class WebCompat extends ContentFeature {
             return;
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        // eslint-disable-next-line ddg/no-this-alias
         const feature = this;
 
         // Check nativeEnabled setting - when false, install polyfill but skip native calls and return 'denied'
@@ -846,7 +844,7 @@ export class WebCompat extends ContentFeature {
      * @param {'get'|'create'} methodName
      */
     wrapPasskeyMethod(proto, methodName) {
-        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        // eslint-disable-next-line ddg/no-this-alias
         const feature = this;
         this.wrapMethod(proto, methodName, function (originalFn, ...args) {
             // Always call through with the original arguments/receiver first: the page

@@ -98,12 +98,12 @@ function assertCustomEvent(event) {
 | Generic error messages | Hard to debug | Include specific context |
 | Catching and ignoring all errors | Masks bugs | Catch specific error types |
 
-## ESLint Support
+## Lint Support
 
 The codebase enforces:
 - `require-await` - async functions must use await
 - `promise/prefer-await-to-then` - prefer async/await over `.then()`
-- `@typescript-eslint/await-thenable` - only await promises
+- `typescript/await-thenable` - only await promises
 
 ## Summary
 

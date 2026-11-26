@@ -5,7 +5,6 @@ import { test as base, expect } from '@playwright/test';
 import { testContextForExtension, gotoAndWait } from './helpers/harness.js';
 import { createRequire } from 'node:module';
 
-// eslint-disable-next-line no-redeclare
 const require = createRequire(import.meta.url);
 
 const test = testContextForExtension(base);
@@ -82,10 +81,9 @@ test.describe.serial('All Fingerprint Defense Tests (must run in serial)', () =>
             await page.addScriptTag({ path: lib });
 
             const fingerprint = await page.evaluate(() => {
-                /* global FingerprintJS */
                 return (async () => {
                     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                    const fp = await FingerprintJS.load();
+                    const fp = await window.FingerprintJS.load();
                     return fp.get();
                 })();
             });

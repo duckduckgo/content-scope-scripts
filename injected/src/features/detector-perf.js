@@ -1,5 +1,4 @@
 import ContentFeature from '../content-feature.js';
-// eslint-disable-next-line no-redeclare
 import { hasOwnProperty, performanceNow, CustomEvent, dispatchEvent, Map, Set } from '../captured-globals.js';
 
 /**

@@ -1,4 +1,3 @@
-/* global Geolocation */
 import { DDGProxy, DDGReflect } from '../utils';
 import ContentFeature from '../content-feature';
 
@@ -314,7 +313,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
                         return Promise.reject(new DOMException('Pan-tilt-zoom is not supported'));
                     }
 
-                    // eslint-disable-next-line promise/prefer-await-to-then
+                    // eslint-disable-next-line ddg/no-return-then
                     return DDGReflect.apply(target, thisArg, args).then(function (stream) {
                         console.debug(`User stream ${stream.id} has been acquired`);
                         userMediaStreams.add(stream);

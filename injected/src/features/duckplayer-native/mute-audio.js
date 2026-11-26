@@ -1,4 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// eslint-disable-next-line ddg/ban-ts-comment
 // @ts-nocheck - Typing will be fixed in the future
 
 export function muteAudio(mute) {

@@ -10,7 +10,6 @@ test.describe('Cookie protection tests', () => {
             document.cookie = 'test=1; expires=Wed, 21 Aug 2040 20:00:00 UTC;';
             // wait for a tick, as cookie modification happens in a promise
             await new Promise((resolve) => setTimeout(resolve, 1));
-            // eslint-disable-next-line no-undef
             return cookieStore.get('test');
         });
         expect(result?.name).toEqual('test');
@@ -32,7 +31,6 @@ test.describe('Cookie protection tests', () => {
             };
             // wait for a tick, as cookie modification happens in a promise
             await new Promise((resolve) => setTimeout(resolve, 1));
-            // eslint-disable-next-line no-undef
             return cookieStore.get('a');
         });
         expect(result?.name).toEqual('a');
@@ -54,7 +52,6 @@ test.describe('Cookie protection tests', () => {
 
             // wait for a tick, as cookie modification happens in a promise
             await new Promise((resolve) => setTimeout(resolve, 1));
-            // eslint-disable-next-line no-undef
             return cookieStore.get('a');
         });
         expect(result?.name).toEqual('a');

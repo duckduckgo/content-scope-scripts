@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-redeclare
 import { PerformanceMonitor, PerformanceMark } from '../src/performance.js';
 
 describe('PerformanceMonitor', () => {
