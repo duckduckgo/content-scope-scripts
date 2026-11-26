@@ -24,6 +24,7 @@ if (import.meta.injectName === 'chrome-mv3-isolated') {
     window.addEventListener(
         'ddg-isolated-secret',
         (event) => {
+            event.stopImmediatePropagation();
             const secret = /** @type {CustomEvent<string>} */ (event).detail;
             chrome.runtime.sendMessage(
                 {
