@@ -1,12 +1,12 @@
 import {
     AndroidMessagingConfig,
+    ExtensionMessagingConfig,
     Messaging,
     MessagingContext,
     TestTransportConfig,
     WebkitMessagingConfig,
     WindowsMessagingConfig,
 } from '@duckduckgo/messaging';
-import { ExtensionMessagingConfig } from '@duckduckgo/messaging/lib/extension.js';
 
 /**
  * @param {object} opts

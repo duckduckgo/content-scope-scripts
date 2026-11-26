@@ -4,7 +4,7 @@
 import { load, init, update } from '../src/content-scope-features.js';
 import { computeLimitedSiteObject } from '../src/utils.js';
 import { getSharedMessagingTransport } from '../src/sendmessage-transport.js';
-import { ExtensionMessagingConfig } from '@duckduckgo/messaging/lib/extension.js';
+import { ExtensionMessagingConfig } from '../../messaging/index.js';
 
 const randomValue = /** @type {number} */ (crypto.getRandomValues(new Uint32Array(1))[0]);
 const secret = (randomValue / 2 ** 32).toString().replace('0.', '');
@@ -25,6 +25,7 @@ if (import.meta.injectName === 'chrome-mv3-isolated') {
         'ddg-isolated-secret',
         (event) => {
             event.stopImmediatePropagation();
+            event.preventDefault();
             const secret = /** @type {CustomEvent<string>} */ (event).detail;
             chrome.runtime.sendMessage(
                 {
@@ -90,7 +91,11 @@ if (import.meta.injectName === 'chrome-mv3-isolated') {
         }),
     );
 
-    const sendIsolatedSecret = () => window.dispatchEvent(new CustomEvent('ddg-isolated-secret', { detail: secret }));
+    // The isolated world acknowledges with preventDefault(); stop re-sending once it has.
+    const sendIsolatedSecret = () => {
+        const received = !window.dispatchEvent(new CustomEvent('ddg-isolated-secret', { detail: secret, cancelable: true }));
+        if (received) window.removeEventListener('ddg-isolated-ready', sendIsolatedSecret);
+    };
     window.addEventListener('ddg-isolated-ready', sendIsolatedSecret, { once: true });
     sendIsolatedSecret();
 }

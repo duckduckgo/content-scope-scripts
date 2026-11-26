@@ -31,7 +31,7 @@ function mockExtension() {
     const listeners = [];
     const port = {
         onMessage: { addListener: (/** @type {any} */ fn) => listeners.push(fn) },
-        onDisconnect: { addListener() {} },
+        onDisconnect: { addListener() {}, removeListener() {} },
         postMessage(/** @type {any} */ msg) {
             outgoing.push(msg);
             const { context, featureName, id } = msg;

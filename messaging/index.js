@@ -317,5 +317,7 @@ export {
     AndroidMessagingTransport,
     AndroidAdsjsMessagingConfig,
     AndroidAdsjsMessagingTransport,
+    ExtensionMessagingConfig,
+    ExtensionMessagingTransport,
     createTypedMessages,
 };
