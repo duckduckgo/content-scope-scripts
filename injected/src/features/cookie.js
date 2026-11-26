@@ -294,6 +294,60 @@ export default class CookieFeature extends ContentFeature {
             cookiePolicy.trackerPolicy = fallbackTrackerPolicy;
         }
 
-        loadedPolicyResolve();
+        if (!args.cookie && this.shouldRequestNativeCookiePolicy()) {
+            // Resolves the policy once native answers, as the extension only inits after its background has.
+            void this.applyNativeCookiePolicy();
+        } else {
+            loadedPolicyResolve();
+        }
     }
+
+    /**
+     * Windows injects the same script into every frame, so unlike the extension it can't pass a
+     * per-frame `cookie` arg, and party-ness falls back to the hostname guess in isThirdPartyFrame().
+     * That treats e.g. drive.google.com in docs.google.com as third party. Native knows the frame and
+     * tab URLs and the entity data, so frames ask it for the same policy the extension would send.
+     * The top frame is never a third-party frame, so its guess is already right.
+     * @returns {boolean}
+     */
+    shouldRequestNativeCookiePolicy() {
+        return (
+            this.injectName === 'windows' &&
+            cookiePolicy.isFrame &&
+            /^https?:$/.test(globalThis.location.protocol) &&
+            this.getFeatureSettingEnabled('nativeFrameCookiePolicy', 'enabled')
+        );
+    }
+
+    /**
+     * Until native answers, the hostname guess applies, as it does in the extension before init.
+     * Resolves the loaded policy whether or not native answers with a valid policy.
+     * @returns {Promise<void>}
+     */
+    async applyNativeCookiePolicy() {
+        try {
+            const response = await this.request('getCookiePolicy', {});
+            if (!isExtensionCookiePolicy(response)) {
+                this.log.warn('Invalid getCookiePolicy response', response);
+                return;
+            }
+            const { isFrame, isTracker, isThirdPartyFrame, shouldBlock } = response;
+            Object.assign(cookiePolicy, { isFrame, isTracker, isThirdPartyFrame, shouldBlock });
+        } catch (e) {
+            // Native replies with an error when it has no policy for this document: keep the guess
+            this.log.warn('getCookiePolicy failed', e);
+        } finally {
+            loadedPolicyResolve();
+        }
+    }
+}
+
+/**
+ * @param {unknown} value
+ * @returns {value is ExtensionCookiePolicy}
+ */
+function isExtensionCookiePolicy(value) {
+    if (typeof value !== 'object' || value === null) return false;
+    const policy = /** @type {Record<string, unknown>} */ (value);
+    return ['isFrame', 'isTracker', 'isThirdPartyFrame', 'shouldBlock'].every((key) => typeof policy[key] === 'boolean');
 }
