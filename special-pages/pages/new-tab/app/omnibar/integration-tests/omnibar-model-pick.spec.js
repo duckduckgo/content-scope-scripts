@@ -99,6 +99,22 @@ test.describe('omnibar per-tab model pick', () => {
         await expect(omnibar.modelSelectorButton()).toContainText('GPT-5');
     });
 
+    test('a new default from settings replaces the pick on every tab', async ({ page }, workerInfo) => {
+        const { omnibar } = await openPerTabOmnibar(page, workerInfo);
+        await omnibar.didReceiveConfig(PER_TAB_CONFIG);
+
+        await pickModel(omnibar, 'GPT-OSS');
+        await omnibar.didSwitchToTab('02', ['01', '02']);
+        await pickModel(omnibar, 'GPT-5');
+
+        await omnibar.didChangeUserDefaultModel();
+        await omnibar.didReceiveConfig({ ...PER_TAB_CONFIG, selectedModelId: 'claude-haiku-4-5' });
+        await expect(omnibar.modelSelectorButton()).toContainText('Haiku 4.5');
+
+        await omnibar.didSwitchToTab('01', ['01', '02']);
+        await expect(omnibar.modelSelectorButton()).toContainText('Haiku 4.5');
+    });
+
     test('sends the pick with the prompt and keeps it until the tab leaves the New Tab Page', async ({ page }, workerInfo) => {
         const { omnibar } = await openPerTabOmnibar(page, workerInfo);
 

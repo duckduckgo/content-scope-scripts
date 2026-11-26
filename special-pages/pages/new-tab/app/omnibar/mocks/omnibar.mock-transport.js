@@ -390,7 +390,7 @@ export function omnibarMockTransport() {
         subscribe(_msg, cb) {
             /** @type {import('../../../types/new-tab.ts').NewTabMessages['subscriptions']['subscriptionEvent']} */
             const sub = /** @type {any} */ (_msg.subscriptionName);
-            if (sub === 'omnibar_onConfigUpdate') {
+            if (sub === 'omnibar_onConfigUpdate' || sub === 'omnibar_onUserDefaultModelChange') {
                 subs.set(sub, cb);
                 return () => {};
             }

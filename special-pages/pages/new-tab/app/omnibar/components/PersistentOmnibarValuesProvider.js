@@ -127,7 +127,13 @@ function createPersistentState(fallback) {
         return /** @type {const} */ ([value, setter]);
     }
 
-    return { Provider, useStateWithLocalPersistence };
+    /** Returns a function that forgets every tab's value. */
+    function useClearAll() {
+        const store = useContext(Context);
+        return useCallback(() => store?.prune({ preserve: [] }), [store]);
+    }
+
+    return { Provider, useStateWithLocalPersistence, useClearAll };
 }
 
 // Per-NTP-tab persisted lists, each with its own Provider + `useStateWithLocalPersistence` hook.

@@ -131,6 +131,15 @@ export class OmnibarService {
     }
 
     /**
+     * Calls `cb` when the user changes their default model in Duck.ai settings.
+     * @param {() => void} cb
+     * @returns {() => void}
+     */
+    onUserDefaultModelChange(cb) {
+        return this.ntp.messaging.subscribe('omnibar_onUserDefaultModelChange', cb);
+    }
+
+    /**
      * Reports a model picked in one tab when native leaves the pick to the page.
      * @param {import('../../types/new-tab.js').SelectModel} params
      */

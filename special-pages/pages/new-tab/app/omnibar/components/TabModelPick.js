@@ -1,6 +1,6 @@
 import { h, createContext } from 'preact';
-import { useContext } from 'preact/hooks';
-import { OmnibarContext } from './OmnibarProvider.js';
+import { useContext, useEffect } from 'preact/hooks';
+import { OmnibarContext, useOmnibarService } from './OmnibarProvider.js';
 import { ModelPicks } from './PersistentOmnibarValuesProvider.js';
 import { resolveModel, resolveReasoningEffort } from './modelPick.js';
 
@@ -33,6 +33,15 @@ const TabModelPickContext = createContext({
  */
 export function TabModelPickProvider({ tabId, children }) {
     const [pick, setPick] = ModelPicks.useStateWithLocalPersistence(tabId);
+    const clearAllPicks = ModelPicks.useClearAll();
+    const service = useOmnibarService();
+    useEffect(() => {
+        // A new default in settings is the user's latest choice, so it replaces every tab's pick.
+        return service?.onUserDefaultModelChange(() => {
+            clearAllPicks();
+            setPick(null);
+        });
+    }, [service, clearAllPicks, setPick]);
     return <TabModelPickContext.Provider value={{ pick, setPick }}>{children}</TabModelPickContext.Provider>;
 }
 

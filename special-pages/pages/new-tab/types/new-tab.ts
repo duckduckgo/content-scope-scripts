@@ -455,6 +455,7 @@ export interface NewTabMessages {
     | NextStepsOnConfigUpdateSubscription
     | NextStepsOnDataUpdateSubscription
     | OmnibarOnConfigUpdateSubscription
+    | OmnibarOnUserDefaultModelChangeSubscription
     | ProtectionsOnConfigUpdateSubscription
     | ProtectionsOnDataUpdateSubscription
     | ProtectionsScrollSubscription
@@ -2353,6 +2354,19 @@ export interface NextStepsOnDataUpdateSubscription {
 export interface OmnibarOnConfigUpdateSubscription {
   subscriptionEvent: "omnibar_onConfigUpdate";
   params: OmnibarConfig;
+}
+/**
+ * Generated from @see "../messages/omnibar_onUserDefaultModelChange.subscribe.json"
+ */
+export interface OmnibarOnUserDefaultModelChangeSubscription {
+  subscriptionEvent: "omnibar_onUserDefaultModelChange";
+  params: UserDefaultModelChange;
+}
+/**
+ * Sent with enablePerTabModelPick when the user changes their default model in Duck.ai settings. Every tab drops its pick and starts on the new default.
+ */
+export interface UserDefaultModelChange {
+  [k: string]: unknown;
 }
 /**
  * Generated from @see "../messages/protections_onConfigUpdate.subscribe.json"

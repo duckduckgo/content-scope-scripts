@@ -36,7 +36,8 @@ When native sends `enablePerTabModelPick: true`, each NTP tab keeps its own mode
 
 - `selectedModelId` and `selectedReasoningEffort` are the new-chat default. A tab without a pick shows them and follows them when native pushes a new default.
 - Picking a model or effort changes only the current tab. The page sends `omnibar_selectModel` or `omnibar_selectReasoningEffort` so native can react, and never writes the pick through `omnibar_setConfig`.
-- Sending a prompt from a tab (`omnibar_submitChat`, which carries `modelId` and `reasoningEffort`) clears that tab's pick, so its next prompt starts on the default again.
+- A prompt sent from a tab (`omnibar_submitChat`) carries the tab's `modelId` and `reasoningEffort`. The pick lasts until the tab leaves the NTP; a tab that comes back starts on the default.
+- When the user changes their default in Duck.ai settings, native sends `omnibar_onUserDefaultModelChange` and every tab drops its pick.
 - A model the user switches to from the usage-limits drawer becomes the current tab's pick.
 - With `enableUpdatedCreateImage`, while Create Image is on, a tab whose model can't create images uses `imageGenerationModelId` instead. `omnibar_setImageGenerationActive` carries the tab's model so native can build the notice.
 
@@ -231,6 +232,11 @@ Files dragged onto the Duck.ai prompt (e.g. from Finder) are attached like picke
 - {@link "NewTab Messages".OmnibarOnConfigUpdateSubscription}
 - The omnibar widget configuration updates
 - returns {@link "NewTab Messages".OmnibarConfig}
+
+### `omnibar_onUserDefaultModelChange`
+- {@link "NewTab Messages".OmnibarOnUserDefaultModelChangeSubscription}
+- Sent with `enablePerTabModelPick` when the user changes their default model in Duck.ai settings. No parameters.
+- Every tab drops its model and effort pick and shows the new default from `omnibar_onConfigUpdate`.
 
 ## Notifications:
 
