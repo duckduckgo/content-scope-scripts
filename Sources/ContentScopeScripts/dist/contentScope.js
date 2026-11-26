@@ -978,7 +978,8 @@
       "duckAiChatHistory",
       "autofillPasskeys",
       "chromeWebstorePatching",
-      "selectionTools"
+      "selectionTools",
+      "segmentSkip"
     ],
     firefox: ["cookie", "webDetection", ...baseFeatures, "clickToLoad", "webEvents", "webInterferenceDetection", "breakageReporting"],
     chrome: ["cookie", "webDetection", ...baseFeatures, "clickToLoad", "webEvents", "webInterferenceDetection", "breakageReporting"],
@@ -13970,7 +13971,7 @@ ${iframeContent}
     const importConfig = {
       trackerLookup: void 0,
       injectName: "apple",
-      contentScopeScriptsVersion: "23.4.0"
+      contentScopeScriptsVersion: "23.5.0"
     };
     const bundledFeatureNames = typeof importConfig.injectName === "string" ? platformSupport[importConfig.injectName] ?? [] : [];
     const featuresToLoad = isGloballyDisabled(args) ? platformSpecificFeatures : args.site.enabledFeatures || bundledFeatureNames;

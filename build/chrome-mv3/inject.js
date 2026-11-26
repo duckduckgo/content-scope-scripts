@@ -976,7 +976,8 @@
       "duckAiChatHistory",
       "autofillPasskeys",
       "chromeWebstorePatching",
-      "selectionTools"
+      "selectionTools",
+      "segmentSkip"
     ],
     firefox: ["cookie", "webDetection", ...baseFeatures, "clickToLoad", "webEvents", "webInterferenceDetection", "breakageReporting"],
     chrome: ["cookie", "webDetection", ...baseFeatures, "clickToLoad", "webEvents", "webInterferenceDetection", "breakageReporting"],
@@ -13688,7 +13689,7 @@
     const importConfig = {
       trackerLookup: $TRACKER_LOOKUP$,
       injectName: "chrome-mv3",
-      contentScopeScriptsVersion: "23.4.0"
+      contentScopeScriptsVersion: "23.5.0"
     };
     const bundledFeatureNames = typeof importConfig.injectName === "string" ? platformSupport[importConfig.injectName] ?? [] : [];
     const featuresToLoad = isGloballyDisabled(args) ? platformSpecificFeatures : args.site.enabledFeatures || bundledFeatureNames;

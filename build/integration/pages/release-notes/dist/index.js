@@ -2129,7 +2129,8 @@
       "duckAiChatHistory",
       "autofillPasskeys",
       "chromeWebstorePatching",
-      "selectionTools"
+      "selectionTools",
+      "segmentSkip"
     ],
     firefox: ["cookie", "webDetection", ...baseFeatures, "clickToLoad", "webEvents", "webInterferenceDetection", "breakageReporting"],
     chrome: ["cookie", "webDetection", ...baseFeatures, "clickToLoad", "webEvents", "webInterferenceDetection", "breakageReporting"],

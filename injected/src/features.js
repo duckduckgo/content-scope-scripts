@@ -161,6 +161,7 @@ export const platformSupport = {
         'autofillPasskeys',
         'chromeWebstorePatching',
         'selectionTools',
+        'segmentSkip',
     ],
     firefox: ['cookie', 'webDetection', ...baseFeatures, 'clickToLoad', 'webEvents', 'webInterferenceDetection', 'breakageReporting'],
     chrome: ['cookie', 'webDetection', ...baseFeatures, 'clickToLoad', 'webEvents', 'webInterferenceDetection', 'breakageReporting'],

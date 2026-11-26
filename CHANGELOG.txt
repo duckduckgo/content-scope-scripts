@@ -1,2 +1,2 @@
-- NTP rebrand: use Surface/Primary page background and Fill-Tertiary tab switcher track (#3202)
-- build(deps-dev): bump typescript-eslint from 8.72.1 to 8.72.2 (#3242)
+- Enable SegmentSkip on Windows (#3254)
+- build(deps-dev): bump fast-check from 4.9.0 to 4.10.2 (#3082)
