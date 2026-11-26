@@ -13,6 +13,7 @@ lib/
   windows.js          # WindowsMessagingTransport
   android.js          # AndroidMessagingTransport
   android-adsjs.js    # Android ads-specific transport
+  extension.js        # ExtensionMessagingTransport (Chrome MV3 extension)
   typed-messages.js   # createTypedMessages() utility
   test-utils.mjs      # TestTransportConfig for testing
 docs/
@@ -42,6 +43,7 @@ Each platform has its own config class:
 - `WebkitMessagingConfig` — Apple (webkit message handlers)
 - `WindowsMessagingConfig` — Windows (chrome.webview.postMessage)
 - `AndroidMessagingConfig` — Android (@JavascriptInterface)
+- `ExtensionMessagingConfig` — Chrome MV3 extension (runtime port to the background; pushes via `runtime.onMessage`)
 - `TestTransportConfig` — Testing (in `lib/test-utils.mjs`)
 
 ## Testing
