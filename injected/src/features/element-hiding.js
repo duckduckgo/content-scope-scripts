@@ -1,6 +1,6 @@
 import ContentFeature from '../content-feature';
 import { isBeingFramed, injectGlobalStyles } from '../utils';
-import { getOwnPropertyDescriptor, NodePrototype, ReflectApply } from '../captured-globals.js';
+import { captureGetter, NodePrototype, ReflectApply } from '../captured-globals.js';
 
 /**
  * @typedef {Object} ElementHidingValue
@@ -207,22 +207,6 @@ function unhideNode(element) {
     }
     hiddenElements.delete(element);
     element.hidden = false;
-}
-
-/** @type {unknown[]} */
-const NO_ARGS = [];
-
-/**
- * Returns a reader for a DOM property that calls the browser's own getter, captured when this script loads.
- * A page that later replaces the property, on a node or on its prototype, cannot change what the reader returns.
- * @param {object | undefined} prototype
- * @param {string} name
- * @returns {(target: any) => any}
- */
-function captureGetter(prototype, name) {
-    const getter = prototype && getOwnPropertyDescriptor(prototype, name)?.get;
-    if (!getter) return (target) => target[name];
-    return (target) => ReflectApply(getter, target, NO_ARGS);
 }
 
 // What the walk check reads from the page, captured at load so page overrides cannot steer or stall the walk.
@@ -598,8 +582,8 @@ export default class ElementHiding extends ContentFeature {
         unhideTimeouts = this.getFeatureSetting('unhideTimeouts') || unhideTimeouts;
         /** @type {string} */
         mediaAndFormSelectors = this.getFeatureSetting('mediaAndFormSelectors');
-        // anything other than 'walk' (missing or unknown) keeps the DOMParser check
-        emptyCheck = this.getFeatureSetting('emptyCheck') === 'walk' ? 'walk' : 'domParser';
+        // missing keeps the DOMParser check, and so does any value other than 'walk' (see isDomNodeEmpty)
+        emptyCheck = this.getFeatureSetting('emptyCheck') ?? 'domParser';
         // the labels get the same clean-up as the text they are compared with
         compactAdLabels = adLabelStrings.map((label) => compactText(label));
         adLabelTextLimit = compactAdLabels.reduce((max, label) => Math.max(max, label.length), 0) + 1;
