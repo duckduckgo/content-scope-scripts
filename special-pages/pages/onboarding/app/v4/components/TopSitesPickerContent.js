@@ -17,6 +17,27 @@ import styles from './TopSitesPickerContent.module.css';
 const SECTIONS = ['email', 'popular'];
 
 /**
+ * The site's bundled icon, named by its id. Native reads the same file to seed the favicon cache. Every id should
+ * have one, but if a native list breaks that contract the site's first letter stands in when the file fails to load.
+ * Not FaviconWithState: that one expects native favicon URLs and globe fallbacks, and draws its own letter tile.
+ *
+ * @param {object} props
+ * @param {TopSitesPickerSite} props.site
+ */
+function SiteIcon({ site }) {
+    const [failed, setFailed] = useState(false);
+    if (failed) return site.title.charAt(0);
+    return (
+        <img
+            class={styles.favicon}
+            src={`assets/img/v4/top-sites/${encodeURIComponent(site.id)}.png`}
+            alt=""
+            onError={() => setFailed(true)}
+        />
+    );
+}
+
+/**
  * Lets the user pick suggested sites to add as favorites. Sites the user already has as favorites show as picked
  * and locked, and stay out of addFavorites.
  *
@@ -113,9 +134,8 @@ export function TopSitesPickerContent({ step, addFavorites, advance }) {
                                         disabled={done || existing}
                                         onClick={() => toggle(site)}
                                     >
-                                        {/* Placeholder until the favicon decision lands */}
                                         <span class={styles.icon} aria-hidden="true">
-                                            {site.title.charAt(0)}
+                                            <SiteIcon site={site} />
                                             <span class={cn(styles.badge, styles.plus)}>
                                                 <PlusBadge />
                                             </span>
