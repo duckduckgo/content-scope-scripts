@@ -1,15 +1,18 @@
 import { bundle } from './utils/build.js';
+import { wrapInActivation } from './utils/blank-frame-activation.js';
 import { parseArgs, write } from '../../scripts/script-utils.js';
 
 /**
  * @typedef Build
  * @property {string} input
  * @property {string[]} output
+ * @property {NonNullable<ImportMeta['injectName']>} [injectName] - defaults to the target's name
+ * @property {boolean} [blankFrameOptimized] - wraps the bundle so that it does nothing in `about:` frames
  *
- * @typedef {Record<NonNullable<ImportMeta['injectName']>, Build>} BuildManifest
+ * @typedef {Record<NonNullable<ImportMeta['injectName']>, Build> & Record<string, Build>} BuildManifest
  */
 
-/** @satisfies {BuildManifest} */
+/** @type {BuildManifest} */
 const builds = {
     firefox: {
         input: 'entry-points/extension-mv3.js',
@@ -34,6 +37,12 @@ const builds = {
     'apple-isolated': {
         input: 'entry-points/apple.js',
         output: ['../Sources/ContentScopeScripts/dist/contentScopeIsolated.js'],
+    },
+    'apple-isolated-ios': {
+        input: 'entry-points/apple.js',
+        output: ['../Sources/ContentScopeScripts/dist/contentScopeIsolated.ios.js'],
+        injectName: 'apple-isolated',
+        blankFrameOptimized: true,
     },
     'apple-broker-protection': {
         input: 'entry-points/apple.js',
@@ -85,6 +94,21 @@ const builds = {
     },
 };
 
+/**
+ * @param {string} target
+ * @param {Build} build
+ * @param {boolean} sourcemap
+ * @return {Promise<string>}
+ */
+async function bundleTarget(target, build, sourcemap) {
+    const platform = build.injectName ?? target;
+    if (build.blankFrameOptimized) {
+        const main = await bundle({ scriptPath: build.input, platform, format: 'esm' });
+        return wrapInActivation({ name: platform, main });
+    }
+    return bundle({ scriptPath: build.input, platform, sourcemap });
+}
+
 async function init() {
     // verify the input
     const requiredFields = [];
@@ -103,19 +127,19 @@ async function init() {
         if (!build) {
             throw new Error('unsupported platform: ' + args.platform);
         }
-        const output = await bundle({ scriptPath: build.input, platform: args.platform, sourcemap });
+        const output = await bundleTarget(args.platform, build, sourcemap);
 
         // bundle and write the output
-        write([build.output], output);
+        write(build.output, output);
 
         return;
     }
 
     // otherwise, just build them all
-    for (const [injectName, build] of Object.entries(builds)) {
-        const output = await bundle({ scriptPath: build.input, platform: injectName, sourcemap });
+    for (const [target, build] of Object.entries(builds)) {
+        const output = await bundleTarget(target, build, sourcemap);
         write(build.output, output);
-        console.log('✅', injectName, build.output[0]);
+        console.log('✅', target, build.output[0]);
     }
 }
 
