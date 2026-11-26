@@ -1,10 +1,12 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "AddFavorites",
-  "description": "Sent once when the user clicks Add to Favorites on the picker step. Native creates a favorite for each site and uses its id to find the bundled icon. Skip sends nothing.",
+  "description": "Sent once when the user clicks Add to Favorites on the picker step. Native creates a favorite for each site, with its title, and uses its id to find the bundled icon. Skip sends nothing.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["favorites"],
+  "required": [
+    "favorites"
+  ],
   "properties": {
     "favorites": {
       "type": "array",
@@ -13,7 +15,11 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "url"],
+        "required": [
+          "id",
+          "url",
+          "title"
+        ],
         "properties": {
           "id": {
             "type": "string",
@@ -22,6 +28,10 @@
           "url": {
             "type": "string",
             "description": "The URL to save as the favorite"
+          },
+          "title": {
+            "type": "string",
+            "description": "The site's name from the picker's sites, to use as the favorite's title"
           }
         }
       }

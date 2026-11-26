@@ -49,7 +49,7 @@ export function PickerContent({ step, addFavorites, advance }) {
     };
 
     const add = () => {
-        const [first, ...rest] = picks.map(({ id, url }) => ({ id, url }));
+        const [first, ...rest] = picks.map(({ id, url, title }) => ({ id, url, title }));
         if (finished.current || !first) return;
         finished.current = true;
         setDone(true);

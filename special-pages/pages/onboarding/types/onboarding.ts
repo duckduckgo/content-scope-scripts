@@ -56,7 +56,7 @@ export interface AddFavoritesNotification {
   params: AddFavorites;
 }
 /**
- * Sent once when the user clicks Add to Favorites on the picker step. Native creates a favorite for each site and uses its id to find the bundled icon. Skip sends nothing.
+ * Sent once when the user clicks Add to Favorites on the picker step. Native creates a favorite for each site, with its title, and uses its id to find the bundled icon. Skip sends nothing.
  */
 export interface AddFavorites {
   /**
@@ -74,6 +74,10 @@ export interface AddFavorites {
        * The URL to save as the favorite
        */
       url: string;
+      /**
+       * The site's name from the picker's sites, to use as the favorite's title
+       */
+      title: string;
     },
     ...{
       /**
@@ -84,6 +88,10 @@ export interface AddFavorites {
        * The URL to save as the favorite
        */
       url: string;
+      /**
+       * The site's name from the picker's sites, to use as the favorite's title
+       */
+      title: string;
     }[]
   ];
 }

@@ -473,10 +473,10 @@ test.describe('onboarding v4', () => {
     });
 
     test.describe('Given I am on the picker step', () => {
-        const gmail = { id: 'gmail', url: 'https://mail.google.com' };
-        const outlook = { id: 'outlook', url: 'https://outlook.live.com' };
-        const youtube = { id: 'youtube', url: 'https://www.youtube.com' };
-        const wikipedia = { id: 'wikipedia', url: 'https://en.wikipedia.org' };
+        const gmail = { id: 'gmail', url: 'https://mail.google.com', title: 'Gmail' };
+        const outlook = { id: 'outlook', url: 'https://outlook.live.com', title: 'Outlook' };
+        const youtube = { id: 'youtube', url: 'https://www.youtube.com', title: 'YouTube' };
+        const wikipedia = { id: 'wikipedia', url: 'https://en.wikipedia.org', title: 'Wikipedia' };
 
         test('Add sends the toggled sites', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
@@ -645,7 +645,7 @@ test.describe('onboarding v4', () => {
             await page.getByRole('switch', { name: 'Amazon', exact: true }).click();
             await page.getByRole('button', { name: 'Add to Favorites' }).click();
 
-            await onboarding.didAddFavorites([{ id: 'amazon', url: 'https://www.amazon.co.uk' }]);
+            await onboarding.didAddFavorites([{ id: 'amazon', url: 'https://www.amazon.co.uk', title: 'Amazon' }]);
         });
 
         test('Amazon falls back to amazon.com without a region', async ({ page }, workerInfo) => {
@@ -654,7 +654,7 @@ test.describe('onboarding v4', () => {
             await page.getByRole('switch', { name: 'Amazon', exact: true }).click();
             await page.getByRole('button', { name: 'Add to Favorites' }).click();
 
-            await onboarding.didAddFavorites([{ id: 'amazon', url: 'https://www.amazon.com' }]);
+            await onboarding.didAddFavorites([{ id: 'amazon', url: 'https://www.amazon.com', title: 'Amazon' }]);
         });
 
         test('A site list from native is resolved by its urlByRegion', async ({ page }, workerInfo) => {
@@ -670,7 +670,7 @@ test.describe('onboarding v4', () => {
             await page.getByRole('switch', { name: 'Amazon', exact: true }).click();
             await page.getByRole('button', { name: 'Add to Favorites' }).click();
 
-            await onboarding.didAddFavorites([{ id: 'amazon', url: 'https://www.amazon.co.uk' }]);
+            await onboarding.didAddFavorites([{ id: 'amazon', url: 'https://www.amazon.co.uk', title: 'Amazon' }]);
         });
 
         test('A site from native without urlByRegion keeps its URL', async ({ page }, workerInfo) => {
@@ -680,7 +680,7 @@ test.describe('onboarding v4', () => {
             await page.getByRole('switch', { name: 'Amazon', exact: true }).click();
             await page.getByRole('button', { name: 'Add to Favorites' }).click();
 
-            await onboarding.didAddFavorites([{ id: 'amazon', url: 'https://www.amazon.com' }]);
+            await onboarding.didAddFavorites([{ id: 'amazon', url: 'https://www.amazon.com', title: 'Amazon' }]);
         });
 
         test('A section with every site already a favorite keeps its heading', async ({ page }, workerInfo) => {

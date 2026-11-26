@@ -181,13 +181,13 @@ Sent instead of `dismissToAddressBar` when the user submits a search or a Duck.a
 ### `addFavorites`
 {@link "Onboarding Messages".AddFavoritesNotification}
 
-Sent once when the user clicks Add to Favorites on the picker step, before the page moves on. Native creates a favorite for each site and uses its `id` to find the bundled icon. Skip sends nothing beyond `stepCompleted`.
+Sent once when the user clicks Add to Favorites on the picker step, before the page moves on. Native saves each site as a favorite named after its `title`, and uses its `id` to find the bundled icon. Skip sends nothing beyond `stepCompleted`.
 
 ```json
 {
   "favorites": [
-    { "id": "gmail", "url": "https://mail.google.com" },
-    { "id": "youtube", "url": "https://www.youtube.com" }
+    { "id": "gmail", "url": "https://mail.google.com", "title": "Gmail" },
+    { "id": "youtube", "url": "https://www.youtube.com", "title": "YouTube" }
   ]
 }
 ```
