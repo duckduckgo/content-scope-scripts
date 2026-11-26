@@ -265,6 +265,14 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
             }
 
             /**
+             * Past the last step there is nowhere to go. Under reduced motion the exit fade's callback can fire again on
+             * a re-render, e.g. after a no from native finished onboarding, and must not report the step twice.
+             */
+            if (msg.kind === 'advance' && state.order.indexOf(state.activeStep) + 1 >= state.order.length) {
+                return;
+            }
+
+            /**
              * Regular global state updates
              */
             dispatch(msg);
@@ -324,16 +332,24 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
         // eslint-disable-next-line react-hooks/exhaustive-deps -- workaround during eslint react rollout; consider removing and addressing deps
     }, [state.status.kind, messaging]);
 
-    // handle 'picker-ask': ask native, then advance past the step before the picker with its answer applied
+    // handle 'picker-ask': ask native, then advance past the step before the picker with its answer applied.
+    // A no with nothing after the picker finishes onboarding, since there is no step left to advance to.
     useEffect(() => {
         if (state.status.kind !== 'executing' || state.status.action.kind !== 'picker-ask') return;
         const order = state.order;
         askTopSitesPicker(messaging)
             // eslint-disable-next-line promise/prefer-await-to-then
             .then((answer) => {
+                const nextOrder = answer.show ? order : order.filter((id) => id !== 'picker');
+                const hasNext = nextOrder.indexOf(state.activeStep) + 1 < nextOrder.length;
                 dispatch({ kind: 'picker-answer', ...answer });
-                dispatch({ kind: 'advance' });
-                reportStepCompleted(state, answer.show ? order : order.filter((id) => id !== 'picker'), messaging);
+                if (hasNext) {
+                    dispatch({ kind: 'advance' });
+                    reportStepCompleted(state, nextOrder, messaging);
+                } else {
+                    // Like Start Browsing on a last step, this sends no stepCompleted
+                    messaging.dismissToAddressBar();
+                }
             })
             // eslint-disable-next-line promise/prefer-await-to-then
             .catch((e) => console.warn('handling the picker answer failed', e));

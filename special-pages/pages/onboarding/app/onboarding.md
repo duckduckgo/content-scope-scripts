@@ -32,7 +32,7 @@ Sent once when the page loads. The response picks the steps to show, overrides s
 }
 ```
 
-The page shows only the steps listed in `steps`, in its own order, and ignores unknown entries. Without `steps`, it shows the default order (`ORDER_V4`), minus any steps listed in `exclude`. The page ignores `exclude` when `steps` is present. Deprecated: prefer `steps`.
+The page shows only the steps listed in `steps`, in its own order, and ignores unknown entries. Without `steps`, it shows the default order (`ORDER_V4`), minus any steps listed in `exclude`. The page ignores `exclude` when `steps` is present. `exclude` is deprecated, so prefer `steps`.
 
 Each entry in `stepDefinitions` is merged over the page's default definition for that step, which is how native picks the rows of a settings step.
 
@@ -62,9 +62,9 @@ On macOS the page uses the response as the row's new value. Other platforms only
 ### `shouldShowTopSitesPicker`
 {@link "Onboarding Messages".ShouldShowTopSitesPickerRequest}
 
-Sent once, when the user leaves the step before the picker. Native lists `picker` in `init.steps` for every user who might see it, and enrolls the user in the experiment only when this request arrives and they're under the favorites threshold. The page waits for the answer, then shows the picker or moves on to the step after it. A failed request, or no answer within 2 seconds, skips the picker, and the page ignores a late answer. Native should answer straight away, because a user it enrolls after the page gave up never sees the picker. The progress counter counts the picker until a no drops it.
+Sent once, when the user leaves the step before the picker. Native lists `picker` in `init.steps` for every user who might see it. It enrolls the user in the experiment only when this request arrives and the user is under the favorites threshold. The page waits for the answer, then shows the picker or moves on to the step after it. When no step follows the picker, the page ends onboarding with `dismissToAddressBar` after a no, and after Add or Skip on the picker. It sends no `stepCompleted` in that case. A failed request, or no answer within 2 seconds, skips the picker, and the page ignores a late answer. Native should answer straight away, because a user it enrolls after the page gave up never sees the picker. The progress counter counts the picker until a no drops it.
 
-When `show` is true, `existingFavorites` lists the user's favorites as URLs. The picker shows any suggested site whose hostname matches one, after dropping a leading `www.`, as picked and locked, and those sites never go out in `addFavorites`.
+When `show` is true, `existingFavorites` lists the user's favorites as URLs. A suggested site matches a favorite when their hostnames match after dropping a leading `www.`. A site whose URL has a path, such as BBC News at `https://www.bbc.com/news`, also needs the favorite's path to be that path or a path below it. The picker shows matching sites as picked and locked, and never sends them in `addFavorites`.
 
 ```json
 {
@@ -158,7 +158,7 @@ Lets native fire a pixel for a UI interaction. See {@link "Onboarding Messages".
 ### `dismissToAddressBar`
 {@link "Onboarding Messages".DismissToAddressBarNotification}
 
-Sent when the user clicks Start Browsing at the end of onboarding.
+Sent when the user clicks Start Browsing at the end of onboarding. When the picker is the last step, the page also sends it after a no from `shouldShowTopSitesPicker`, and after Add or Skip on the picker.
 
 ### `dismissToSettings`
 {@link "Onboarding Messages".DismissToSettingsNotification}
@@ -181,7 +181,7 @@ Sent instead of `dismissToAddressBar` when the user submits a search or a Duck.a
 ### `addFavorites`
 {@link "Onboarding Messages".AddFavoritesNotification}
 
-Sent once when the user clicks Add to Favorites on the picker step, before the page moves on. Native saves each site as a favorite named after its `title`, and uses its `id` to find the bundled icon. Skip sends nothing beyond `stepCompleted`.
+Sent once when the user clicks Add to Favorites on the picker step, before the page moves on. Native saves each site as a favorite named after its `title`, and uses its `id` to find the bundled icon. Skip sends only `stepCompleted`, or only `dismissToAddressBar` when the picker is the last step.
 
 ```json
 {

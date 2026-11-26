@@ -30,3 +30,13 @@ test('existingSiteIds skips malformed favorites', () => {
 test('m. hosts are a known miss', () => {
     assert.deepEqual(existingSiteIds([youtube], ['https://m.youtube.com']), []);
 });
+
+test('a site with a path needs the favorite under that path', () => {
+    /** @type {import('../types/onboarding.ts').PickerSite} */
+    const bbcNews = { id: 'bbcNews', url: 'https://www.bbc.com/news', title: 'BBC News', section: 'popular' };
+    assert.deepEqual(existingSiteIds([bbcNews], ['https://www.bbc.com']), []);
+    assert.deepEqual(existingSiteIds([bbcNews], ['https://www.bbc.com/sport']), []);
+    assert.deepEqual(existingSiteIds([bbcNews], ['https://www.bbc.com/newsround']), []);
+    assert.deepEqual(existingSiteIds([bbcNews], ['https://bbc.com/news/']), ['bbcNews']);
+    assert.deepEqual(existingSiteIds([bbcNews], ['https://www.bbc.com/news/world']), ['bbcNews']);
+});

@@ -172,6 +172,11 @@ export class OnboardingV4Page extends OnboardingPage {
     async startBrowsing() {
         const { page } = this;
         await page.getByRole('button', { name: 'Start Browsing' }).click();
+        await this.didDismissToAddressBar();
+    }
+
+    async didDismissToAddressBar() {
+        await this.mocks.waitForCallCount({ method: 'dismissToAddressBar', count: 1 });
         const calls = await this.mocks.outgoing({ names: ['dismissToAddressBar'] });
         expect(calls).toMatchObject([
             {
@@ -239,9 +244,10 @@ export class OnboardingV4Page extends OnboardingPage {
 
     /**
      * Opens customize with the picker listed after it, so leaving customize asks native about the picker.
+     * @param {{ steps?: string[] }} [options] - replaces the default steps, which put addressBarMode after the picker
      */
-    async goToStepBeforePicker() {
-        this.withInitData({ stepDefinitions: null, steps: ['welcome', 'getStarted', 'customize', 'picker', 'addressBarMode'] });
+    async goToStepBeforePicker({ steps = ['welcome', 'getStarted', 'customize', 'picker', 'addressBarMode'] } = {}) {
+        this.withInitData({ stepDefinitions: null, steps });
         await this.reducedMotion();
         await this.openPage({ env: 'app', page: 'customize' });
         await this.skippedBookmarksBar();

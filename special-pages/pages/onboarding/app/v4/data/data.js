@@ -124,14 +124,17 @@ export const stepsConfig = {
         };
     },
     // Only shown to clients that list it in `init.steps`.
-    picker: ({ t, globalState, addFavorites, enqueueNext, onTitleComplete }) => {
+    picker: ({ t, globalState, addFavorites, enqueueNext, dismiss, onTitleComplete }) => {
+        const { order, activeStep } = globalState;
         const step = /** @type {import('../../types').PickerStep} */ (globalState.step);
+        // With no step after the picker, Add and Skip finish onboarding, as they would hit the end of the order
+        const isLastStep = order[order.length - 1] === activeStep;
         return {
             topBubble: {
                 content: <StepHeader title={t('picker_title')} subtitle={t('picker_subtitle')} onTitleComplete={onTitleComplete} />,
             },
             bottomBubble: {
-                content: <PickerContent step={step} addFavorites={addFavorites} advance={enqueueNext} />,
+                content: <PickerContent step={step} addFavorites={addFavorites} advance={isLastStep ? dismiss : enqueueNext} />,
             },
             showProgress: true,
             bubbleWidth: 'picker',

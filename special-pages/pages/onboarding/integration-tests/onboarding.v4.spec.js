@@ -491,6 +491,27 @@ test.describe('onboarding v4', () => {
             await onboarding.didFireStepCompleted({ id: 'picker', next: 'addressBarMode' });
         });
 
+        test('As the last step, Add finishes onboarding', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            await onboarding.goToPicker({ init: { steps: ['welcome', 'getStarted', 'customize', 'picker'] } });
+            await page.getByRole('switch', { name: 'YouTube', exact: true }).click();
+            await page.getByRole('button', { name: 'Add to Favorites' }).click();
+
+            await onboarding.didAddFavorites([youtube]);
+            await onboarding.didDismissToAddressBar();
+            expect(await onboarding.mocks.outgoing({ names: ['stepCompleted'] })).toHaveLength(0);
+        });
+
+        test('As the last step, Skip finishes onboarding', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            await onboarding.goToPicker({ init: { steps: ['welcome', 'getStarted', 'customize', 'picker'] } });
+            await page.getByRole('button', { name: 'Skip' }).click();
+
+            await onboarding.didNotAddFavorites();
+            await onboarding.didDismissToAddressBar();
+            expect(await onboarding.mocks.outgoing({ names: ['stepCompleted'] })).toHaveLength(0);
+        });
+
         test('The primary button comes first on Windows and last on macOS', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             await onboarding.goToPicker();
@@ -742,6 +763,16 @@ test.describe('onboarding v4', () => {
             await page.getByRole('heading', { name: 'Want easy access to private AI Chat?' }).waitFor({ timeout: 1000 });
             await expect(page.getByText('2 of 2')).toBeVisible();
             await onboarding.didFireStepCompleted({ id: 'customize', next: 'addressBarMode' });
+        });
+
+        test('A no with nothing after the picker finishes onboarding', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withPickerAnswer({ show: false });
+            await onboarding.goToStepBeforePicker({ steps: ['welcome', 'getStarted', 'customize', 'picker'] });
+            await page.getByRole('button', { name: 'Next' }).click();
+
+            await onboarding.didDismissToAddressBar();
+            expect(await onboarding.mocks.outgoing({ names: ['stepCompleted'] })).toHaveLength(0);
         });
 
         test('An answer without show skips the picker', async ({ page }, workerInfo) => {
