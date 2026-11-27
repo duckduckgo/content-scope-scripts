@@ -288,6 +288,16 @@ export class OmnibarPage {
     }
 
     /**
+     * @returns {Promise<void>}
+     */
+    async didChangeUserDefaultModel() {
+        const event = sub('omnibar_onUserDefaultModelChange').payload({});
+        await test.step('simulate a new default model in Duck.ai settings', async () => {
+            await this.ntp.mocks.simulateSubscriptionEvent(event);
+        });
+    }
+
+    /**
      * @param {Config} config
      * @returns {Promise<void>}
      */

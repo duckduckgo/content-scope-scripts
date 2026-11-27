@@ -1,6 +1,7 @@
 import { Service } from '../service.js';
 import { OmnibarSuggestionsService } from './omnibar.suggestions.service.js';
 import { OmnibarAiChatsService } from './omnibar.ai-chats.service.js';
+import { resolveReasoningEffort } from './components/modelPick.js';
 /**
  * @typedef {import("../../types/new-tab.js").OmnibarConfig} OmnibarConfig
  * @typedef {import("../../types/new-tab.js").SuggestionsData} SuggestionsData
@@ -109,18 +110,10 @@ export class OmnibarService {
     setSelectedModelId(selectedModelId) {
         this.configService.update((old) => {
             const nextModel = (old.aiModelSections ?? []).flatMap((section) => section.items).find((model) => model.id === selectedModelId);
-            const availableEffortIds = (nextModel?.reasoningEfforts ?? [])
-                .filter((effort) => effort.isAvailable)
-                .map((effort) => effort.id);
-
-            const currentEffort = old.selectedReasoningEffort;
-            const nextEffort =
-                currentEffort && availableEffortIds.includes(currentEffort) ? currentEffort : (availableEffortIds[0] ?? undefined);
-
             return {
                 ...old,
                 selectedModelId,
-                selectedReasoningEffort: nextEffort,
+                selectedReasoningEffort: resolveReasoningEffort(nextModel, old.selectedReasoningEffort) ?? undefined,
             };
         });
     }
@@ -135,6 +128,31 @@ export class OmnibarService {
                 selectedReasoningEffort,
             };
         });
+    }
+
+    /**
+     * Calls `cb` when the user changes their default model in Duck.ai settings.
+     * @param {() => void} cb
+     * @returns {() => void}
+     */
+    onUserDefaultModelChange(cb) {
+        return this.ntp.messaging.subscribe('omnibar_onUserDefaultModelChange', cb);
+    }
+
+    /**
+     * Reports a model picked in one tab when native leaves the pick to the page.
+     * @param {import('../../types/new-tab.js').SelectModel} params
+     */
+    selectModel(params) {
+        this.ntp.messaging.notify('omnibar_selectModel', params);
+    }
+
+    /**
+     * Reports a reasoning effort picked in one tab when native leaves the pick to the page.
+     * @param {import('../../types/new-tab.js').ReasoningEffort} reasoningEffort
+     */
+    selectReasoningEffort(reasoningEffort) {
+        this.ntp.messaging.notify('omnibar_selectReasoningEffort', { reasoningEffort });
     }
 
     /**
@@ -276,9 +294,10 @@ export class OmnibarService {
      * Notify native when the updated Create Image mode changes.
      * Native owns model selection, persistence, and localized notice copy.
      * @param {boolean} active
+     * @param {string} [modelId] - the model the tab was on, sent when the page keeps the pick
      */
-    setImageGenerationActive(active) {
-        this.ntp.messaging.notify('omnibar_setImageGenerationActive', { active });
+    setImageGenerationActive(active, modelId) {
+        this.ntp.messaging.notify('omnibar_setImageGenerationActive', modelId ? { active, modelId } : { active });
     }
 
     /**

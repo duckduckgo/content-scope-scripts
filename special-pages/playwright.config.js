@@ -51,6 +51,7 @@ export default defineConfig({
                 'omnibar-attachment-privacy.spec.js',
                 'omnibar-launcher-promo.spec.js',
                 'omnibar-suggested-prompts.spec.js',
+                'omnibar-model-pick.spec.js',
             ],
             use: {
                 ...devices['Desktop Chrome'],

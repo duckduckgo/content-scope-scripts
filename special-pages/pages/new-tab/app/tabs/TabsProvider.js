@@ -17,6 +17,11 @@ import { TabsService } from './tabs.service';
 const TabsStateContext = createContext(signal(/** @type {Tabs} */ (TabsService.DEFAULT)));
 
 /**
+ * @typedef {{ tabId: string, showing: number }} ShownTab
+ */
+const ShownTabContext = createContext(signal(/** @type {ShownTab} */ ({ tabId: TabsService.DEFAULT.tabId, showing: 0 })));
+
+/**
  * Global state provider for tab information.
  *
  * This exposes a signal to the Tabs object. use the hook below to access the individual fields.
@@ -27,12 +32,35 @@ const TabsStateContext = createContext(signal(/** @type {Tabs} */ (TabsService.D
  */
 export function TabsProvider({ children, service }) {
     const tabs = useSignal(service.snapshot());
+    const shown = useSignal(/** @type {ShownTab} */ ({ tabId: tabs.peek().tabId, showing: 0 }));
     useEffect(() => {
+        let wentAway = false;
         return service.onData(({ data }) => {
             tabs.value = data;
+            // An empty tab ID means the selected tab isn't showing this page: keep the last one until another is shown.
+            if (!data.tabId) {
+                wentAway = true;
+            } else if (wentAway || data.tabId !== shown.peek().tabId) {
+                shown.value = { tabId: data.tabId, showing: shown.peek().showing + 1 };
+                wentAway = false;
+            }
         });
-    }, [service, tabs]);
-    return <TabsStateContext.Provider value={tabs}>{children}</TabsStateContext.Provider>;
+    }, [service, tabs, shown]);
+    return (
+        <TabsStateContext.Provider value={tabs}>
+            <ShownTabContext.Provider value={shown}>{children}</ShownTabContext.Provider>
+        </TabsStateContext.Provider>
+    );
+}
+
+/**
+ * The tab this page was last shown for, and a count that changes each time a tab is shown again.
+ * Key per-tab UI on both, so a tab leaving the page doesn't redraw it and a returning tab starts fresh.
+ *
+ * @returns {ReadonlySignal<ShownTab>}
+ */
+export function useShownTab() {
+    return useContext(ShownTabContext);
 }
 
 /**

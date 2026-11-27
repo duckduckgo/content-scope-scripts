@@ -241,11 +241,22 @@
     },
     "selectedModelId": {
       "title": "Selected Model ID",
-      "description": "The user's currently selected AI model, persisted across tabs",
+      "description": "The user's currently selected AI model, persisted across tabs. With enablePerTabModelPick, the new-chat default instead.",
       "type": "string"
     },
     "selectedReasoningEffort": {
       "$ref": "./reasoning-effort.json"
+    },
+    "enablePerTabModelPick": {
+      "title": "Enable Per-Tab Model Pick",
+      "description": "When true, selectedModelId and selectedReasoningEffort are the new-chat default. The page keeps each tab's model and effort pick, never writes them through omnibar_setConfig, and clears a tab's pick when it submits a chat.",
+      "type": "boolean",
+      "default": false
+    },
+    "imageGenerationModelId": {
+      "title": "Image Generation Model ID",
+      "description": "Used with enablePerTabModelPick and enableUpdatedCreateImage: the model a tab switches to when Create Image turns on and the tab's model can't create images.",
+      "type": "string"
     },
     "aiModelSections": {
       "title": "AI Model Sections",

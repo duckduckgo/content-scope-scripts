@@ -11,6 +11,7 @@ import { PersistentValue } from '../../tabs/PersistentValue.js';
  * @typedef {import("./chat-tools/image-attachment/useImageAttachments.js").AttachedImage} AttachedImage
  * @typedef {import("./chat-tools/tab-attachment/useTabAttachments.js").AttachedTabEntry} AttachedTabEntry
  * @typedef {import("./chat-tools/text-pasted/useTextPasted.js").AttachedTextPasted} AttachedTextPasted
+ * @typedef {import("./modelPick.js").ModelPick} ModelPick
  */
 
 const TextInputContext = createContext(/** @type {PersistentValue<string>|null} */ (null));
@@ -92,13 +93,17 @@ function createPersistentList() {
     return { Provider, useStateWithLocalPersistence };
 }
 
-/** Per-tab boolean state that survives Omnibar unmounts. */
-function createPersistentFlag() {
-    const Context = createContext(/** @type {PersistentValue<boolean>|null} */ (null));
+/**
+ * Per-tab state that survives Omnibar unmounts.
+ * @template T
+ * @param {T} fallback - the value for a tab that has none yet
+ */
+function createPersistentState(fallback) {
+    const Context = createContext(/** @type {PersistentValue<T>|null} */ (null));
 
     /** @param {{ children: import('preact').ComponentChildren }} props */
     function Provider({ children }) {
-        const [store] = useState(() => /** @type {PersistentValue<boolean>} */ (new PersistentValue()));
+        const [store] = useState(() => /** @type {PersistentValue<T>} */ (new PersistentValue()));
         const { all } = useTabState();
         useEffect(() => {
             return all.subscribe((tabIds) => store.prune({ preserve: tabIds }));
@@ -110,9 +115,9 @@ function createPersistentFlag() {
     /** @param {string|null|undefined} tabId */
     function useStateWithLocalPersistence(tabId) {
         const store = useContext(Context);
-        const [value, setValue] = useState(() => store?.byId(tabId) ?? false);
+        const [value, setValue] = useState(() => store?.byId(tabId) ?? fallback);
         const setter = useCallback(
-            /** @param {boolean} next */
+            /** @param {T} next */
             (next) => {
                 if (tabId) store?.update({ id: tabId, value: next });
                 setValue(next);
@@ -122,7 +127,13 @@ function createPersistentFlag() {
         return /** @type {const} */ ([value, setter]);
     }
 
-    return { Provider, useStateWithLocalPersistence };
+    /** Returns a function that forgets every tab's value. */
+    function useClearAll() {
+        const store = useContext(Context);
+        return useCallback(() => store?.prune({ preserve: [] }), [store]);
+    }
+
+    return { Provider, useStateWithLocalPersistence, useClearAll };
 }
 
 // Per-NTP-tab persisted lists, each with its own Provider + `useStateWithLocalPersistence` hook.
@@ -132,7 +143,8 @@ export const ImageAttachments = /** @type {() => PersistentList<AttachedImage>} 
 export const TextPastedAttachments = /** @type {() => PersistentList<AttachedTextPasted>} */ (createPersistentList)();
 // Single source of truth for open-tab metadata; tab chips and the pickers derive from this.
 export const OpenTabsList = /** @type {() => PersistentList<TabMetadata>} */ (createPersistentList)();
-export const AttachmentPrivacyGrant = createPersistentFlag();
+export const AttachmentPrivacyGrant = createPersistentState(false);
+export const ModelPicks = createPersistentState(/** @type {ModelPick | null} */ (null));
 
 /**
  * A normal set-state, but with values recorded. Must be used when the Omnibar Service is ready

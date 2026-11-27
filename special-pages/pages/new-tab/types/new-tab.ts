@@ -62,6 +62,10 @@ export type Suggestion =
   | WebsiteSuggestion
   | HistoryEntrySuggestion
   | InternalPageSuggestion;
+/**
+ * Stable server key for a reasoning-effort option on a reasoning-capable model (e.g. 'none', 'medium', 'extended'). Server-controlled and round-tripped on submit.
+ */
+export type ReasoningEffort = string;
 export type OmnibarMode = "search" | "ai";
 /**
  * Whether the user is eligible for a free trial. When false, gated 'subscribe' upsells show 'Upgrade' instead of 'Try for free'. Missing/undefined is treated as true for backward compatibility.
@@ -79,19 +83,23 @@ export type EnableRecentAIChats = boolean;
  */
 export type EnableAIChatTools = boolean;
 /**
- * The user's currently selected AI model, persisted across tabs
+ * The user's currently selected AI model, persisted across tabs. With enablePerTabModelPick, the new-chat default instead.
  */
 export type SelectedModelID = string;
 /**
- * Stable server key for a reasoning-effort option on a reasoning-capable model (e.g. 'none', 'medium', 'extended'). Server-controlled and round-tripped on submit.
+ * When true, selectedModelId and selectedReasoningEffort are the new-chat default. The page keeps each tab's model and effort pick, never writes them through omnibar_setConfig, and clears a tab's pick when it submits a chat.
  */
-export type ReasoningEffort = string;
+export type EnablePerTabModelPick = boolean;
+/**
+ * Used with enablePerTabModelPick and enableUpdatedCreateImage: the model a tab switches to when Create Image turns on and the tab's model can't create images.
+ */
+export type ImageGenerationModelID = string;
 /**
  * Identifier for an AI chat tool.
  */
 export type ToolId = "WebSearch" | "GenerateImage";
 /**
- * Stable server key for this reasoning-effort option; round-tripped on submit.
+ * Stable server key for a reasoning-effort option on a reasoning-capable model (e.g. 'none', 'medium', 'extended'). Server-controlled and round-tripped on submit.
  */
 export type ReasoningEffort1 = string;
 /**
@@ -382,6 +390,8 @@ export interface NewTabMessages {
     | OmnibarOpenSuggestionNotification
     | OmnibarRemoveSuggestionNotification
     | OmnibarSelectLauncherPromoCtaNotification
+    | OmnibarSelectModelNotification
+    | OmnibarSelectReasoningEffortNotification
     | OmnibarSelectUsageLimitsCtaNotification
     | OmnibarSetConfigNotification
     | OmnibarSetCustomizeResponsesActiveNotification
@@ -445,6 +455,7 @@ export interface NewTabMessages {
     | NextStepsOnConfigUpdateSubscription
     | NextStepsOnDataUpdateSubscription
     | OmnibarOnConfigUpdateSubscription
+    | OmnibarOnUserDefaultModelChangeSubscription
     | ProtectionsOnConfigUpdateSubscription
     | ProtectionsOnDataUpdateSubscription
     | ProtectionsScrollSubscription
@@ -935,6 +946,39 @@ export interface OmnibarSelectLauncherPromoCtaNotification {
  */
 export interface SelectLauncherPromoCTA {}
 /**
+ * Generated from @see "../messages/omnibar_selectModel.notify.json"
+ */
+export interface OmnibarSelectModelNotification {
+  method: "omnibar_selectModel";
+  params: SelectModel;
+}
+/**
+ * Sent with enablePerTabModelPick when the user picks a model in a tab. Native doesn't keep the pick; it only reacts to it (for example, settling a usage-limits message).
+ */
+export interface SelectModel {
+  /**
+   * The model the user picked.
+   */
+  modelId: string;
+  /**
+   * The model the tab was on before the pick.
+   */
+  previousModelId?: string;
+}
+/**
+ * Generated from @see "../messages/omnibar_selectReasoningEffort.notify.json"
+ */
+export interface OmnibarSelectReasoningEffortNotification {
+  method: "omnibar_selectReasoningEffort";
+  params: SelectReasoningEffort;
+}
+/**
+ * Sent with enablePerTabModelPick when the user picks a reasoning effort in a tab. Native doesn't keep the pick.
+ */
+export interface SelectReasoningEffort {
+  reasoningEffort: ReasoningEffort;
+}
+/**
  * Generated from @see "../messages/omnibar_selectUsageLimitsCta.notify.json"
  */
 export interface OmnibarSelectUsageLimitsCtaNotification {
@@ -967,6 +1011,8 @@ export interface OmnibarConfig {
   enableAiChatTools?: EnableAIChatTools;
   selectedModelId?: SelectedModelID;
   selectedReasoningEffort?: ReasoningEffort;
+  enablePerTabModelPick?: EnablePerTabModelPick;
+  imageGenerationModelId?: ImageGenerationModelID;
   aiModelSections?: AIModelSections;
   attachmentLimits?: AttachmentLimits;
   showViewAllAiChats?: ShowViewAllAIChats;
@@ -1190,6 +1236,10 @@ export interface SetImageGenerationActive {
    * Whether Create Image is now active in this New Tab Page omnibar.
    */
   active: boolean;
+  /**
+   * The model the tab was on when Create Image turned on. Native builds the model-switch notice from it.
+   */
+  modelId?: string;
 }
 /**
  * Generated from @see "../messages/omnibar_showSubscriptionUpgrade.notify.json"
@@ -2304,6 +2354,19 @@ export interface NextStepsOnDataUpdateSubscription {
 export interface OmnibarOnConfigUpdateSubscription {
   subscriptionEvent: "omnibar_onConfigUpdate";
   params: OmnibarConfig;
+}
+/**
+ * Generated from @see "../messages/omnibar_onUserDefaultModelChange.subscribe.json"
+ */
+export interface OmnibarOnUserDefaultModelChangeSubscription {
+  subscriptionEvent: "omnibar_onUserDefaultModelChange";
+  params: UserDefaultModelChange;
+}
+/**
+ * Sent with enablePerTabModelPick when the user changes their default model in Duck.ai settings. Every tab drops its pick and starts on the new default.
+ */
+export interface UserDefaultModelChange {
+  [k: string]: unknown;
 }
 /**
  * Generated from @see "../messages/protections_onConfigUpdate.subscribe.json"

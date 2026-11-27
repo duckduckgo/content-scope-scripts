@@ -314,13 +314,18 @@ export function omnibarMockTransport() {
                     config.createImageModelSwitch = null;
                     if (msg.params.active) {
                         const models = config.aiModelSections?.flatMap((section) => section.items) ?? [];
+                        const previousModelId = msg.params.modelId ?? config.selectedModelId;
                         const previousModel =
-                            models.find((model) => model.id === config.selectedModelId && model.isAvailable) ??
+                            models.find((model) => model.id === previousModelId && model.isAvailable) ??
                             models.find((model) => model.isAvailable);
-                        const imageModel = models.find((model) => model.isAvailable && model.supportedTools?.includes('GenerateImage'));
+                        const imageModel = previousModel?.supportedTools?.includes('GenerateImage')
+                            ? previousModel
+                            : (models.find((model) => model.id === config.imageGenerationModelId && model.isAvailable) ??
+                              models.find((model) => model.isAvailable && model.supportedTools?.includes('GenerateImage')));
 
                         if (previousModel && imageModel && previousModel.id !== imageModel.id) {
-                            config.selectedModelId = imageModel.id;
+                            // With per-tab picks the page switches its own tab; native only builds the notice.
+                            if (config.enablePerTabModelPick !== true) config.selectedModelId = imageModel.id;
                             const hasExtraPrivacy = previousModel.id.includes('gpt-oss') || previousModel.id.startsWith('tinfoil/');
                             config.createImageModelSwitch = {
                                 message: `Now using ${imageModel.shortName}`,
@@ -347,7 +352,7 @@ export function omnibarMockTransport() {
                 }
                 case 'omnibar_selectUsageLimitsCta': {
                     console.warn('Mock: selectUsageLimitsCta', msg.params);
-                    if (msg.params?.modelId) {
+                    if (msg.params?.modelId && config.enablePerTabModelPick !== true) {
                         config.selectedModelId = msg.params.modelId;
                     }
                     config.usageLimits = null;
@@ -358,6 +363,8 @@ export function omnibarMockTransport() {
                     console.log('Mock: removing suggestion', msg.params.url);
                     break;
                 }
+                case 'omnibar_selectModel':
+                case 'omnibar_selectReasoningEffort':
                 case 'omnibar_viewAllAIChats':
                 case 'omnibar_openAiChat':
                 case 'omnibar_openCustomizeResponses':
@@ -383,7 +390,7 @@ export function omnibarMockTransport() {
         subscribe(_msg, cb) {
             /** @type {import('../../../types/new-tab.ts').NewTabMessages['subscriptions']['subscriptionEvent']} */
             const sub = /** @type {any} */ (_msg.subscriptionName);
-            if (sub === 'omnibar_onConfigUpdate') {
+            if (sub === 'omnibar_onConfigUpdate' || sub === 'omnibar_onUserDefaultModelChange') {
                 subs.set(sub, cb);
                 return () => {};
             }
@@ -415,6 +422,8 @@ export function omnibarMockTransport() {
                         parseBooleanQueryParam('omnibar.enableUpdatedCreateImage') ?? config.enableUpdatedCreateImage;
                     config.enableWebSearch = parseBooleanQueryParam('omnibar.enableWebSearch') ?? config.enableWebSearch;
                     config.selectedModelId = url.searchParams.get('omnibar.selectedModelId') ?? config.selectedModelId;
+                    config.enablePerTabModelPick = parseBooleanQueryParam('omnibar.enablePerTabModelPick') ?? config.enablePerTabModelPick;
+                    config.imageGenerationModelId = url.searchParams.get('omnibar.imageGenerationModelId') ?? config.imageGenerationModelId;
                     if (parseBooleanQueryParam('omnibar.subscription') === true) {
                         config.aiModelSections = config.aiModelSections?.map((section) => ({
                             ...section,
