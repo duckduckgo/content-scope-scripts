@@ -1,4 +1,12 @@
-import * as capturedGlobals from '../../captured-globals.js';
+import {
+    dispatchEvent as capturedDispatchEvent,
+    addEventListener as capturedAddEventListener,
+    removeEventListener as capturedRemoveEventListener,
+    CustomEvent as CapturedCustomEvent,
+    String as CapturedString,
+    Error as CapturedError,
+    randomUUID,
+} from '../../captured-globals.js';
 import {
     DidInstall,
     InstallProxy,
@@ -21,7 +29,15 @@ import { isBeingFramed } from '../../utils.js';
  * } Captured
  */
 /** @type {Captured} */
-const captured = capturedGlobals;
+const captured = {
+    dispatchEvent: capturedDispatchEvent,
+    addEventListener: capturedAddEventListener,
+    removeEventListener: capturedRemoveEventListener,
+    CustomEvent: CapturedCustomEvent,
+    String: CapturedString,
+    Error: CapturedError,
+    randomUUID,
+};
 
 export const ERROR_MSG = 'Did not install Message Bridge';
 

@@ -1,12 +1,12 @@
 ---
-title: SponsorBlock
+title: SegmentSkip
 ---
 
-# SponsorBlock
+# SegmentSkip
 
 Skips sponsored segments in YouTube videos using [SponsorBlock](https://sponsor.ajay.app/) data that native fetches. The feature owns everything that needs the DOM or player state; native owns trust, network, hashing, caching, user settings and remote config. The page sends an 11-character video ID and gets back that video's segments; how native produces them is invisible to the page by design.
 
-Shipped in the Apple **isolated-world** bundle (`contentScopeIsolated.js`). The MVP is internal-only.
+Shipped in the Apple **isolated-world** bundle (`contentScopeIsolated.js`) and in the Android and Windows bundles, which run in the page's main world. The MVP is internal-only.
 
 ## What the feature does
 
@@ -30,10 +30,10 @@ Embeds on any other site never activate it.
 
 ## Messaging
 
-Schemas live in `injected/src/messages/sponsor-block/`; `npm run build-types -w injected` generates the typed contract. The contract is versioned through `getConfig`'s `version`, currently `1`.
+Schemas live in `injected/src/messages/segment-skip/`; `npm run build-types -w injected` generates the typed contract. The contract is versioned through `getConfig`'s `version`, currently `1`.
 
-- **Context:** `contentScopeScriptsIsolated`
-- **Feature name:** `sponsorBlock`
+- **Context:** `contentScopeScriptsIsolated` on Apple, `contentScopeScripts` on Windows
+- **Feature name:** `segmentSkip`
 
 | Method            | Kind         | Parameters              | Result / payload                                                                                                                              |
 | ----------------- | ------------ | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -46,7 +46,7 @@ Schemas live in `injected/src/messages/sponsor-block/`; `npm run build-types -w 
 ## Remote config
 
 ```json
-"sponsorBlock": {
+"segmentSkip": {
   "state": "internal",
   "exceptions": [],
   "settings": {
@@ -59,9 +59,9 @@ Schemas live in `injected/src/messages/sponsor-block/`; `npm run build-types -w 
 
 Each selector list is ordered: the first selector with a visible match wins. The feature falls back to in-code defaults when a key is absent, drops malformed entries, and treats an empty list as "no UI for this piece". `categories` and `actionTypes` are read by native only.
 
-The feature loads only when the remote config names `sponsorBlock` with a state that resolves to enabled for the platform; without an entry, or with `disabled`, its `init` never runs and no message is sent. To test before the entry ships, point the app at a custom privacy config that includes it.
+The feature loads only when the remote config names `segmentSkip` with a state that resolves to enabled for the platform; without an entry, or with `disabled`, its `init` never runs and no message is sent. To test before the entry ships, point the app at a custom privacy config that includes it.
 
 ## Testing
 
-- Unit: `injected/unit-test/sponsor-block.js` covers URL parsing, the frame rule, segment geometry, the duration check, selector settings and the config flow.
-- Integration: `injected/integration-test/sponsor-block.spec.js` (project `apple-isolated`) runs a fake player served under youtube.com URLs with mocked native responses, covering rendering, manual and auto skip, `onConfigChanged`, ads, navigation, selector miss and the frame rules.
+- Unit: `injected/unit-test/segment-skip.js` covers URL parsing, the frame rule, segment geometry, the duration check, selector settings and the config flow.
+- Integration: `injected/integration-test/segment-skip.spec.js` (projects `apple-isolated`, `android` and `windows`) runs a fake player served under youtube.com URLs with mocked native responses, covering rendering, manual and auto skip, `onConfigChanged`, ads, navigation, selector miss and the frame rules.

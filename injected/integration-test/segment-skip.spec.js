@@ -2,15 +2,15 @@ import { test, expect } from '@playwright/test';
 import { readFileSync } from 'fs';
 import { ResultsCollector } from './page-objects/results-collector.js';
 
-const PAGES = './integration-test/test-pages/sponsor-block';
-const CONFIG = `${PAGES}/config/sponsor-block-enabled.json`;
-const CONFIG_SELECTOR_MISS = `${PAGES}/config/sponsor-block-selector-miss.json`;
+const PAGES = './integration-test/test-pages/segment-skip';
+const CONFIG = `${PAGES}/config/segment-skip-enabled.json`;
+const CONFIG_SELECTOR_MISS = `${PAGES}/config/segment-skip-selector-miss.json`;
 const WATCH_URL = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
 const EMBED_URL = 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ';
 
-const OVERLAY = '.ddg-sponsorblock-overlay';
+const OVERLAY = '.ddg-segmentskip-overlay';
 const MARKER = `${OVERLAY} > div`;
-const SKIP_BUTTON = '.ddg-sponsorblock-skip';
+const SKIP_BUTTON = '.ddg-segmentskip-skip';
 
 const CONFIG_MANUAL = { enabled: true, skipMode: 'manual', version: 1 };
 const CONFIG_AUTO = { enabled: true, skipMode: 'auto', version: 1 };
@@ -133,10 +133,10 @@ function currentTime(page) {
  */
 async function requestsFor(collector, method) {
     const messages = await collector.outgoingMessages();
-    return messages.filter((m) => m.payload.featureName === 'sponsorBlock' && /** @type {any} */ (m.payload).method === method);
+    return messages.filter((m) => m.payload.featureName === 'segmentSkip' && /** @type {any} */ (m.payload).method === method);
 }
 
-test.describe('SponsorBlock', () => {
+test.describe('SegmentSkip', () => {
     test('asks for config before segments and draws only segments matching the video duration', async ({ page }, testInfo) => {
         const collector = await loadPlayer(page, testInfo);
         await expect(page.locator(MARKER)).toHaveCount(1);
@@ -145,7 +145,7 @@ test.describe('SponsorBlock', () => {
         await expect(page.locator(MARKER)).toHaveCSS('right', /^186\.6/);
 
         const methods = (await collector.outgoingMessages())
-            .filter((m) => m.payload.featureName === 'sponsorBlock')
+            .filter((m) => m.payload.featureName === 'segmentSkip')
             .map((m) => /** @type {any} */ (m.payload).method);
         expect(methods).toEqual(['getConfig', 'getSegments']);
         expect(/** @type {any} */ ((await requestsFor(collector, 'getSegments'))[0].payload).params).toEqual({ videoID: 'dQw4w9WgXcQ' });
@@ -282,17 +282,19 @@ test.describe('SponsorBlock', () => {
         await page.clock.install();
         const collector = await loadPlayer(page, testInfo);
         await expect(page.locator(MARKER)).toHaveCount(1);
-        await collector.simulateSubscriptionMessage('sponsorBlock', 'onConfigChanged', { enabled: false, skipMode: 'manual' });
+        await collector.simulateSubscriptionMessage('segmentSkip', 'onConfigChanged', { enabled: false, skipMode: 'manual' });
         await expect(page.locator(OVERLAY)).toHaveCount(0);
 
         // The mock answers one timer tick after the request, so a paused clock holds the answer back until after the
-        // feature is turned off again.
+        // feature is turned off again. The Windows mock also delivers subscription events on a timer tick, so both
+        // events are queued before the clock runs: the answer, queued when the enable is handled, lands after the
+        // disable.
         await page.clock.pauseAt(await page.evaluate(() => Date.now() + 1000));
-        await collector.simulateSubscriptionMessage('sponsorBlock', 'onConfigChanged', { enabled: true, skipMode: 'manual' });
-        await expect.poll(() => requestsFor(collector, 'getSegments')).toHaveLength(2);
-        await collector.simulateSubscriptionMessage('sponsorBlock', 'onConfigChanged', { enabled: false, skipMode: 'manual' });
+        await collector.simulateSubscriptionMessage('segmentSkip', 'onConfigChanged', { enabled: true, skipMode: 'manual' });
+        await collector.simulateSubscriptionMessage('segmentSkip', 'onConfigChanged', { enabled: false, skipMode: 'manual' });
         // Fires the held answer before checking, so the absence of segments isn't just the answer not having arrived yet.
         await page.clock.runFor(100);
+        await expect.poll(() => requestsFor(collector, 'getSegments')).toHaveLength(2);
         await page.clock.resume();
 
         await seekTo(page, 3);
@@ -326,18 +328,18 @@ test.describe('SponsorBlock', () => {
         await expect(page.locator(SKIP_BUTTON)).toBeVisible();
 
         // The user seeked into this segment, so switching to auto keeps the button rather than jumping.
-        await collector.simulateSubscriptionMessage('sponsorBlock', 'onConfigChanged', { enabled: true, skipMode: 'auto' });
+        await collector.simulateSubscriptionMessage('segmentSkip', 'onConfigChanged', { enabled: true, skipMode: 'auto' });
         await expect(page.locator(SKIP_BUTTON)).toBeVisible();
         expect(await currentTime(page)).toBeCloseTo(3, 1);
         expect(await requestsFor(collector, 'getSegments')).toHaveLength(1);
 
-        await collector.simulateSubscriptionMessage('sponsorBlock', 'onConfigChanged', { enabled: false, skipMode: 'auto' });
+        await collector.simulateSubscriptionMessage('segmentSkip', 'onConfigChanged', { enabled: false, skipMode: 'auto' });
         await expect(page.locator(OVERLAY)).toHaveCount(0);
         await seekTo(page, 3);
         await expect(page.locator(SKIP_BUTTON)).toHaveCount(0);
         expect(await currentTime(page)).toBeCloseTo(3, 1);
 
-        await collector.simulateSubscriptionMessage('sponsorBlock', 'onConfigChanged', { enabled: true, skipMode: 'manual' });
+        await collector.simulateSubscriptionMessage('segmentSkip', 'onConfigChanged', { enabled: true, skipMode: 'manual' });
         await expect(page.locator(MARKER)).toHaveCount(1);
         expect(await requestsFor(collector, 'getSegments')).toHaveLength(2);
     });
@@ -393,7 +395,7 @@ test.describe('SponsorBlock', () => {
             navigate('/watch?v=AAAAAAAAAAA');
             navigate('/results?search_query=ducks');
             await new Promise((resolve) => setTimeout(resolve, 0));
-            return document.querySelectorAll('.ddg-sponsorblock-overlay > div').length;
+            return document.querySelectorAll('.ddg-segmentskip-overlay > div').length;
         });
         expect(markers).toBe(0);
         expect((await requestsFor(collector, 'getSegments')).map((m) => /** @type {any} */ (m.payload).params.videoID)).toEqual([
@@ -445,7 +447,7 @@ test.describe('SponsorBlock', () => {
             // Android injects only into the top frame, so the embed must not run an instance of its own.
             expect(await requestsFor(collector, 'getConfig')).toHaveLength(1);
             const embedOutgoing = await page.frames()[1].evaluate(() => /** @type {any} */ (window).__playwright_01?.mocks.outgoing ?? []);
-            expect(embedOutgoing.filter((/** @type {any} */ m) => m.payload.featureName === 'sponsorBlock')).toEqual([]);
+            expect(embedOutgoing.filter((/** @type {any} */ m) => m.payload.featureName === 'segmentSkip')).toEqual([]);
 
             await page.frames()[1].evaluate(() => {
                 /** @type {HTMLVideoElement} */ (document.querySelector('video')).currentTime = 3;
@@ -466,7 +468,7 @@ test.describe('SponsorBlock', () => {
             await expect(frame.locator('video')).toHaveJSProperty('readyState', 4);
             await expect(frame.locator(OVERLAY)).toHaveCount(0);
             const outgoing = await page.frames()[1].evaluate(() => /** @type {any} */ (window).__playwright_01?.mocks.outgoing ?? []);
-            expect(outgoing.filter((/** @type {any} */ m) => m.payload.featureName === 'sponsorBlock')).toEqual([]);
+            expect(outgoing.filter((/** @type {any} */ m) => m.payload.featureName === 'segmentSkip')).toEqual([]);
         });
     });
 });
