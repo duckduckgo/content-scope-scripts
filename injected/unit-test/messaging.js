@@ -9,6 +9,7 @@ import {
     SubscriptionEvent,
 } from '@duckduckgo/messaging';
 import { AndroidMessagingConfig } from '@duckduckgo/messaging/lib/android.js';
+import { ExtensionMessagingConfig } from '@duckduckgo/messaging/lib/extension.js';
 
 describe('Messaging Transports', () => {
     it('calls transport with a RequestMessage', () => {
@@ -301,3 +302,193 @@ function createMessaging() {
 
     return { transport, messaging };
 }
+
+describe('Extension', () => {
+    /**
+     * A fake chrome.runtime. Each connect() opens a new port; fromPort and disconnect act on the latest one.
+     * die closes the latest port without firing onDisconnect, so posting to it throws.
+     * @type {{ posted: any[], fromPort: (msg: any) => void, disconnect: () => void, die: () => void, fromRuntime: (msg: any) => void, runtimeListeners: any[], connect: jasmine.Spy }}
+     */
+    let fake;
+
+    beforeEach(() => {
+        /** @type {any[]} */
+        const posted = [];
+        /** @type {((msg: any) => void)[]} */
+        const runtimeListeners = [];
+        /** @type {{ messageListeners: Set<(msg: any) => void>, disconnectListeners: Set<() => void>, dead: boolean }} */
+        let latest = { messageListeners: new Set(), disconnectListeners: new Set(), dead: false };
+        const connect = jasmine.createSpy('connect').and.callFake(() => {
+            const port = { messageListeners: new Set(), disconnectListeners: new Set(), dead: false };
+            latest = port;
+            return {
+                postMessage: (/** @type {any} */ msg) => {
+                    if (port.dead) throw new Error('Attempting to use a disconnected port object');
+                    posted.push(msg);
+                },
+                onMessage: { addListener: (/** @type {(msg: any) => void} */ fn) => port.messageListeners.add(fn) },
+                onDisconnect: {
+                    addListener: (/** @type {() => void} */ fn) => port.disconnectListeners.add(fn),
+                    removeListener: (/** @type {() => void} */ fn) => port.disconnectListeners.delete(fn),
+                },
+            };
+        });
+        /** @type {any} */ (globalThis).chrome = {
+            runtime: { connect, onMessage: { addListener: (/** @type {(msg: any) => void} */ fn) => runtimeListeners.push(fn) } },
+        };
+        fake = {
+            posted,
+            fromPort: (msg) => latest.messageListeners.forEach((fn) => fn(msg)),
+            disconnect: () => latest.disconnectListeners.forEach((fn) => fn()),
+            die: () => {
+                latest.dead = true;
+            },
+            fromRuntime: (msg) => runtimeListeners.forEach((fn) => fn(msg)),
+            runtimeListeners,
+            connect,
+        };
+    });
+
+    afterEach(() => {
+        delete (/** @type {any} */ (globalThis).chrome);
+    });
+
+    /**
+     * @param {string} featureName
+     */
+    function createMessaging(featureName) {
+        const config = new ExtensionMessagingConfig({ portName: 'injected' });
+        const context = new MessagingContext({ context: 'contentScopeScripts', featureName, env: 'development' });
+        return new Messaging(context, config);
+    }
+
+    it('opens no port and adds no runtime listener until used', () => {
+        createMessaging('featureA');
+        expect(fake.connect).not.toHaveBeenCalled();
+        expect(fake.runtimeListeners.length).toBe(0);
+    });
+
+    it('connects a port with the given name and posts notifications on it', () => {
+        const messaging = createMessaging('featureA');
+        messaging.notify('helloWorld', { a: 1 });
+        expect(fake.connect).toHaveBeenCalledWith({ name: 'injected' });
+        expect(fake.posted).toEqual([
+            new NotificationMessage({ context: 'contentScopeScripts', featureName: 'featureA', method: 'helloWorld', params: { a: 1 } }),
+        ]);
+    });
+
+    it('resolves a request with the result the background posts back on the port', async () => {
+        const messaging = createMessaging('featureA');
+        const request = messaging.request('helloWorld');
+        const [outgoing] = fake.posted;
+        fake.fromPort({ context: 'contentScopeScripts', featureName: 'featureA', id: outgoing.id, result: { foo: 'bar' } });
+        expect(await request).toEqual({ foo: 'bar' });
+    });
+
+    it('rejects a request with the error the background posts back on the port', async () => {
+        const messaging = createMessaging('featureA');
+        const request = messaging.request('helloWorld');
+        const [outgoing] = fake.posted;
+        fake.fromPort({ context: 'contentScopeScripts', featureName: 'featureA', id: outgoing.id, error: { message: 'nope' } });
+        await expectAsync(request).toBeRejectedWithError('nope');
+    });
+
+    it('rejects a request when its port disconnects, and does not re-send it on the next connection', async () => {
+        const messaging = createMessaging('featureA');
+        const request = messaging.request('helloWorld');
+        fake.disconnect();
+        await expectAsync(request).toBeRejectedWithError('helloWorld: disconnected before a response was received');
+
+        messaging.notify('next');
+        expect(fake.connect).toHaveBeenCalledTimes(2);
+        expect(fake.posted.map((msg) => msg.method)).toEqual(['helloWorld', 'next']);
+    });
+
+    it('delivers each subscription event received on runtime.onMessage once, to its subscriber', () => {
+        const messaging = createMessaging('featureA');
+        const onUpdate = jasmine.createSpy('onUpdate');
+        const onOther = jasmine.createSpy('onOther');
+        messaging.subscribe('onUpdate', onUpdate);
+        messaging.subscribe('onOther', onOther);
+        fake.fromRuntime({ context: 'contentScopeScripts', featureName: 'featureA', subscriptionName: 'onUpdate', params: { foo: 'bar' } });
+        expect(onUpdate).toHaveBeenCalledOnceWith({ foo: 'bar' });
+        expect(onOther).not.toHaveBeenCalled();
+    });
+
+    it('ignores subscription events for another feature, context or subscription', () => {
+        const messaging = createMessaging('featureA');
+        const spy = jasmine.createSpy();
+        messaging.subscribe('onUpdate', spy);
+        fake.fromRuntime({ context: 'contentScopeScripts', featureName: 'featureB', subscriptionName: 'onUpdate', params: {} });
+        fake.fromRuntime({ context: 'specialPages', featureName: 'featureA', subscriptionName: 'onUpdate', params: {} });
+        fake.fromRuntime({ context: 'contentScopeScripts', featureName: 'featureA', subscriptionName: 'other', params: {} });
+        expect(spy).not.toHaveBeenCalled();
+    });
+
+    it('stops delivering subscription events once unsubscribed', () => {
+        const messaging = createMessaging('featureA');
+        const spy = jasmine.createSpy();
+        const unsubscribe = messaging.subscribe('onUpdate', spy);
+        unsubscribe();
+        fake.fromRuntime({ context: 'contentScopeScripts', featureName: 'featureA', subscriptionName: 'onUpdate', params: {} });
+        expect(spy).not.toHaveBeenCalled();
+    });
+
+    it('resolves a request only with the reply for its own id, feature and context', async () => {
+        const messaging = createMessaging('featureA');
+        const request = messaging.request('helloWorld');
+        const [outgoing] = fake.posted;
+        const reply = { context: 'contentScopeScripts', featureName: 'featureA', id: outgoing.id };
+        fake.fromPort({ ...reply, id: 'another-request', result: 'wrong' });
+        fake.fromPort({ ...reply, featureName: 'featureB', result: 'wrong' });
+        fake.fromPort({ ...reply, context: 'specialPages', result: 'wrong' });
+        fake.fromPort({ ...reply, result: 'right' });
+        expect(await request).toBe('right');
+    });
+
+    it('resolves a request with a falsy or missing result', async () => {
+        const messaging = createMessaging('featureA');
+        for (const result of [null, false, 0, '']) {
+            const request = messaging.request('helloWorld');
+            const outgoing = fake.posted[fake.posted.length - 1];
+            fake.fromPort({ context: 'contentScopeScripts', featureName: 'featureA', id: outgoing.id, result });
+            expect(await request).toBe(result);
+        }
+        // an undefined result loses its key when the port serializes the reply
+        const request = messaging.request('helloWorld');
+        const outgoing = fake.posted[fake.posted.length - 1];
+        fake.fromPort({ context: 'contentScopeScripts', featureName: 'featureA', id: outgoing.id });
+        expect(await request).toBeUndefined();
+    });
+
+    it('rejects an aborted request with AbortError, and ignores a later reply', async () => {
+        const messaging = createMessaging('featureA');
+        const controller = new AbortController();
+        const msg = new RequestMessage({ context: 'contentScopeScripts', featureName: 'featureA', method: 'helloWorld', id: 'abort-me' });
+        const request = messaging.transport.request(msg, { signal: controller.signal });
+        controller.abort();
+        await expectAsync(request).toBeRejectedWith(jasmine.objectContaining({ name: 'AbortError' }));
+        expect(() =>
+            fake.fromPort({ context: 'contentScopeScripts', featureName: 'featureA', id: 'abort-me', result: 'late' }),
+        ).not.toThrow();
+    });
+
+    it('rejects a request whose signal is already aborted without posting it', async () => {
+        const messaging = createMessaging('featureA');
+        const msg = new RequestMessage({ context: 'contentScopeScripts', featureName: 'featureA', method: 'helloWorld', id: 'too-late' });
+        const request = messaging.transport.request(msg, { signal: AbortSignal.abort() });
+        await expectAsync(request).toBeRejectedWith(jasmine.objectContaining({ name: 'AbortError' }));
+        expect(fake.posted).toEqual([]);
+    });
+
+    it('reconnects and posts when the port died before onDisconnect fired', async () => {
+        const messaging = createMessaging('featureA');
+        messaging.notify('first');
+        fake.die();
+        const request = messaging.request('helloWorld');
+        expect(fake.connect).toHaveBeenCalledTimes(2);
+        expect(fake.posted.map((msg) => msg.method)).toEqual(['first', 'helloWorld']);
+        fake.fromPort({ context: 'contentScopeScripts', featureName: 'featureA', id: fake.posted[1].id, result: 'ok' });
+        expect(await request).toBe('ok');
+    });
+});
