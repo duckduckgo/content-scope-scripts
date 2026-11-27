@@ -3,18 +3,18 @@
  * scripts/build-types.mjs is responsible for type generation.
  * **DO NOT** edit this file directly as your changes will be lost.
  *
- * @module SponsorBlock Messages
+ * @module SegmentSkip Messages
  */
 
 /**
- * Requests, Notifications and Subscriptions from the SponsorBlock feature
+ * Requests, Notifications and Subscriptions from the SegmentSkip feature
  */
-export interface SponsorBlockMessages {
+export interface SegmentSkipMessages {
   requests: GetConfigRequest | GetSegmentsRequest;
   subscriptions: OnConfigChangedSubscription;
 }
 /**
- * Generated from @see "../messages/sponsor-block/getConfig.request.json"
+ * Generated from @see "../messages/segment-skip/getConfig.request.json"
  */
 export interface GetConfigRequest {
   method: "getConfig";
@@ -40,7 +40,7 @@ export interface GetConfigResponse {
   version: number;
 }
 /**
- * Generated from @see "../messages/sponsor-block/getSegments.request.json"
+ * Generated from @see "../messages/segment-skip/getSegments.request.json"
  */
 export interface GetSegmentsRequest {
   method: "getSegments";
@@ -83,23 +83,23 @@ export interface Segment {
   videoDuration?: number;
 }
 /**
- * Generated from @see "../messages/sponsor-block/onConfigChanged.subscribe.json"
+ * Generated from @see "../messages/segment-skip/onConfigChanged.subscribe.json"
  */
 export interface OnConfigChangedSubscription {
   subscriptionEvent: "onConfigChanged";
   params: OnConfigChangedParams;
 }
 /**
- * Pushed to every YouTube tab when the user changes a SponsorBlock setting.
+ * Pushed to every YouTube tab when the user changes a SegmentSkip setting.
  */
 export interface OnConfigChangedParams {
   enabled: boolean;
   skipMode: "manual" | "auto";
 }
 
-declare module "../features/sponsor-block.js" {
-  export interface SponsorBlock {
-    request: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<SponsorBlockMessages>['request'],
-    subscribe: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<SponsorBlockMessages>['subscribe']
+declare module "../features/segment-skip.js" {
+  export interface SegmentSkip {
+    request: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<SegmentSkipMessages>['request'],
+    subscribe: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<SegmentSkipMessages>['subscribe']
   }
 }

@@ -18,6 +18,8 @@
     line-height: var(--sp-7); /* 28px */
     text-align: left;
     white-space: pre-line;
+    /* Keeps long translations from leaving one word, or half a hyphenated word, on the last line */
+    text-wrap: pretty;
     color: var(--ds-text-primary);
     margin: 0;
     text-box-trim: trim-both;

@@ -5,5 +5,10 @@
   "type": "object",
   "additionalProperties": false,
   "required": [],
-  "properties": {}
+  "properties": {
+    "requestId": {
+      "type": "string",
+      "description": "Opaque id native sends with the request; echoed in the reply."
+    }
+  }
 }

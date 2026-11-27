@@ -6,22 +6,26 @@ This document outlines the coding style and conventions used in the Content Scop
 
 ## Code Formatting
 
-### Prettier
+### oxfmt
 
-We use [Prettier](https://prettier.io/) for automatic code formatting. This ensures consistent code style across the entire codebase.
+We use [oxfmt](https://oxc.rs/docs/guide/usage/formatter), a Prettier-compatible formatter, for automatic code formatting. This ensures consistent code style across the entire codebase.
 
-- **Configuration**: See [`.prettierrc`](.prettierrc) for current formatting settings
-- **IDE Integration**: Enable Prettier in your IDE/editor for automatic formatting on save
+- **Configuration**: See [`.oxfmtrc.json`](.oxfmtrc.json) for formatting settings and ignored paths
+- **IDE Integration**: Install the Oxc extension and set it as your formatter to format on save. A Prettier extension would apply Prettier defaults, since the repo has no Prettier config
+- **Ignore comments**: `// prettier-ignore` and `// oxfmt-ignore` both work
 - **CI/CD**: Code formatting is checked in our continuous integration pipeline
 
-### Running Prettier
+### Running oxfmt
 
 ```bash
 # Format all files
+npm run format
+
+# Format, plus ESLint fixes and type check
 npm run lint-fix
 
 # Check formatting (without making changes)
-npm run lint
+npm run check-format
 ```
 
 ## TypeScript via JSDoc
@@ -228,7 +232,7 @@ function validateUrl(url) {
 ### VS Code
 
 Recommended extensions:
-- Prettier - Code formatter
+- Oxc - Code formatter
 - TypeScript and JavaScript Language Features (built-in)
 - ESLint
 

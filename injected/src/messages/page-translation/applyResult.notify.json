@@ -8,6 +8,10 @@
     "count"
   ],
   "properties": {
+    "requestId": {
+      "type": "string",
+      "description": "The requestId native sent with the request, if any."
+    },
     "count": {
       "type": "number"
     }

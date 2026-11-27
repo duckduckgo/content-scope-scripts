@@ -40,8 +40,8 @@ JavaScript features injected into web pages for privacy protections. Features ex
 - `performance-metrics` - Performance tracking
 - `print` - Overrides `window.print()` so native handles printing (iOS)
 - `referrer` - Referrer protection
+- `segment-skip` - Skips sponsored YouTube segments using SponsorBlock data fetched by native
 - `selection-tools` - Reports selected text, what kind of text it is and its position for native's Duck.ai selection toolbar and context menu (Windows)
-- `sponsor-block` - Skips sponsored YouTube segments using SponsorBlock data fetched by native
 - `tab-suspension` - Reports whether the tab can be suspended
 - `text-selection` - Reports text selection state to native
 - `tracker-protection` - In-page tracker blocking and surrogate injection
@@ -89,8 +89,10 @@ Run from root. Use `nvm use` to set the correct Node version.
 | `npm run build` | Build all workspaces |
 | `npm run test-unit` | Unit tests (all workspaces) |
 | `npm run test-int` | Integration tests (Playwright) |
-| `npm run lint` | ESLint + TypeScript + Prettier (run `npm run build` first; it also lints the built output) |
+| `npm run lint` | ESLint + TypeScript + oxfmt (run `npm run build` first; it also lints the built output) |
 | `npm run lint-fix` | Auto-fix lint issues |
+| `npm run format` | Format all files with oxfmt (about a second) |
+| `npm run check-format` | Check formatting without writing |
 | `npm run serve` | Serve injected test pages (port 3220) |
 | `npm run serve-special-pages` | Serve built special pages (port 3210) |
 
