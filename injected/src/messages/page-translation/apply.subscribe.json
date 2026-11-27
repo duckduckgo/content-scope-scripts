@@ -10,6 +10,10 @@
     "updates"
   ],
   "properties": {
+    "requestId": {
+      "type": "string",
+      "description": "Opaque id native sends with the request; echoed in the reply."
+    },
     "sourceLanguage": {
       "type": "string",
       "description": "Detected page language (BCP 47). Content marked as another language is not written back."

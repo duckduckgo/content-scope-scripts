@@ -324,6 +324,10 @@
     "title" : "Теперь попробуйте конфиденциальный поиск!",
     "note" : "Title for the last onboarding step, where the user can try a private search or ask Duck.ai (DuckDuckGo's private AI chat) a question, shown when the user chose search only (no AI chat) on the previous step."
   },
+  "searchOrChat_toggleLabel" : {
+    "title" : "Найти или спросить ИИ",
+    "note" : "Accessibility label for the control that switches between searching and asking Duck.ai (DuckDuckGo's private AI chat)."
+  },
   "searchOrChat_searchTab" : {
     "title" : "Поиск",
     "note" : "Label of the option that switches the input to a web search."
@@ -340,6 +344,10 @@
     "title" : "Задавайте любые вопросы, сохраняя конфиденциальность",
     "note" : "Placeholder in the input when it will ask Duck.ai (DuckDuckGo's private AI chat)."
   },
+  "searchOrChat_submitLabel" : {
+    "title" : "Отправить",
+    "note" : "Accessibility label for the button that submits the search or the question."
+  },
   "searchOrChat_searchSuggestion1" : {
     "title" : "Как сказать «утка» по-английски?",
     "note" : "Suggested search. Clicking it searches for this exact text, so it should read as a natural search query in the target language."
@@ -347,6 +355,10 @@
   "searchOrChat_searchSuggestion2" : {
     "title" : "Кто играет главные роли в фильме «Могучие утята»?",
     "note" : "Suggested search for the cast of the film The Mighty Ducks. Clicking it searches for this exact text."
+  },
+  "searchOrChat_searchOnlySuggestion2" : {
+    "title" : "Как будет «утка» на 10 языках",
+    "note" : "Suggested search, shown when the user chose search only. Clicking it searches for this exact text."
   },
   "searchOrChat_aiSuggestion1" : {
     "title" : "Объясни, как работает фондовый рынок, так, чтобы понял 10-летний ребенок",

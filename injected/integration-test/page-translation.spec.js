@@ -540,6 +540,23 @@ test.describe('pageTranslation', () => {
         expect(count).toBe(1);
     });
 
+    test('echoes the request id in each reply', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'lang.html');
+        const { requestId: extractId, units } = await send(collector, 'extract', { requestId: 'a' }, 'extractResult');
+        expect(extractId).toBe('a');
+        const updates = [{ id: units[0].id, text: '‹x›' }];
+        const params = { requestId: 'b', sourceLanguage: 'en', targetLanguage: 'de', updates };
+        expect((await send(collector, 'apply', params, 'applyResult')).requestId).toBe('b');
+    });
+
+    test('sends no request id when native sent none', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'lang.html');
+        const extracted = await send(collector, 'extract', {}, 'extractResult');
+        expect(extracted).not.toHaveProperty('requestId');
+        const params = { sourceLanguage: 'en', targetLanguage: 'de', updates: [{ id: extracted.units[0].id, text: '‹x›' }] };
+        expect(await send(collector, 'apply', params, 'applyResult')).not.toHaveProperty('requestId');
+    });
+
     test('gives the original of a duplicated tag to the occurrence holding its content', async ({ page }, testInfo) => {
         const collector = await openPage(page, testInfo, 'citation.html');
         const [unit] = await extract(collector);

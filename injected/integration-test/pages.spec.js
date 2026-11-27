@@ -187,6 +187,15 @@ test.describe('Test integration pages', () => {
         );
     });
 
+    test('Element Hiding (emptyCheck: walk)', async ({ page }, testInfo) => {
+        await testPage(
+            page,
+            testInfo,
+            '/element-hiding/pages/element-hiding.html',
+            './integration-test/test-pages/element-hiding/config/element-hiding-walk.json',
+        );
+    });
+
     test('GPC', async ({ page }, testInfo) => {
         const collector = ResultsCollector.create(page, testInfo?.project?.use);
         collector.withUserPreferences({ globalPrivacyControlValue: true });
