@@ -388,6 +388,45 @@ test.describe('SegmentSkip', () => {
         await expect(page.locator(SKIP_BUTTON)).toHaveCount(0);
     });
 
+    test('auto mode: undo plays through overlapping and touching segments, then skips again', async ({ page }, testInfo) => {
+        const segments = { segments: [
+            { start: 2, end: 4, category: 'sponsor', actionType: 'skip', uuid: 'a', videoDuration: 12 },
+            { start: 3, end: 5, category: 'sponsor', actionType: 'skip', uuid: 'b', videoDuration: 12 },
+            { start: 5, end: 7, category: 'sponsor', actionType: 'skip', uuid: 'c', videoDuration: 12 },
+        ] };
+        await loadPlayer(page, testInfo, { responses: { getConfig: CONFIG_AUTO, getSegments: segments } });
+        await expect(page.locator(MARKER)).toHaveCount(3);
+        await seekTo(page, 1.5);
+        await play(page);
+        await expect.poll(() => currentTime(page), { timeout: 2500 }).toBeGreaterThanOrEqual(7);
+        await page.locator(SKIP_BUTTON).click();
+        await expect.poll(() => currentTime(page)).toBeLessThan(3);
+        await expect.poll(() => currentTime(page), { timeout: 4000 }).toBeGreaterThan(5.2);
+        expect(await currentTime(page)).toBeLessThan(7);
+        await expect(page.locator(SKIP_BUTTON)).toHaveCount(0);
+        await expect.poll(() => currentTime(page), { timeout: 3000 }).toBeGreaterThan(7);
+        await seekTo(page, 1.5);
+        await expect.poll(() => currentTime(page), { timeout: 2500 }).toBeGreaterThanOrEqual(7);
+    });
+
+    test('auto mode: a manual seek after undo restores the skip button', async ({ page }, testInfo) => {
+        const segments = { segments: [
+            { start: 2, end: 4, category: 'sponsor', actionType: 'skip', uuid: 'a', videoDuration: 12 },
+            { start: 4, end: 7, category: 'sponsor', actionType: 'skip', uuid: 'b', videoDuration: 12 },
+        ] };
+        await loadPlayer(page, testInfo, { responses: { getConfig: CONFIG_AUTO, getSegments: segments } });
+        await expect(page.locator(MARKER)).toHaveCount(2);
+        await seekTo(page, 1.5);
+        await play(page);
+        await expect.poll(() => currentTime(page), { timeout: 2500 }).toBeGreaterThanOrEqual(7);
+        await page.locator(SKIP_BUTTON).click();
+        await expect.poll(() => currentTime(page)).toBeLessThan(3);
+        await seekTo(page, 5);
+        await expect(page.locator(SKIP_BUTTON)).toBeVisible();
+        await page.locator(SKIP_BUTTON).click();
+        await expect.poll(() => currentTime(page)).toBeGreaterThanOrEqual(7);
+    });
+
     test('auto mode: the undo button hides after 5 seconds', async ({ page }, testInfo) => {
         await page.clock.install();
         await loadPlayer(page, testInfo, { responses: { getConfig: CONFIG_AUTO } });
