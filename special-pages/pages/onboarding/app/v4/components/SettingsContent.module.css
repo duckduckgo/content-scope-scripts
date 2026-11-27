@@ -75,13 +75,10 @@
 }
 
 .rowButtons {
+    composes: buttonRow from './ButtonRow.module.css';
     display: flex;
     padding-left: var(--sp-10); /* 40px = icon 24 + gap 16 */
     gap: var(--sp-2); /* 8px */
-
-    [data-platform-name="windows"] & > *:last-child {
-        order: -1;
-    }
 }
 
 .actions {

@@ -1104,6 +1104,24 @@ test.describe('onboarding v4', () => {
             await onboarding.keepInTaskbar();
         });
 
+        test('The primary button comes first on Windows and last on macOS', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: null,
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+            const isWindows = workerInfo.project.name === 'windows';
+            const primary = await page.getByRole('button', { name: isWindows ? 'Pin to Taskbar' : 'Keep in Dock' }).boundingBox();
+            const skip = await page.getByRole('button', { name: 'Skip' }).boundingBox();
+            if (!primary || !skip) throw new Error('settings row buttons not rendered');
+            if (isWindows) {
+                expect(primary.x).toBeLessThan(skip.x);
+            } else {
+                expect(primary.x).toBeGreaterThan(skip.x);
+            }
+        });
+
         test('When I have skipped add to dock/taskbar', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({

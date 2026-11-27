@@ -193,13 +193,9 @@
 }
 
 .actions {
+    composes: buttonRow from './ButtonRow.module.css';
     align-self: stretch;
     display: flex;
     justify-content: flex-end;
     gap: var(--sp-2); /* 8px */
-
-    /* Windows puts the primary button first, as the other steps do */
-    [data-platform-name='windows'] & > *:last-child {
-        order: -1;
-    }
 }
