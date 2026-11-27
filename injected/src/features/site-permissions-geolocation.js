@@ -479,12 +479,14 @@ export default class SitePermissionsGeolocation extends ContentFeature {
                 !nativePermissions || lockValue(getPrototypeOf(nativePermissions), 'query', permissionsQuery);
             const permissionsLocked = !nativePermissions || lockValue(nativePermissions, 'query', permissionsQuery);
 
-            if (!(
-                navigatorLocked &&
-                (geolocationPrototypeLocked || navigatorPrototypeLocked) &&
-                permissionsPrototypeLocked &&
-                permissionsLocked
-            )) {
+            if (
+                !(
+                    navigatorLocked &&
+                    (geolocationPrototypeLocked || navigatorPrototypeLocked) &&
+                    permissionsPrototypeLocked &&
+                    permissionsLocked
+                )
+            ) {
                 return false;
             }
 
