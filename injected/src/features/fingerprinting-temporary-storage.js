@@ -1,6 +1,8 @@
 import ContentFeature from '../content-feature';
 
 export default class FingerprintingTemporaryStorage extends ContentFeature {
+    initImmediately = true;
+
     init() {
         const navigator = globalThis.navigator;
         const Navigator = globalThis.Navigator;
