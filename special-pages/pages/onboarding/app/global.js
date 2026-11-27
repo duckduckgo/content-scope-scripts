@@ -183,7 +183,7 @@ export function reducer(state, action) {
  * @param {import('./types').Step['id'][]} props.order - The order of screens to display
  * @param {import("preact").ComponentChild} props.children - The children components.
  * @param {import('./types').StepDefinitions} props.stepDefinitions -
- * @param {import("./messages.js").OnboardingMessages} props.messaging - The messaging object used for communication.
+ * @param {import("../src/index.js").OnboardingPage} props.messaging - The messaging object used for communication.
  * @param {import('./types').Step['id']} [props.firstPage]
  */
 export function GlobalProvider({ order, children, stepDefinitions, messaging, firstPage = 'welcome' }) {
@@ -330,7 +330,7 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
  * A single place to handle all messages from the UI that update system settings.
  *
  * @param {import('./types').UpdateSystemValueEvent} action
- * @param {import("./messages").OnboardingMessages} messaging
+ * @param {import("../src/index.js").OnboardingPage} messaging
  * @param {ImportMeta['platform']} platform
  */
 async function handleSystemSettingUpdate(action, messaging, platform) {

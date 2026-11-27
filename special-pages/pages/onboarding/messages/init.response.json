@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "stepDefinitions": {
+      "$ref": "./types/step-definitions.json"
+    },
+    "steps": {
+      "type": "array",
+      "description": "Step IDs (see StepID) to show, in the page's own order. Unknown IDs are ignored. Takes precedence over `exclude`.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "exclude": {
+      "type": "array",
+      "description": "Steps to remove from the default order. Ignored when `steps` is sent.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "env": {
+      "type": "string",
+      "description": "Optional override for the running environment",
+      "enum": ["development", "production"]
+    },
+    "locale": {
+      "type": "string"
+    },
+    "platform": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "enum": ["macos", "windows", "android", "ios"]
+        }
+      }
+    }
+  }
+}

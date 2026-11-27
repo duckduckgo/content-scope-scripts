@@ -286,13 +286,15 @@ test.describe('SegmentSkip', () => {
         await expect(page.locator(OVERLAY)).toHaveCount(0);
 
         // The mock answers one timer tick after the request, so a paused clock holds the answer back until after the
-        // feature is turned off again.
+        // feature is turned off again. The Windows mock also delivers subscription events on a timer tick, so both
+        // events are queued before the clock runs: the answer, queued when the enable is handled, lands after the
+        // disable.
         await page.clock.pauseAt(await page.evaluate(() => Date.now() + 1000));
         await collector.simulateSubscriptionMessage('segmentSkip', 'onConfigChanged', { enabled: true, skipMode: 'manual' });
-        await expect.poll(() => requestsFor(collector, 'getSegments')).toHaveLength(2);
         await collector.simulateSubscriptionMessage('segmentSkip', 'onConfigChanged', { enabled: false, skipMode: 'manual' });
         // Fires the held answer before checking, so the absence of segments isn't just the answer not having arrived yet.
         await page.clock.runFor(100);
+        await expect.poll(() => requestsFor(collector, 'getSegments')).toHaveLength(2);
         await page.clock.resume();
 
         await seekTo(page, 3);

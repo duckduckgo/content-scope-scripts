@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Step Completed",
+  "description": "Sent when the user moves from one step to the next",
+  "required": ["id", "next"],
+  "properties": {
+    "id": {
+      "$ref": "./types/step-id.json"
+    },
+    "next": {
+      "description": "The step about to display, or null if this is the last step",
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "./types/step-id.json"
+        }
+      ]
+    }
+  }
+}
