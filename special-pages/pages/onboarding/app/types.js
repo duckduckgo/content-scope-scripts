@@ -71,7 +71,7 @@ export const STEPS_ORDER = [...ORDER_V4, 'searchOrChat'];
 
 /**
  * @typedef {BooleanSystemValue} SystemValue - values sent in messages to the host
- * @typedef {{ enabled: boolean }} BooleanSystemValue
+ * @typedef {import('../types/onboarding.ts').SystemValue} BooleanSystemValue
  * @typedef {'idle' | 'accepted' | 'skipped'} UIValue
  */
 

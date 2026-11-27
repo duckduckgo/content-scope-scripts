@@ -27,8 +27,9 @@ export async function bundle(params) {
     const isExtension = extensions.includes(platform);
     let trackerLookup = '$TRACKER_LOOKUP$';
     if (!isExtension) {
-        const trackerLookupData = readFileSync('../build/tracker-lookup.json', 'utf8');
-        trackerLookup = trackerLookupData;
+        // Only the cookie feature reads the tracker lookup
+        const bundledFeatures = featureNames ?? platformSupport[platform] ?? [];
+        trackerLookup = bundledFeatures.includes('cookie') ? readFileSync('../build/tracker-lookup.json', 'utf8') : 'undefined';
     }
     const loadFeaturesPlugin = loadFeatures(platform, featureNames);
     // The code is using a global, that we define here which means once tree shaken we get a browser specific output.
