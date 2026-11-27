@@ -1,0 +1,1 @@
+export default `{"en":{"segment-skip.json":{"skipButton":"Skip","undoSkipButton":"Undo Skip"}}}`
