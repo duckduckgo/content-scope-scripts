@@ -1,0 +1,205 @@
+/* Matches the Figma "Pick sites" frames. Favicons are a placeholder letter until the icon decision lands. */
+
+/*
+ * Colours from the Figma frames. The onboarding set in @duckduckgo/design-tokens v1.2.0 lacks some of the tokens
+ * Figma uses, or sets them differently. Where a value departs from that set, its comment names the Figma token.
+ * Swap a local value for var(--ds-…) once the onboarding set ships it with Figma's value.
+ */
+.section {
+    /* Figma --ds-accent-alt-tertiary, missing from the onboarding set */
+    --top-sites-picker-accent-alt-tertiary: #90c4ef;
+
+    --top-sites-picker-text-primary: var(--ds-text-primary);
+    --top-sites-picker-text-secondary: var(--ds-text-secondary);
+    /* Figma --ds-accent-alt-primary. The package sets it to #cbeaff, not Figma's #d6efff, and the package value is kept */
+    --top-sites-picker-hover-border: var(--ds-accent-alt-primary);
+    --top-sites-picker-picked-border: var(--top-sites-picker-accent-alt-tertiary);
+    --top-sites-picker-icon-background: #fff;
+    --top-sites-picker-plus-fill: var(--top-sites-picker-accent-alt-tertiary);
+    --top-sites-picker-plus-glyph: #fff;
+
+    :global(.theme-dark) & {
+        --top-sites-picker-accent-alt-tertiary: rgba(161, 207, 247, 0.24);
+
+        /* Figma Text/Primary and Text/Secondary */
+        --top-sites-picker-text-primary: var(--color-white-at-84);
+        --top-sites-picker-text-secondary: var(--color-white-at-50);
+        /* Figma --ds-accent-alt-primary; the package's dark value is an opaque #034180 */
+        --top-sites-picker-hover-border: rgba(161, 207, 247, 0.16);
+        /* Figma --ds-accent-alt-secondary-content-color, missing from the onboarding set */
+        --top-sites-picker-icon-background: #f5fbfe;
+        --top-sites-picker-plus-fill: var(--ds-accent-primary);
+        /* Figma --ds-icons-primary, missing from the onboarding set but in the package's default theme */
+        --top-sites-picker-plus-glyph: var(--ds-color-theme-default-dark-icons-primary);
+    }
+}
+
+.section {
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-6); /* 24px */
+}
+
+.header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-4); /* 16px */
+}
+
+.heading {
+    margin: 0;
+    color: var(--top-sites-picker-text-primary);
+    font-size: calc(15 * var(--px-in-rem));
+    font-weight: 700;
+    line-height: calc(18 * var(--px-in-rem));
+    text-box-trim: trim-both;
+    text-box-edge: cap alphabetic;
+}
+
+.description {
+    margin: 0;
+    color: var(--top-sites-picker-text-secondary);
+    font-size: calc(14 * var(--px-in-rem));
+    line-height: calc(17 * var(--px-in-rem));
+    text-box-trim: trim-both;
+    text-box-edge: cap alphabetic;
+}
+
+.sites {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--sp-2); /* 8px */
+    align-items: start;
+
+    &.email {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+/* The hover and picked rings are inset, so they never shift the layout */
+.site {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--sp-4); /* 16px */
+    padding: var(--sp-4); /* 16px */
+    border: none;
+    border-radius: 24px;
+    background: var(--ds-accent-alt-glow-primary);
+    color: var(--top-sites-picker-text-primary);
+    font-family: var(--font-product);
+    text-align: left;
+    cursor: pointer;
+
+    .email > & {
+        gap: var(--sp-3); /* 12px */
+    }
+
+    &:hover:not(:disabled, [data-on='true']) {
+        box-shadow: inset 0 0 0 2px var(--top-sites-picker-hover-border);
+    }
+
+    &[data-on='true'] {
+        box-shadow: inset 0 0 0 2px var(--top-sites-picker-picked-border);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--ds-accent-primary);
+        outline-offset: 2px;
+    }
+
+    &:disabled {
+        cursor: default;
+    }
+}
+
+.icon {
+    position: relative;
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--top-sites-picker-icon-background);
+    color: rgba(0, 0, 0, 0.84);
+    font-size: calc(20 * var(--px-in-rem));
+    font-weight: 700;
+
+    .email & {
+        width: 48px;
+        height: 48px;
+    }
+}
+
+/* Both badges sit centred on the same point near the icon's top right */
+.badge {
+    position: absolute;
+    display: none;
+
+    & > svg {
+        display: block;
+    }
+}
+
+.check {
+    top: -8px;
+    left: 30px;
+    color: var(--ds-accent-secondary);
+
+    .site[data-on='true'] & {
+        display: block;
+    }
+}
+
+.plus {
+    top: -6.33px;
+    left: 31.67px;
+    color: var(--top-sites-picker-plus-fill);
+
+    .site:hover:not(:disabled, [data-on='true']) & {
+        display: block;
+    }
+}
+
+.plusGlyph {
+    fill: var(--top-sites-picker-plus-glyph);
+}
+
+.text {
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    gap: var(--sp-3); /* 12px */
+    min-width: 0;
+}
+
+.title {
+    font-size: calc(14 * var(--px-in-rem));
+    font-weight: 700;
+    line-height: calc(18 * var(--px-in-rem));
+    text-box-trim: trim-both;
+    text-box-edge: cap alphabetic;
+}
+
+.siteDescription {
+    color: var(--top-sites-picker-text-secondary);
+    font-size: calc(12 * var(--px-in-rem));
+    line-height: calc(17 * var(--px-in-rem));
+    text-box-trim: trim-both;
+    text-box-edge: cap alphabetic;
+}
+
+.actions {
+    align-self: stretch;
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--sp-2); /* 8px */
+
+    /* Windows puts the primary button first, as the other steps do */
+    [data-platform-name='windows'] & > *:last-child {
+        order: -1;
+    }
+}

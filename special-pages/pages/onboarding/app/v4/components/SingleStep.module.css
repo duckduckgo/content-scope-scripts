@@ -11,6 +11,10 @@
         --bubble-width: 397px;
     }
 
+    &.topSitesPicker {
+        --bubble-width: 700px;
+    }
+
     &.hasTop {
         --bubble-height: var(--bubble-top-height);
     }

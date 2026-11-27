@@ -34,7 +34,7 @@
  * @property {BubbleConfig} [bottomBubble] - Bottom speech bubble config (optional)
  * @property {{background?: import('preact').ComponentChild, foreground?: import('preact').ComponentChild}} [illustration] - Layered illustration behind/in front of the bottom bubble
  * @property {boolean} [showProgress] - Whether to show the progress indicator in the top bubble
- * @property {'narrow' | 'wide' | 'chromeExtension'} [bubbleWidth] - Bubble width mode (default: 'wide'). Only getStarted uses 'narrow' or 'chromeExtension'.
+ * @property {'narrow' | 'wide' | 'chromeExtension' | 'topSitesPicker'} [bubbleWidth] - Bubble width mode (default: 'wide'). Only getStarted uses 'narrow' or 'chromeExtension', and only topSitesPicker uses 'topSitesPicker'.
  * @property {string} [bounceKey] - Key that triggers a bounce animation when it changes. Steps that cycle through rows should include the active row.
  */
 
@@ -48,6 +48,7 @@
  * @property {() => void} enqueueNext - Function that triggers exit animation, then advances
  * @property {() => void} dismiss - Function that dismisses onboarding completely
  * @property {(params: import('../../types').SubmitQueryParams) => void} submitQuery - Ends onboarding with a search or Duck.ai prompt
+ * @property {(params: import('../../types').AddFavoritesParams) => void} addFavorites - Sends the picker's picks to native
  * @property {() => void} onTitleComplete - Signals that the title typing effect has finished
  * @property {(id: import('../../types').SystemValueId, payload: import('../../types').SystemValue, current: boolean) => void} updateSystemValue - Dispatches a system value update
  * @property {boolean} isShortViewport - True when viewport height is below 550px

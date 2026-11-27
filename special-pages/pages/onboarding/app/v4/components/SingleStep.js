@@ -66,6 +66,7 @@ export function SingleStep() {
                 [styles.hasBottom]: !!bottomBubble,
                 [styles.narrow]: bubbleWidth === 'narrow',
                 [styles.chromeExtension]: bubbleWidth === 'chromeExtension',
+                [styles.topSitesPicker]: bubbleWidth === 'topSitesPicker',
             })}
             style={layoutStyle}
         >

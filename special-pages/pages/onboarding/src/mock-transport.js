@@ -20,7 +20,8 @@ export function mockTransport() {
             const msg = /** @type {any} */ (_msg);
             switch (msg.method) {
                 case 'setOnboardingInstallOptions':
-                case 'submitQuery': {
+                case 'submitQuery':
+                case 'addFavorites': {
                     break;
                 }
                 default: {
@@ -94,6 +95,18 @@ export function mockTransport() {
                         exclude: [],
                         locale: 'en',
                         env: 'development',
+                    });
+                }
+                case 'shouldShowTopSitesPicker': {
+                    // e.g. `?topSitesPicker=hide` answers no, as native does at 5 or more favorites or for the control cohort.
+                    // `?existingFavorites=https://www.youtube.com,https://mail.google.com` sends them along with a yes.
+                    if (url.searchParams.get('topSitesPicker') === 'hide') {
+                        return Promise.resolve({ show: false });
+                    }
+                    const existingFavorites = url.searchParams.get('existingFavorites');
+                    return Promise.resolve({
+                        show: true,
+                        ...(existingFavorites ? { existingFavorites: existingFavorites.split(',') } : {}),
                     });
                 }
                 case 'requestImport':

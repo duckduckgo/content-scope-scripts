@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Top Sites Picker Answer",
+  "description": "Whether to show the topSitesPicker step, sent right before the user would reach it. Native shows it only when the user is under the favorites threshold and enrolled in the treatment cohort.",
+  "type": "object",
+  "required": ["show"],
+  "properties": {
+    "show": {
+      "type": "boolean",
+      "description": "true shows the picker. false drops it, and the page moves on to the step after it, or ends onboarding with dismissToAddressBar when the picker is the last step."
+    },
+    "existingFavorites": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "URLs of the favorites the user already has. The page merges them into the picker's step definition (see TopSitesPickerStep.existingFavorites). Ignored when show is false."
+    }
+  }
+}

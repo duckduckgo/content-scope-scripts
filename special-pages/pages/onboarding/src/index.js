@@ -115,6 +115,16 @@ export class OnboardingPage {
     }
 
     /**
+     * Sent when the user is about to reach the topSitesPicker step. Native checks the favorites threshold and,
+     * only when the user is under it, enrolls them in the experiment, then answers whether to show the step.
+     *
+     * @returns {Promise<import('../types/onboarding.ts').ShouldShowTopSitesPickerRequest['result']>}
+     */
+    shouldShowTopSitesPicker() {
+        return this.messaging.request('shouldShowTopSitesPicker');
+    }
+
+    /**
      * Sent when the user wants to set DuckDuckGo as their default browser. The UI will remain
      * in a loading state until the native layer sends a response.
      *
@@ -156,6 +166,14 @@ export class OnboardingPage {
      */
     submitQuery(params) {
         this.messaging.notify('submitQuery', params);
+    }
+
+    /**
+     * Sent once when the user clicks Add to Favorites on the topSitesPicker step. Native creates the favorites.
+     * @param {import('../types/onboarding.ts').AddFavorites} params
+     */
+    addFavorites(params) {
+        this.messaging.notify('addFavorites', params);
     }
 
     /**

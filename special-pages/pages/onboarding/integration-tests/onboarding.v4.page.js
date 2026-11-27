@@ -172,6 +172,11 @@ export class OnboardingV4Page extends OnboardingPage {
     async startBrowsing() {
         const { page } = this;
         await page.getByRole('button', { name: 'Start Browsing' }).click();
+        await this.didDismissToAddressBar();
+    }
+
+    async didDismissToAddressBar() {
+        await this.mocks.waitForCallCount({ method: 'dismissToAddressBar', count: 1 });
         const calls = await this.mocks.outgoing({ names: ['dismissToAddressBar'] });
         expect(calls).toMatchObject([
             {
@@ -200,6 +205,58 @@ export class OnboardingV4Page extends OnboardingPage {
                 },
             },
         ]);
+    }
+
+    /**
+     * Asserts exactly one addFavorites was sent, with exactly these favorites.
+     * @param {import('../types/onboarding.ts').AddFavorites['favorites']} favorites
+     */
+    async didAddFavorites(favorites) {
+        const calls = await this.mocks.outgoing({ names: ['addFavorites'] });
+        expect(calls).toMatchObject([
+            {
+                payload: {
+                    context: 'specialPages',
+                    featureName: 'onboarding',
+                    method: 'addFavorites',
+                    params: { favorites },
+                },
+            },
+        ]);
+    }
+
+    async didNotAddFavorites() {
+        const calls = await this.mocks.outgoing({ names: ['addFavorites'] });
+        expect(calls).toHaveLength(0);
+    }
+
+    /**
+     * Opens the picker step, with customize before it and addressBarMode after it.
+     * @param {{ reducedMotion?: boolean, init?: Record<string, any> }} [options] - without reduced motion the step stays
+     *   mounted through its exit fade; `init` adds to or replaces fields of the init response
+     */
+    async goToTopSitesPicker({ reducedMotion = true, init = {} } = {}) {
+        this.withInitData({
+            stepDefinitions: null,
+            steps: ['welcome', 'getStarted', 'customize', 'topSitesPicker', 'addressBarMode'],
+            ...init,
+        });
+        if (reducedMotion) await this.reducedMotion();
+        await this.openPage({ env: 'app', page: 'topSitesPicker' });
+        await this.page.getByRole('button', { name: 'Skip' }).waitFor({ timeout: 1000 });
+    }
+
+    /**
+     * Opens customize with the picker listed after it, so leaving customize asks native about the picker.
+     * @param {{ steps?: string[] }} [options] - replaces the default steps, which put addressBarMode after the picker
+     */
+    async goToStepBeforeTopSitesPicker({ steps = ['welcome', 'getStarted', 'customize', 'topSitesPicker', 'addressBarMode'] } = {}) {
+        this.withInitData({ stepDefinitions: null, steps });
+        await this.reducedMotion();
+        await this.openPage({ env: 'app', page: 'customize' });
+        await this.skippedBookmarksBar();
+        await this.skippedSessionRestore();
+        await this.skippedShowHomeButton();
     }
 
     /**

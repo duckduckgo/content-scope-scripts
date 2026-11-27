@@ -27,6 +27,10 @@
     "locale": {
       "type": "string"
     },
+    "region": {
+      "type": "string",
+      "description": "The OS region as an ISO 3166-1 alpha-2 code (e.g. \"GB\"). The Top Sites picker uses it to look up each site's urlByRegion entry. A site keeps its url when the region is missing or has no entry."
+    },
     "platform": {
       "type": "object",
       "required": ["name"],

@@ -1,5 +1,6 @@
 import { EVERY_PAGE_ID, ORDER_V4, STEPS_ORDER } from './types';
 import { stepDefinitions as defaultStepDefinitions } from './v4/data/data';
+import { resolveSiteUrls } from './v4/data/site-urls';
 
 /**
  * Settings that affect the Application, such as running order
@@ -121,6 +122,25 @@ export class Settings {
         if (typingEffect === 'none') return new Settings({ ...this, typingEffect: null });
         if (typingEffect === 'title') return new Settings({ ...this, typingEffect: 'title' });
         return this;
+    }
+
+    /**
+     * Resolves each picker site's URL for the user's region and language, from its `urlByRegion` and `urlTemplate`.
+     * Call it after `withStepDefinitions`, so a site list native sends is resolved the same way as the default one.
+     *
+     * @param {{ locale?: string | null, region?: string | null }} where
+     * @return {Settings}
+     */
+    withResolvedSiteUrls(where) {
+        const topSitesPicker = this.stepDefinitions.topSitesPicker;
+        if (topSitesPicker?.id !== 'topSitesPicker' || !topSitesPicker.sites) return this;
+        return new Settings({
+            ...this,
+            stepDefinitions: {
+                ...this.stepDefinitions,
+                topSitesPicker: { ...topSitesPicker, sites: resolveSiteUrls(topSitesPicker.sites, where) },
+            },
+        });
     }
 
     /**

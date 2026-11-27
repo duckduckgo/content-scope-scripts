@@ -37,7 +37,8 @@ export function reducer(state, action) {
         }
         let nextOrder = state.order;
         if (action.exclude) {
-            nextOrder = state.order.filter((id) => !action.exclude?.includes(id));
+            // The active step stays in the order even when excluded, so leaving it still finds the step after it
+            nextOrder = state.order.filter((id) => id === state.activeStep || !action.exclude?.includes(id));
         }
         return {
             ...state,
@@ -49,7 +50,8 @@ export function reducer(state, action) {
     switch (state.status.kind) {
         case 'idle': {
             switch (action.kind) {
-                case 'update-system-value': {
+                case 'update-system-value':
+                case 'top-sites-picker-ask': {
                     return { ...state, status: { kind: 'executing', action } };
                 }
                 case 'error-boundary': {
@@ -101,9 +103,20 @@ export function reducer(state, action) {
             }
         }
         case 'executing': {
+            // While the page waits for native's picker answer, the answer is the only way out. Clicks on the
+            // step before the picker are dropped, since the answer advances the page itself.
+            if (state.status.action.kind === 'top-sites-picker-ask') {
+                if (action.kind !== 'top-sites-picker-answer') return state;
+                return { ...applyTopSitesPickerAnswer(state, action), status: { kind: 'idle' } };
+            }
             switch (action.kind) {
                 case 'telemetry':
                     return state;
+                // The title can finish typing while a value is saving, e.g. after a click lands on a new step's
+                // option straight away
+                case 'title-complete': {
+                    return { ...state, activeStepVisible: true };
+                }
                 case 'exec-complete': {
                     if (state.step.kind === 'settings') {
                         // only advance to another row if we're updating the current item.
@@ -178,6 +191,28 @@ export function reducer(state, action) {
 }
 
 /**
+ * Drops the picker from the order on a no, and hands the picker native's favorites on a yes.
+ *
+ * @param {GlobalState} state
+ * @param {import('./types').TopSitesPickerAnswerEvent} action
+ * @return {GlobalState}
+ */
+function applyTopSitesPickerAnswer(state, action) {
+    if (!action.show) {
+        return { ...state, order: state.order.filter((id) => id !== 'topSitesPicker') };
+    }
+    const topSitesPicker = state.stepDefinitions.topSitesPicker;
+    if (!action.existingFavorites || topSitesPicker?.id !== 'topSitesPicker') return state;
+    return {
+        ...state,
+        stepDefinitions: {
+            ...state.stepDefinitions,
+            topSitesPicker: { ...topSitesPicker, existingFavorites: action.existingFavorites },
+        },
+    };
+}
+
+/**
  * Provides navigation functionality for the application.
  * @param {Object} props - The properties for the NavigationProvider component.
  * @param {import('./types').Step['id'][]} props.order - The order of screens to display
@@ -216,8 +251,28 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
     });
 
     const platform = usePlatformName();
+
     const proxy = useCallback(
         (/** @type {GlobalEvents} */ msg) => {
+            /**
+             * Right before the picker, ask native whether to show it. Native enrolls the user at this point, so
+             * the page asks only when the user is about to reach the step, and drops it if the answer is no.
+             * The ask runs in the effect below, and its answer advances the page.
+             */
+            if (msg.kind === 'advance' && nextStepId(state.order, state.activeStep) === 'topSitesPicker') {
+                dispatch({ kind: 'top-sites-picker-ask' });
+                return;
+            }
+
+            /**
+             * Past the last step there is nowhere to go. Under reduced motion, Bubble's ref callback calls onExitComplete
+             * again on every re-render while `exiting` is true, e.g. after a no from native finished onboarding. This
+             * drops those repeats so the step isn't reported twice.
+             */
+            if (msg.kind === 'advance' && nextStepId(state.order, state.activeStep) === null) {
+                return;
+            }
+
             /**
              * Regular global state updates
              */
@@ -227,16 +282,7 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
              * Side effects that don't impact global state (advance to non-customize step, or other message kinds).
              */
             if (msg.kind === 'advance') {
-                const currentIndex = state.order.indexOf(state.activeStep);
-                const next = state.order[currentIndex + 1] ?? null;
-                messaging.stepCompleted({ id: state.activeStep, next });
-                // Fire row_shown for the first row of the incoming settings step
-                if (next) {
-                    const nextStepDef = state.stepDefinitions[next];
-                    if (nextStepDef?.kind === 'settings' && nextStepDef.rows[0]) {
-                        messaging.telemetryEvent({ attributes: { name: 'row_shown', value: nextStepDef.rows[0] } });
-                    }
-                }
+                reportStepCompleted(state, state.order, messaging);
             }
             if (msg.kind === 'show-overlay' && msg.overlay === 'dock-instructions') {
                 messaging.telemetryEvent({ attributes: { name: 'dock_instructions_shown' } });
@@ -255,6 +301,9 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
             }
             if (msg.kind === 'submit-query') {
                 messaging.submitQuery(msg.params);
+            }
+            if (msg.kind === 'add-favorites') {
+                messaging.addFavorites(msg.params);
             }
             if (msg.kind === 'request-chrome-extension') {
                 messaging.requestChromeExtensionInstall();
@@ -284,10 +333,33 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
         // eslint-disable-next-line react-hooks/exhaustive-deps -- workaround during eslint react rollout; consider removing and addressing deps
     }, [state.status.kind, messaging]);
 
+    // handle 'top-sites-picker-ask': ask native, then advance past the step before the picker with its answer applied.
+    // A no with nothing after the picker finishes onboarding, since there is no step left to advance to.
+    useEffect(() => {
+        if (state.status.kind !== 'executing' || state.status.action.kind !== 'top-sites-picker-ask') return;
+        const order = state.order;
+        askTopSitesPicker(messaging)
+            // eslint-disable-next-line promise/prefer-await-to-then
+            .then((answer) => {
+                const nextOrder = answer.show ? order : order.filter((id) => id !== 'topSitesPicker');
+                dispatch({ kind: 'top-sites-picker-answer', ...answer });
+                if (nextStepId(nextOrder, state.activeStep) !== null) {
+                    dispatch({ kind: 'advance' });
+                    reportStepCompleted(state, nextOrder, messaging);
+                } else {
+                    // Like Start Browsing on a last step, this sends no stepCompleted
+                    messaging.dismissToAddressBar();
+                }
+            })
+            // eslint-disable-next-line promise/prefer-await-to-then
+            .catch((e) => console.warn('handling the picker answer failed', e));
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- runs once per ask, like the update-system-value effect below
+    }, [state.status.kind, messaging]);
+
     // handle 'update-system-value' messages from the UI
     useEffect(() => {
         if (state.status.kind !== 'executing') return;
-        if (state.status.action.kind !== 'update-system-value') throw new Error('only update-system-value is currently supported');
+        if (state.status.action.kind !== 'update-system-value') return;
 
         /** @type {import('./types').UpdateSystemValueEvent} */
         const action = state.status.action;
@@ -324,6 +396,70 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
             <GlobalDispatch.Provider value={proxy}>{children}</GlobalDispatch.Provider>
         </GlobalContext.Provider>
     );
+}
+
+/**
+ * @param {import('./types').Step['id'][]} order
+ * @param {import('./types').Step['id']} activeStep
+ * @returns {import('./types').Step['id'] | null} the step after `activeStep` in `order`, or null if there is none
+ */
+function nextStepId(order, activeStep) {
+    return order[order.indexOf(activeStep) + 1] ?? null;
+}
+
+/**
+ * Tells native the active step is done, and which step comes after it.
+ *
+ * @param {GlobalState} state
+ * @param {import('./types').Step['id'][]} order - the order the step after the active one comes from
+ * @param {import("../src/index.js").OnboardingPage} messaging
+ */
+function reportStepCompleted(state, order, messaging) {
+    const next = nextStepId(order, state.activeStep);
+    messaging.stepCompleted({ id: state.activeStep, next });
+    // Fire row_shown for the first row of the incoming settings step
+    if (next) {
+        const nextStepDef = state.stepDefinitions[next];
+        if (nextStepDef?.kind === 'settings' && nextStepDef.rows[0]) {
+            messaging.telemetryEvent({ attributes: { name: 'row_shown', value: nextStepDef.rows[0] } });
+        }
+    }
+}
+
+/**
+ * How long the page waits for native's picker answer before skipping the step, so a missing answer can't
+ * leave the user stuck on the step before the picker.
+ */
+const PICKER_ANSWER_TIMEOUT_MS = 2000;
+
+/**
+ * Asks native whether to show the picker. A failed request, an answer the page can't read, or no answer within
+ * PICKER_ANSWER_TIMEOUT_MS skips the step. An answer that arrives after the timeout is ignored.
+ *
+ * @param {import("../src/index.js").OnboardingPage} messaging
+ * @param {number} [timeoutMs]
+ * @returns {Promise<Omit<import('./types').TopSitesPickerAnswerEvent, 'kind'>>}
+ */
+async function askTopSitesPicker(messaging, timeoutMs = PICKER_ANSWER_TIMEOUT_MS) {
+    /** @type {ReturnType<typeof setTimeout> | undefined} */
+    let timer;
+    const timeout = new Promise((resolve) => {
+        timer = setTimeout(() => resolve(null), timeoutMs);
+    });
+    try {
+        const answer = await Promise.race([messaging.shouldShowTopSitesPicker(), timeout]);
+        if (answer === null) console.warn(`shouldShowTopSitesPicker got no answer within ${timeoutMs}ms, skipping the picker`);
+        if (answer?.show !== true) return { show: false };
+        return {
+            show: true,
+            existingFavorites: Array.isArray(answer.existingFavorites) ? answer.existingFavorites : undefined,
+        };
+    } catch (e) {
+        console.warn('shouldShowTopSitesPicker failed, skipping the picker', e);
+        return { show: false };
+    } finally {
+        clearTimeout(timer);
+    }
 }
 
 /**

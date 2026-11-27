@@ -49,6 +49,8 @@ export function useStepConfig() {
     const dismiss = () => dispatch({ kind: 'dismiss' });
     /** @param {import('../../types').SubmitQueryParams} params */
     const submitQuery = (params) => dispatch({ kind: 'submit-query', params });
+    /** @param {import('../../types').AddFavoritesParams} params */
+    const addFavorites = (params) => dispatch({ kind: 'add-favorites', params });
     const onTitleComplete = () => dispatch({ kind: 'title-complete' });
 
     /** @type {(id: import('../../types').SystemValueId, payload: import('../../types').SystemValue, current: boolean) => void} */
@@ -70,6 +72,7 @@ export function useStepConfig() {
         enqueueNext,
         dismiss,
         submitQuery,
+        addFavorites,
         onTitleComplete,
         updateSystemValue,
         isShortViewport,

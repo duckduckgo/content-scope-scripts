@@ -11,6 +11,7 @@ import { SystemSettingsBackground, SystemSettingsForeground } from '../component
 import { FadeTransition } from '../components/FadeTransition';
 import { DockInstructionsContent } from '../components/DockInstructionsContent';
 import { SearchOrChatContent } from '../components/SearchOrChatContent';
+import { TopSitesPickerContent } from '../components/TopSitesPickerContent';
 
 /**
  * This sets up individual steps in the v4 (bubbles) version of onboarding
@@ -120,6 +121,29 @@ export const stepsConfig = {
             bottomBubble: { content: <SettingsContent advance={enqueueNext} dismiss={dismiss} updateSystemValue={updateSystemValue} /> },
             showProgress: true,
             bounceKey: `${activeStep}-${activeRow}`,
+        };
+    },
+    // Only shown to clients that list it in `init.steps`.
+    topSitesPicker: ({ t, globalState, addFavorites, enqueueNext, dismiss, onTitleComplete }) => {
+        const { order, activeStep } = globalState;
+        const step = /** @type {import('../../types').TopSitesPickerStep} */ (globalState.step);
+        // With no step after the picker, Add and Skip finish onboarding, as they would hit the end of the order
+        const isLastStep = order[order.length - 1] === activeStep;
+        return {
+            topBubble: {
+                content: (
+                    <StepHeader
+                        title={t('topSitesPicker_title')}
+                        subtitle={t('topSitesPicker_subtitle')}
+                        onTitleComplete={onTitleComplete}
+                    />
+                ),
+            },
+            bottomBubble: {
+                content: <TopSitesPickerContent step={step} addFavorites={addFavorites} advance={isLastStep ? dismiss : enqueueNext} />,
+            },
+            showProgress: true,
+            bubbleWidth: 'topSitesPicker',
         };
     },
     addressBarMode: ({ t, globalState, enqueueNext, dismiss, onTitleComplete, updateSystemValue }) => {
@@ -303,5 +327,65 @@ export const stepDefinitions = {
     searchOrChat: {
         id: 'searchOrChat',
         kind: 'info',
+    },
+    topSitesPicker: {
+        id: 'topSitesPicker',
+        kind: 'info',
+        // The experiment's list. Each id keys the site's copy and bundled icon. Gmail and Outlook use the hosts
+        // their short domains redirect to, so they match the favorites people import. Settings.withResolvedSiteUrls
+        // resolves each url (see site-urls.js). Amazon stores follow no pattern, so they're listed by OS region, and
+        // any other region gets amazon.com, where Amazon offers to switch store. Wikipedia editions follow the
+        // language, so a template covers every one of them.
+        sites: [
+            { id: 'gmail', url: 'https://mail.google.com', title: 'Gmail', section: 'email' },
+            { id: 'outlook', url: 'https://outlook.live.com', title: 'Outlook', section: 'email' },
+            { id: 'yahooMail', url: 'https://mail.yahoo.com', title: 'Yahoo Mail', section: 'email' },
+            { id: 'youtube', url: 'https://www.youtube.com', title: 'YouTube', section: 'popular' },
+            { id: 'reddit', url: 'https://www.reddit.com', title: 'Reddit', section: 'popular' },
+            { id: 'facebook', url: 'https://www.facebook.com', title: 'Facebook', section: 'popular' },
+            { id: 'netflix', url: 'https://www.netflix.com', title: 'Netflix', section: 'popular' },
+            { id: 'bbcNews', url: 'https://www.bbc.com/news', title: 'BBC News', section: 'popular' },
+            {
+                id: 'wikipedia',
+                url: 'https://en.wikipedia.org',
+                urlTemplate: 'https://{locale}.wikipedia.org',
+                title: 'Wikipedia',
+                section: 'popular',
+            },
+            {
+                id: 'amazon',
+                url: 'https://www.amazon.com',
+                urlByRegion: {
+                    CA: 'https://www.amazon.ca',
+                    MX: 'https://www.amazon.com.mx',
+                    BR: 'https://www.amazon.com.br',
+                    GB: 'https://www.amazon.co.uk',
+                    IE: 'https://www.amazon.ie',
+                    DE: 'https://www.amazon.de',
+                    AT: 'https://www.amazon.de',
+                    CH: 'https://www.amazon.de',
+                    FR: 'https://www.amazon.fr',
+                    IT: 'https://www.amazon.it',
+                    ES: 'https://www.amazon.es',
+                    PT: 'https://www.amazon.es',
+                    NL: 'https://www.amazon.nl',
+                    BE: 'https://www.amazon.com.be',
+                    SE: 'https://www.amazon.se',
+                    PL: 'https://www.amazon.pl',
+                    TR: 'https://www.amazon.com.tr',
+                    IN: 'https://www.amazon.in',
+                    JP: 'https://www.amazon.co.jp',
+                    SG: 'https://www.amazon.sg',
+                    AU: 'https://www.amazon.com.au',
+                    NZ: 'https://www.amazon.com.au',
+                    AE: 'https://www.amazon.ae',
+                    SA: 'https://www.amazon.sa',
+                },
+                title: 'Amazon',
+                section: 'popular',
+            },
+        ],
+        // Native sends these in its shouldShowTopSitesPicker answer.
+        existingFavorites: [],
     },
 };

@@ -16,6 +16,7 @@ export type StepID =
   | "makeDefaultSingle"
   | "duckPlayerSingle"
   | "customize"
+  | "topSitesPicker"
   | "addressBarMode"
   | "searchOrChat";
 
@@ -24,6 +25,7 @@ export type StepID =
  */
 export interface OnboardingMessages {
   notifications:
+    | AddFavoritesNotification
     | DismissToAddressBarNotification
     | DismissToSettingsNotification
     | ReportInitExceptionNotification
@@ -38,8 +40,60 @@ export interface OnboardingMessages {
     | StepCompletedNotification
     | SubmitQueryNotification
     | TelemetryEventNotification;
-  requests: InitRequest | RequestDockOptInRequest | RequestImportRequest | RequestSetAsDefaultRequest;
+  requests:
+    | InitRequest
+    | RequestDockOptInRequest
+    | RequestImportRequest
+    | RequestSetAsDefaultRequest
+    | ShouldShowTopSitesPickerRequest;
   subscriptions: OnConfigUpdateSubscription;
+}
+/**
+ * Generated from @see "../messages/addFavorites.notify.json"
+ */
+export interface AddFavoritesNotification {
+  method: "addFavorites";
+  params: AddFavorites;
+}
+/**
+ * Sent once when the user clicks Add to Favorites on the topSitesPicker step. Native creates a favorite for each site, with its title, and uses its id to find the bundled icon. Skip sends nothing.
+ */
+export interface AddFavorites {
+  /**
+   * The picked sites, in the order the picker shows them
+   *
+   * @minItems 1
+   */
+  favorites: [
+    {
+      /**
+       * The site's id from the picker's sites
+       */
+      id: string;
+      /**
+       * The URL to save as the favorite
+       */
+      url: string;
+      /**
+       * The site's name from the picker's sites, to use as the favorite's title
+       */
+      title: string;
+    },
+    ...{
+      /**
+       * The site's id from the picker's sites
+       */
+      id: string;
+      /**
+       * The URL to save as the favorite
+       */
+      url: string;
+      /**
+       * The site's name from the picker's sites, to use as the favorite's title
+       */
+      title: string;
+    }[]
+  ];
 }
 /**
  * Generated from @see "../messages/dismissToAddressBar.notify.json"
@@ -222,6 +276,10 @@ export interface InitResponse {
    */
   env?: "development" | "production";
   locale?: string;
+  /**
+   * The OS region as an ISO 3166-1 alpha-2 code (e.g. "GB"). The Top Sites picker uses it to look up each site's urlByRegion entry. A site keeps its url when the region is missing or has no entry.
+   */
+  region?: string;
   platform?: {
     name: "macos" | "windows" | "android" | "ios";
   };
@@ -230,7 +288,49 @@ export interface InitResponse {
  * Per-step overrides keyed by step ID, for example `{ "systemSettings": { "rows": ["dock", "import"] } }`. Each entry is merged over the page's default definition for that step. Entries for steps that aren't in the running order are ignored.
  */
 export interface StepDefinitions {
+  topSitesPicker?: TopSitesPickerStep;
   [k: string]: unknown;
+}
+/**
+ * Overrides for the topSitesPicker step. Each field replaces the page's default as a whole.
+ */
+export interface TopSitesPickerStep {
+  /**
+   * The suggested sites, in display order. The page groups them by section. Every id needs a bundled icon and translated copy, so a new site still needs a page release.
+   */
+  sites?: TopSitesPickerSite[];
+  /**
+   * URLs of the favorites the user already has, filled in from the shouldShowTopSitesPicker answer. Never more than 4, because native answers no at 5 or more. A suggested site matches a favorite when their hostnames match after dropping a leading "www.". A site whose URL has a path, such as https://www.bbc.com/news, also needs the favorite's path to be that path or a path below it. The page shows matching sites as picked and locked, and leaves them out of addFavorites. Unparseable URLs are skipped.
+   */
+  existingFavorites?: string[];
+}
+export interface TopSitesPickerSite {
+  /**
+   * Stable key for the site's copy, its bundled icon and the addFavorites message
+   */
+  id: string;
+  /**
+   * The URL saved as the favorite when neither urlByRegion nor urlTemplate gives one
+   */
+  url: string;
+  /**
+   * URLs to save instead of url, keyed by the OS region native sends as init.region, as an upper-case ISO 3166-1 alpha-2 code. Checked before urlTemplate.
+   */
+  urlByRegion?: {
+    [k: string]: string;
+  };
+  /**
+   * A URL with a {locale} placeholder, for a site whose URLs follow the language. The page fills it with its two-letter lower-case language code. It's used when urlByRegion has no match, and skipped when the locale isn't a two-letter code.
+   */
+  urlTemplate?: string;
+  /**
+   * The site's name, shown on its tile and used as the favorite's title
+   */
+  title: string;
+  /**
+   * The group the tile appears in
+   */
+  section: "email" | "popular";
 }
 /**
  * Generated from @see "../messages/requestDockOptIn.request.json"
@@ -256,6 +356,26 @@ export interface RequestSetAsDefaultRequest {
   result: {
     [k: string]: unknown;
   };
+}
+/**
+ * Generated from @see "../messages/shouldShowTopSitesPicker.request.json"
+ */
+export interface ShouldShowTopSitesPickerRequest {
+  method: "shouldShowTopSitesPicker";
+  result: TopSitesPickerAnswer;
+}
+/**
+ * Whether to show the topSitesPicker step, sent right before the user would reach it. Native shows it only when the user is under the favorites threshold and enrolled in the treatment cohort.
+ */
+export interface TopSitesPickerAnswer {
+  /**
+   * true shows the picker. false drops it, and the page moves on to the step after it, or ends onboarding with dismissToAddressBar when the picker is the last step.
+   */
+  show: boolean;
+  /**
+   * URLs of the favorites the user already has. The page merges them into the picker's step definition (see TopSitesPickerStep.existingFavorites). Ignored when show is false.
+   */
+  existingFavorites?: string[];
 }
 /**
  * Generated from @see "../messages/onConfigUpdate.subscribe.json"
