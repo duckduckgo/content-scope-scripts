@@ -28,6 +28,7 @@ import {
     WindowsRequestMessage,
 } from './lib/windows.js';
 import { WebkitMessagingConfig, WebkitMessagingTransport } from './lib/webkit.js';
+import { randomUUID } from '../injected/src/captured-globals.js';
 import { NotificationMessage, RequestMessage, Subscription, MessageResponse, MessageError, SubscriptionEvent } from './schema.js';
 import { AndroidMessagingConfig, AndroidMessagingTransport } from './lib/android.js';
 import { AndroidAdsjsMessagingConfig, AndroidAdsjsMessagingTransport } from './lib/android-adsjs.js';
@@ -112,7 +113,7 @@ export class Messaging {
      * @return {Promise<any>}
      */
     request(name, data = {}) {
-        const id = globalThis?.crypto?.randomUUID?.() || name + '.response';
+        const id = randomUUID?.() || name + '.response';
         const message = new RequestMessage({
             context: this.messagingContext.context,
             featureName: this.messagingContext.featureName,

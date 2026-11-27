@@ -994,6 +994,10 @@ export const platformSpecificFeatures = [
     'chromeWebstorePatching',
     'selectionTools',
     'pageTranslation', // native triggers it; runs without a config entry and on sites with protections off
+    // iOS site permissions stay inert until native code injects their settings
+    'sitePermissionsGeolocation',
+    'sitePermissionsGeolocationPolicy',
+    'sitePermissionsMediaCapture',
 ];
 /**
  * Features that bypass exception-based disabling in computeEnabledFeatures.

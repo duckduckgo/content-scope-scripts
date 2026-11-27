@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RequestPermissionResponse",
+  "type": "object",
+  "required": [
+    "decision"
+  ],
+  "properties": {
+    "decision": {
+      "type": "string",
+      "enum": [
+        "allow",
+        "deny",
+        "bypass"
+      ],
+      "description": "`allow` and `bypass` call WebKit's getUserMedia; anything else rejects with NotAllowedError."
+    }
+  }
+}

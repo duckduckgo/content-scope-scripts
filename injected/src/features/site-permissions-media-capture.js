@@ -1,0 +1,266 @@
+import ContentFeature from '../content-feature.js';
+import { isBeingFramed, matchHostname } from '../utils.js';
+import {
+    CustomEvent as NativeCustomEvent,
+    DOMException as NativeDOMException,
+    Event as NativeEvent,
+    EventTarget as NativeEventTarget,
+    Promise as NativePromise,
+    addEventListener as addWindowEventListener,
+    ReflectApply as apply,
+    getOwnPropertyDescriptor,
+    objectDefineProperty as defineProperty,
+    objectGetPrototypeOf as getPrototypeOf,
+    promiseReject as rejectPromise,
+} from '../captured-globals.js';
+import { callThen, embeddingFrameAllows, mediaCapturePolicyEvent, permissionsPolicy, randomHexToken } from './site-permissions/shared.js';
+
+/**
+ * Delays a website's getUserMedia call so the iOS app can ask for site permission first.
+ *
+ * WebKit can request iOS camera/microphone authorization before calling WKUIDelegate's
+ * media-permission method, so that delegate alone cannot provide the required prompt order.
+ *
+ * This feature runs at document start in each frame's page world. It sends the requested
+ * types and frame eligibility to native code, then waits for the reply. Native code owns
+ * the saved choices, dialogs, and OS authorization, and records a short-lived approval
+ * before replying `allow`; WebKit's later WKUIDelegate callback consumes that approval.
+ * A `bypass` reply restores WebKit's flow on iOS 15 or for the Duck.ai
+ * exception. Native code activates this feature by injecting the `capability` setting,
+ * which authenticates every message.
+ */
+export default class SitePermissionsMediaCapture extends ContentFeature {
+    load() {
+        const capability = this.getFeatureSetting('capability');
+        const messageSecret = /** @type {{ messageSecret?: unknown } | undefined} */ (this.args)?.messageSecret;
+        if (typeof capability !== 'string' || capability.length === 0 || typeof messageSecret !== 'string' || messageSecret.length === 0) {
+            return;
+        }
+
+        // Save native methods before page scripts can replace them.
+        const messaging = this.messaging;
+        const toBoolean = Boolean;
+        const dispatchEventOn = NativeEventTarget.prototype.dispatchEvent;
+        const preventDefault = NativeEvent.prototype.preventDefault;
+        const mediaDevices = navigator.mediaDevices;
+        const prototype = mediaDevices && getPrototypeOf(mediaDevices);
+        const descriptor = prototype && getOwnPropertyDescriptor(prototype, 'getUserMedia');
+        const nativeGetUserMedia = descriptor && descriptor.value;
+        const permissions = navigator.permissions;
+        const queryPermission = permissions?.query;
+        const permissionState = globalThis.PermissionStatus && getOwnPropertyDescriptor(PermissionStatus.prototype, 'state')?.get;
+
+        if (typeof nativeGetUserMedia !== 'function') {
+            return;
+        }
+
+        const nonce = randomHexToken();
+        if (nonce === null) {
+            return;
+        }
+        const origin = globalThis.origin;
+        const locationProtocol = globalThis.location.protocol;
+        const isSecureContext = globalThis.isSecureContext === true;
+        const hostname = globalThis.location.hostname.toLowerCase();
+        const isDuckAIHost = hostname === 'duck.ai' || matchHostname(hostname, 'duckduckgo.com');
+        const hasNonOpaqueOrigin = origin !== 'null' && origin.length > 0;
+        const isSyntheticDocument = locationProtocol === 'about:';
+        const isTopLevel = !isBeingFramed();
+        // Native code checks that the request still belongs to the committed top-level page.
+        const ancestorOrigins = globalThis.location.ancestorOrigins;
+        const topOrigin = isTopLevel ? origin : (ancestorOrigins?.[ancestorOrigins.length - 1] ?? 'null');
+        // Compare with every ancestor, not only the top-level page: a frame can share the top-level
+        // origin and still sit inside a cross-origin frame (a.example → b.example → a.example).
+        // Whenever any ancestor is cross-origin, rely on WebKit's Permissions API for the whole
+        // chain's delegation. Top-level pages have no ancestors.
+        const hasCrossOriginAncestor = (() => {
+            for (let index = 0; index < (ancestorOrigins?.length ?? 0); index += 1) {
+                if (ancestorOrigins[index] !== origin) {
+                    return true;
+                }
+            }
+            return false;
+        })();
+        // WebKit owns each document's effective sandbox restrictions, including after navigation.
+        // An allow-same-origin sandbox may request media; opaque origins are marked ineligible.
+        const policy = permissionsPolicy();
+        const allowsFeature = policy?.allowsFeature;
+        const hasPolicyIntrospection = typeof allowsFeature === 'function';
+        // Some WebKit versions don't expose whether an embedded page (iframe) may use media.
+        // Fall back to the iframe's allow attribute, and keep the parent's restrictions for nested
+        // frames. Like WebKit, use the embedding attributes from when this document loaded; a later
+        // change applies on the next navigation. Read the local rules and the parent reference now,
+        // before page scripts can replace them; only the parent's answer waits for the first request.
+        // A parent without this feature never answers, which fails closed.
+        // This is a best-effort precheck; WebKit makes the final capture decision.
+        const parentWindow = globalThis.parent;
+        /**
+         * @param {'camera' | 'microphone'} feature
+         */
+        const localPolicyAllows = (feature) => {
+            if (hasPolicyIntrospection || hasCrossOriginAncestor) {
+                return false;
+            }
+            if (isTopLevel) {
+                return true;
+            }
+            try {
+                return embeddingFrameAllows(globalThis.window, feature, { mediaCapture: true });
+            } catch (_) {
+                return false;
+            }
+        };
+        const localCameraAllowed = localPolicyAllows('camera');
+        const localMicrophoneAllowed = localPolicyAllows('microphone');
+        /**
+         * @param {'camera' | 'microphone'} feature
+         */
+        const fallbackPolicyAllows = (feature) => {
+            if (!(feature === 'camera' ? localCameraAllowed : localMicrophoneAllowed)) {
+                return false;
+            }
+            if (isTopLevel) {
+                return true;
+            }
+            try {
+                const question = new NativeCustomEvent(mediaCapturePolicyEvent(feature, messageSecret), { cancelable: true });
+                return !apply(dispatchEventOn, parentWindow, [question]);
+            } catch (_) {
+                return false;
+            }
+        };
+        /** @type {boolean | undefined} */
+        let fallbackCameraAllowed;
+        /** @type {boolean | undefined} */
+        let fallbackMicrophoneAllowed;
+        /**
+         * @param {'camera' | 'microphone'} feature
+         */
+        const policyAllows = (feature) => {
+            if (!hasPolicyIntrospection) {
+                if (feature === 'camera') {
+                    fallbackCameraAllowed ??= fallbackPolicyAllows('camera');
+                    return fallbackCameraAllowed;
+                }
+                fallbackMicrophoneAllowed ??= fallbackPolicyAllows('microphone');
+                return fallbackMicrophoneAllowed;
+            }
+            try {
+                return toBoolean(apply(allowsFeature, policy, [feature]));
+            } catch (_) {
+                return false;
+            }
+        };
+        for (const feature of /** @type {const} */ (['camera', 'microphone'])) {
+            addWindowEventListener(mediaCapturePolicyEvent(feature, messageSecret), (event) => {
+                if (policyAllows(feature)) {
+                    apply(preventDefault, event, []);
+                }
+            });
+        }
+        // A cross-origin frame can't read its iframe's allow attribute, but WebKit's Permissions API
+        // reports "denied" for a feature the embedding pages didn't delegate to it. Resolve only a
+        // promise made with the saved constructor: the page can change how derived promises are built.
+        /**
+         * @param {('camera' | 'microphone')[]} features
+         * @returns {Promise<boolean>}
+         */
+        const delegationAllows = (features) =>
+            new NativePromise((resolve) => {
+                /** @param {number} index */
+                const check = (index) => {
+                    if (index === features.length) {
+                        resolve(true);
+                        return;
+                    }
+                    if (typeof queryPermission !== 'function' || typeof permissionState !== 'function') {
+                        resolve(false);
+                        return;
+                    }
+                    try {
+                        void callThen(
+                            apply(queryPermission, permissions, [{ name: features[index] }]),
+                            (/** @type {PermissionStatus} */ status) =>
+                                apply(permissionState, status, []) === 'denied' ? resolve(false) : check(index + 1),
+                            () => resolve(false),
+                        );
+                    } catch (_) {
+                        resolve(false);
+                    }
+                };
+                check(0);
+            });
+        let nextRequestID = 0;
+
+        const permissionDenied = () => new NativeDOMException('Permission denied', 'NotAllowedError');
+        /**
+         * @this {MediaDevices}
+         * @param {MediaStreamConstraints} [constraints]
+         */
+        const getUserMedia = function (constraints) {
+            if (constraints === null || (typeof constraints !== 'object' && typeof constraints !== 'function')) {
+                return apply(nativeGetUserMedia, this, arguments);
+            }
+
+            /** @type {MediaStreamConstraints['video']} */
+            let rawVideo;
+            /** @type {MediaStreamConstraints['audio']} */
+            let rawAudio;
+            // Read getters once so native code approves the same media types that WebKit receives.
+            try {
+                rawVideo = constraints.video;
+                rawAudio = constraints.audio;
+            } catch (error) {
+                return rejectPromise(error);
+            }
+
+            // WebIDL converts a null member to empty track constraints, so null requests the media type.
+            const video = rawVideo === null || toBoolean(rawVideo);
+            const audio = rawAudio === null || toBoolean(rawAudio);
+            const capturedConstraints = { video: rawVideo, audio: rawAudio };
+            if (!video && !audio) {
+                return apply(nativeGetUserMedia, this, [capturedConstraints]);
+            }
+
+            // Send ineligible requests too: native code returns them to WebKit when site permissions is off.
+            const isEligibleContext =
+                this === mediaDevices &&
+                hasNonOpaqueOrigin &&
+                (isDuckAIHost ||
+                    (isSecureContext &&
+                        !isSyntheticDocument &&
+                        (hasCrossOriginAncestor || ((!video || policyAllows('camera')) && (!audio || policyAllows('microphone'))))));
+
+            nextRequestID += 1;
+            const requestID = `${nonce}:${nextRequestID}`;
+            /** @param {boolean} isEligible */
+            const post = (isEligible) =>
+                messaging.request('requestPermission', { capability, requestID, isEligible, topOrigin, video, audio });
+            /** @type {Promise<{ decision?: unknown }>} */
+            let bridgePromise;
+            try {
+                bridgePromise =
+                    !isEligibleContext || !hasCrossOriginAncestor || isDuckAIHost
+                        ? post(isEligibleContext)
+                        : callThen(delegationAllows(video && audio ? ['camera', 'microphone'] : [video ? 'camera' : 'microphone']), post);
+            } catch (_) {
+                return rejectPromise(permissionDenied());
+            }
+
+            return callThen(
+                bridgePromise,
+                (/** @type {{ decision?: unknown } | null} */ reply) => {
+                    if (reply && (reply.decision === 'allow' || reply.decision === 'bypass')) {
+                        return apply(nativeGetUserMedia, this, [capturedConstraints]);
+                    }
+                    throw permissionDenied();
+                },
+                () => {
+                    throw permissionDenied();
+                },
+            );
+        };
+
+        defineProperty(prototype, 'getUserMedia', { ...descriptor, value: getUserMedia });
+    }
+}
