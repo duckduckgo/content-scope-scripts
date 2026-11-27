@@ -1,0 +1,34 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RequestPermissionParams",
+  "description": "Asks native code whether a getUserMedia call may proceed. Ineligible requests are sent too, so native code can bypass when the feature is off.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "capability",
+    "requestID",
+    "isEligible",
+    "video",
+    "audio"
+  ],
+  "properties": {
+    "capability": {
+      "type": "string",
+      "description": "Native-provided token that authenticates the message; see the feature's `capability` setting."
+    },
+    "requestID": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{32}:[1-9][0-9]*$"
+    },
+    "isEligible": {
+      "type": "boolean",
+      "description": "Whether the frame passes the page-side checks: secure context, non-opaque origin, and permissions policy."
+    },
+    "video": {
+      "type": "boolean"
+    },
+    "audio": {
+      "type": "boolean"
+    }
+  }
+}
