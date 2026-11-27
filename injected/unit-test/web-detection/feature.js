@@ -77,6 +77,7 @@ describe('WebDetection feature', () => {
             ],
             [
                 'return error when condition mixes operator keys with leaf fields',
+                // @ts-expect-error - deliberately invalid config: the schema types reject operator keys mixed with leaf fields
                 detects({ text: { all: [{ pattern: 'foo' }], pattern: 'bar' } }),
                 {},
                 failed({ parse: 'error' }),

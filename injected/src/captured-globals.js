@@ -60,3 +60,28 @@ export const exportKey = globalThis.crypto?.subtle?.exportKey?.bind(globalThis.c
 export const importKey = globalThis.crypto?.subtle?.importKey?.bind(globalThis.crypto?.subtle);
 export const encrypt = globalThis.crypto?.subtle?.encrypt?.bind(globalThis.crypto?.subtle);
 export const decrypt = globalThis.crypto?.subtle?.decrypt?.bind(globalThis.crypto?.subtle);
+
+/** @type {unknown[]} */
+const NO_ARGS = [];
+
+/**
+ * Returns a reader for a property that calls the getter `prototype` has for `name` at the time of this call.
+ * Call it when the script loads, before page scripts run. A page that later replaces the property, on an object
+ * or on its prototype, cannot change what the reader returns.
+ *
+ * If `prototype` is missing or has no getter for `name`, the reader falls back to a plain property read,
+ * which a page can still override.
+ *
+ * @example
+ * const readFirstChild = captureGetter(NodePrototype, 'firstChild');
+ * readFirstChild(element);
+ *
+ * @param {object | undefined} prototype - the object that owns the getter, such as `NodePrototype`
+ * @param {string} name - the property name
+ * @returns {(target: any) => any}
+ */
+export function captureGetter(prototype, name) {
+    const getter = prototype && getOwnPropertyDescriptor(prototype, name)?.get;
+    if (!getter) return (target) => target[name];
+    return (target) => ReflectApply(getter, target, NO_ARGS);
+}

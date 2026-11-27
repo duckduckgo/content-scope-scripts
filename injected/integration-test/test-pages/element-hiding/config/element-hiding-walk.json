@@ -1,0 +1,57 @@
+{
+    "readme": "This config is used to test the element hiding feature with the walk empty check.",
+    "version": 1,
+    "unprotectedTemporary": [],
+    "features": {
+        "elementHiding": {
+            "state": "enabled",
+            "exceptions": [],
+            "settings": {
+                "emptyCheck": "walk",
+                "hideTimeouts": [0, 100, 300, 500, 1000, 2000, 3000],
+                "unhideTimeouts": [1250, 2250, 3000],
+                "adLabelStrings": ["advertisement", "sponsored", "ad\nlabel"],
+                "domains": [],
+                "rules": [
+                    {
+                        "selector": "div:::malformed-selector",
+                        "type": "hide-empty"
+                    },
+                    {
+                        "selector": ":ddg-nonexistent-pseudo-class",
+                        "type": "hide-empty"
+                    },
+                    {
+                        "selector": ".invalid-canary-test",
+                        "type": "hide-empty"
+                    },
+                    {
+                        "selector": ".invalid-list-test, div:::malformed-in-list",
+                        "type": "hide-empty"
+                    },
+                    {
+                        "selector": ".hide-test",
+                        "type": "hide"
+                    },
+                    {
+                        "selector": "#empty-check-walk-marker",
+                        "type": "hide"
+                    },
+                    {
+                        "selector": ".hide-empty-test",
+                        "type": "hide-empty"
+                    },
+                    {
+                        "selector": ".closest-empty-test",
+                        "type": "closest-empty"
+                    },
+                    {
+                        "selector": ".ad-container",
+                        "type": "override"
+                    }
+                ]
+            }
+        }
+    }
+}
+
