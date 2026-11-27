@@ -74,7 +74,12 @@ declare module 'ddg:platformFeatures' {
     type LoadArgs = import('./content-scope-features.js').LoadArgs;
     const output: Record<
         string,
-        new <K extends keyof FeatureMap>(featureName: K, importConfig: *, features: Partial<FeatureMap>, args: LoadArgs) => FeatureMap[K]
+        new <K extends keyof FeatureMap>(
+            featureName: K,
+            importConfig: unknown,
+            features: Partial<FeatureMap>,
+            args: LoadArgs,
+        ) => FeatureMap[K]
     >;
     export default output;
 }

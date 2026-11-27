@@ -9,7 +9,7 @@
             "settings": {
                 "hideTimeouts": [0, 100, 300, 500, 1000, 2000, 3000],
                 "unhideTimeouts": [1250, 2250, 3000],
-                "adLabelStrings": ["advertisement", "sponsored"],
+                "adLabelStrings": ["advertisement", "sponsored", "ad\nlabel"],
                 "domains": [],
                 "rules": [
                     {

@@ -28,6 +28,9 @@
     <!-- Results will be inserted here -->
     <div id="results-container"></div>
 
+    <!-- Hidden only by the walk config. Tells the tests below which empty check is running. -->
+    <div id="empty-check-walk-marker">walk marker</div>
+
     <!-- Hide rule test elements -->
     <div id="hide">
         <div class="container hide-test" id="hide-basic">
@@ -68,6 +71,91 @@
         <div class="container hide-empty-test" id="hide-empty-pixel-element">
             <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==" width='1' height='1'/>
         </div>
+        <div class="container hide-empty-test" id="hide-empty-noscript-pixel">
+            <noscript><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==" width="1" height="1"/></noscript>
+        </div>
+        <div class="container hide-empty-test" id="hide-empty-noscript-frame">
+            <noscript><iframe src="/element-hiding/pages/element-hiding.html?frame"></iframe></noscript>
+        </div>
+        <div class="container hide-empty-test" id="hide-empty-noscript-then-text">
+            <noscript><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==" width="1" height="1"/></noscript>
+            <div>Some real page content that should keep this element visible</div>
+        </div>
+        <div class="container hide-empty-test" id="hide-empty-deep-empty"></div>
+        <div class="container hide-empty-test" id="hide-empty-deep-text"></div>
+        <script>
+            // script-built trees can be far deeper than the HTML parser allows (it caps nesting)
+            for (const [id, text] of [['hide-empty-deep-empty', ''], ['hide-empty-deep-text', 'Real content at the bottom of a very deep tree']]) {
+                // kept out of rendering: Chrome itself crashes laying out a tree this deep
+                let el = document.getElementById(id).appendChild(document.createElement('div'));
+                el.style.display = 'none';
+                for (let i = 0; i < 5000; i++) el = el.appendChild(document.createElement('div'));
+                if (text) el.appendChild(document.createTextNode(text));
+            }
+        </script>
+        <script class="hide-empty-test" id="hide-empty-script-root">window.someAdQueue = window.someAdQueue || [];</script>
+        <div class="container hide-empty-test" id="hide-empty-ad-label-br">
+            <span>Advertisement</span><br>
+        </div>
+        <div class="container hide-empty-test" id="hide-empty-br-only">
+            <br>
+        </div>
+        <div class="container hide-empty-test" id="hide-empty-ad-label-newline">
+            <span>Ad
+label</span>
+        </div>
+        <div class="container hide-empty-test" id="hide-empty-ad-label-br-inside">
+            <span>Ad<br>label</span>
+        </div>
+        <div class="container hide-empty-test" id="hide-empty-ad-label-extra-whitespace">
+            <span>Ad  	 label</span>
+        </div>
+        <noscript class="hide-empty-test" id="hide-empty-noscript-root"><iframe src="/element-hiding/pages/frame.html"></iframe></noscript>
+        <div class="container hide-empty-test" id="hide-empty-under-node-cap"></div>
+        <div class="container hide-empty-test" id="hide-empty-over-node-cap"></div>
+        <script>
+            // the walk stops after 10,000 nodes and leaves the element visible
+            for (const [id, count] of [['hide-empty-under-node-cap', 9000], ['hide-empty-over-node-cap', 10050]]) {
+                const holder = document.getElementById(id).appendChild(document.createElement('div'));
+                holder.style.display = 'none';
+                for (let i = 0; i < count; i++) holder.appendChild(document.createElement('span'));
+            }
+        </script>
+        <div class="container hide-empty-test" id="hide-empty-parentnode-loop"><span id="hide-empty-parentnode-loop-child"></span></div>
+        <div class="container hide-empty-test" id="hide-empty-firstchild-override">Real content behind an overridden firstChild</div>
+        <script>
+            // A page can override tree properties. The walk reads the browser's own getters, so neither override
+            // can stall it (parentNode pointing at itself) or make it miss content (firstChild reporting null).
+            {
+                const child = document.getElementById('hide-empty-parentnode-loop-child');
+                Object.defineProperty(child, 'parentNode', { get: () => child });
+                const withContent = document.getElementById('hide-empty-firstchild-override');
+                Object.defineProperty(withContent, 'firstChild', { get: () => null });
+            }
+        </script>
+        <div class="container hide-empty-test" id="hide-empty-void-child">
+            <img id="hide-empty-void-child-img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==" width="1" height="1"/>
+        </div>
+        <div class="container hide-empty-test" id="hide-empty-shadow-open"><div id="hide-empty-shadow-open-host"></div></div>
+        <div class="container hide-empty-test" id="hide-empty-shadow-closed"><div id="hide-empty-shadow-closed-host"></div></div>
+        <script>
+            // img cannot have children in HTML, but a script can attach one. It is never rendered.
+            document.getElementById('hide-empty-void-child-img').appendChild(document.createTextNode('Text attached to an img by script'));
+            // neither check looks inside a shadow root, open or closed
+            for (const mode of ['open', 'closed']) {
+                const root = document.getElementById(`hide-empty-shadow-${mode}-host`).attachShadow({ mode });
+                root.appendChild(document.createElement('p')).textContent = 'Text inside a shadow root';
+            }
+        </script>
+        <div class="container hide-empty-test" id="hide-empty-custom-element-empty">
+            <my-ad-slot><my-ad-inner></my-ad-inner></my-ad-slot>
+        </div>
+        <div class="container hide-empty-test" id="hide-empty-custom-element-text">
+            <my-ad-slot><my-ad-inner>Real content in a custom element</my-ad-inner></my-ad-slot>
+        </div>
+        <svg class="hide-empty-test" id="hide-empty-svg-root" width="100" height="100">
+            <circle cx="50" cy="50" r="40" fill="blue"></circle>
+        </svg>
         <input class="hide-empty-test" id="hide-empty-input">
         <div class="container hide-empty-test" id="hide-empty-form-element">
             <form>
@@ -123,6 +211,21 @@
                 <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==" width='25' height='25'/>
             </div>
         </div>
+        <div id="closest-empty-chain">
+            <div id="closest-empty-chain-outermost">
+                <div>
+                    <div>
+                        <div>
+                            <div class="container closest-empty-test">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <span>Lorem Ipsum</span>
+            </div>
+        </div>
         <div id="closest-empty-delayed-parent">
         </div>
     </div>
@@ -141,6 +244,17 @@
             if (!element) return null;
             const boundingRect = element.getBoundingClientRect();
             return boundingRect.height === 0 && boundingRect.width === 0;
+        }
+
+        // True when the walk config is loaded: only that config hides the marker
+        function walkCheckIsOn() {
+            return isElementHidden('empty-check-walk-marker');
+        }
+
+        // hidden attribute or display:none, for elements that have no box of their own either way
+        function isMarkedHidden(elementId) {
+            const e = document.getElementById(elementId);
+            return e.hasAttribute('hidden') || e.style.display === 'none';
         }
 
         // Create an iframe element
@@ -257,6 +371,81 @@
                     expected: true
                 },
                 {
+                    name: "Element with noscript tracking pixel is hidden",
+                    result: isElementHidden('hide-empty-noscript-pixel'),
+                    expected: true
+                },
+                {
+                    name: "Element with noscript followed by real content is not hidden",
+                    result: isElementHidden('hide-empty-noscript-then-text'),
+                    expected: false
+                },
+                {
+                    name: "Very deep empty tree is hidden",
+                    result: isElementHidden('hide-empty-deep-empty'),
+                    expected: true
+                },
+                {
+                    name: "Very deep tree with text at the bottom is not hidden",
+                    result: isElementHidden('hide-empty-deep-text'),
+                    expected: false
+                },
+                {
+                    name: "Script tag matched by a rule is treated as empty",
+                    result: (() => { const e = document.getElementById('hide-empty-script-root'); return e.hasAttribute('hidden') || e.style.display === 'none'; })(),
+                    expected: true
+                },
+                {
+                    name: "Ad label followed by br is hidden",
+                    result: isElementHidden('hide-empty-ad-label-br'),
+                    expected: true
+                },
+                {
+                    name: "Element containing only a br is hidden",
+                    result: isElementHidden('hide-empty-br-only'),
+                    expected: true
+                },
+                {
+                    name: "Ad label containing a newline is hidden",
+                    result: isElementHidden('hide-empty-ad-label-newline'),
+                    expected: true
+                },
+                {
+                    name: "Element with empty custom elements is hidden",
+                    result: isElementHidden('hide-empty-custom-element-empty'),
+                    expected: true
+                },
+                {
+                    name: "Element with text in a custom element is not hidden",
+                    result: isElementHidden('hide-empty-custom-element-text'),
+                    expected: false
+                },
+                {
+                    name: "Matched svg root with no text is hidden",
+                    result: isElementHidden('hide-empty-svg-root'),
+                    expected: true
+                },
+                {
+                    name: "Empty element is hidden when a child's parentNode is overridden to point at itself",
+                    result: isElementHidden('hide-empty-parentnode-loop'),
+                    expected: true
+                },
+                {
+                    name: "Text attached by script to a void element (img) is ignored",
+                    result: isElementHidden('hide-empty-void-child'),
+                    expected: true
+                },
+                {
+                    name: "Content only inside an open shadow root is not seen (existing behaviour of both checks)",
+                    result: isElementHidden('hide-empty-shadow-open'),
+                    expected: true
+                },
+                {
+                    name: "Content only inside a closed shadow root is not seen (existing behaviour of both checks)",
+                    result: isElementHidden('hide-empty-shadow-closed'),
+                    expected: true
+                },
+                {
                     name: "Element with tracking pixel is hidden",
                     result: isElementHidden('hide-empty-pixel-element'),
                     expected: true
@@ -273,6 +462,11 @@
             await new Promise(resolve => setTimeout(resolve, 100));
             
             return [
+                {
+                    name: "Element with content is NOT hidden when its firstChild is overridden to report null",
+                    result: isElementHidden('hide-empty-firstchild-override'),
+                    expected: false
+                },
                 {
                     name: "Element with text content is NOT hidden",
                     result: isElementHidden('hide-empty-text-content'),
@@ -321,6 +515,45 @@
             ];
         });
 
+        // The cases where the two empty checks are meant to give different answers
+        test('Hide-empty rule tests - differ by empty check', async () => {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            const walk = walkCheckIsOn();
+
+            return [
+                {
+                    name: "Element with noscript iframe: walk skips noscript and hides, parser sees the iframe",
+                    result: isElementHidden('hide-empty-noscript-frame'),
+                    expected: walk
+                },
+                {
+                    name: "Matched noscript with an iframe inside: walk skips it and hides, parser sees the iframe",
+                    result: isMarkedHidden('hide-empty-noscript-root'),
+                    expected: walk
+                },
+                {
+                    name: "Ad label split by br: walk reads the br as a space and hides, parser in Chromium drops it",
+                    result: isElementHidden('hide-empty-ad-label-br-inside'),
+                    expected: walk
+                },
+                {
+                    name: "Ad label with extra whitespace: walk compacts it and hides, parser does not",
+                    result: isElementHidden('hide-empty-ad-label-extra-whitespace'),
+                    expected: walk
+                },
+                {
+                    name: "Empty element under the node cap is hidden by both",
+                    result: isElementHidden('hide-empty-under-node-cap'),
+                    expected: true
+                },
+                {
+                    name: "Empty element over the node cap: walk stops and keeps it visible, parser hides",
+                    result: isElementHidden('hide-empty-over-node-cap'),
+                    expected: !walk
+                }
+            ];
+        });
+
         test('Closest-empty rule tests - should be hidden', async () => {
             await new Promise(resolve => setTimeout(resolve, 100));
             
@@ -355,6 +588,16 @@
                 {
                     name: "Parent with non-empty siblings is NOT hidden",
                     result: isElementHidden('closest-empty-siblings-content-nested-div'),
+                    expected: false
+                },
+                {
+                    name: "Outermost of several empty ancestors is hidden",
+                    result: isElementHidden('closest-empty-chain-outermost'),
+                    expected: true
+                },
+                {
+                    name: "Non-empty parent of several empty ancestors is NOT hidden",
+                    result: isElementHidden('closest-empty-chain'),
                     expected: false
                 },
                 {
