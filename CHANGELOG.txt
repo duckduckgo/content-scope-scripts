@@ -1,1 +1,1 @@
-- SegmentSkip: update designs (#3246)
+- Add an extension messaging transport and a chrome-mv3 New Tab Page build (#3256)
