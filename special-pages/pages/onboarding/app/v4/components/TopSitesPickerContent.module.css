@@ -1,4 +1,4 @@
-/* Matches the Figma "Pick sites" frames. Favicons are a placeholder letter until the icon decision lands. */
+/* Matches the Figma "Pick sites" frames. Each site shows its bundled icon, or its first letter when none ships. */
 
 /*
  * Colours from the Figma frames. The onboarding set in @duckduckgo/design-tokens v1.2.0 lacks some of the tokens
@@ -124,6 +124,7 @@
     height: 50px;
     border-radius: 50%;
     background: var(--top-sites-picker-icon-background);
+    /* Text styles for the first-letter fallback when a site has no bundled icon */
     color: rgba(0, 0, 0, 0.84);
     font-size: calc(20 * var(--px-in-rem));
     font-weight: 700;
@@ -132,6 +133,13 @@
         width: 48px;
         height: 48px;
     }
+}
+
+/* The files are 64px, so 2x at this size */
+.favicon {
+    display: block;
+    width: 32px;
+    height: 32px;
 }
 
 /* Both badges sit centred on the same point near the icon's top right */
