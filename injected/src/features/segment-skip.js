@@ -218,6 +218,9 @@ export class SegmentSkip extends ContentFeature {
     #segments = [];
     /** @type {string | null} uuid of the segment the user seeked into; skipped manually even in auto mode */
     #seekedInto = null;
+    /** @type {{ start: number, end: number } | null} interval the user chose to watch after undo */
+    #undoPlayback = null;
+    #undoSeekPending = false;
     /** @type {HTMLElement | null} */
     #overlay = null;
     #renderedDuration = 0;
@@ -229,7 +232,7 @@ export class SegmentSkip extends ContentFeature {
     #skipButtonConcealTimer;
     /** @type {Segment | null} */
     #skipSegment = null;
-    /** @type {Segment | null} the segment skipped automatically, while the button offers to undo that */
+    /** @type {{ start: number, end: number } | null} interval skipped automatically, while the button offers to undo it */
     #undoSegment = null;
     /** @type {ReturnType<typeof setTimeout> | undefined} */
     #undoTimer;
@@ -327,7 +330,10 @@ export class SegmentSkip extends ContentFeature {
             },
             true,
         );
-        this.#doc.addEventListener('seeked', () => this.updateSkip(), true);
+        this.#doc.addEventListener('seeked', () => {
+            this.#undoSeekPending = false;
+            this.updateSkip();
+        }, true);
         // The skip button's countdown runs only while the video plays.
         for (const type of ['playing', 'pause', 'waiting']) this.#doc.addEventListener(type, () => this.updateSkip(), true);
         // seeking: fires only for jumps, never for natural playback, with the new position already set.
@@ -338,6 +344,10 @@ export class SegmentSkip extends ContentFeature {
     // lands past every segment it touches, so it never marks anything.
     markSeekedInto() {
         const video = getMainVideo(this.#doc);
+        const undoSeek = this.#undoSeekPending && video?.currentTime === this.#undoPlayback?.start;
+        this.#undoSeekPending = false;
+        if (undoSeek) return;
+        this.#undoPlayback = null;
         this.#seekedInto = video ? (segmentAt(this.validSegments(video.duration), video.currentTime)?.uuid ?? null) : null;
     }
 
@@ -371,6 +381,8 @@ export class SegmentSkip extends ContentFeature {
         if (videoID === this.#videoID) return;
         this.#videoID = videoID;
         this.#segments = [];
+        this.#undoPlayback = null;
+        this.#undoSeekPending = false;
         this.clearUndo();
         this.renderOverlay();
         this.updateSkip();
@@ -476,11 +488,12 @@ export class SegmentSkip extends ContentFeature {
         for (let next = segmentAt(segments, end); next; next = segmentAt(segments, end)) end = next.end;
         video.currentTime = end;
         this.hideSkipButton();
+        return end;
     }
 
     /**
-     * Offers to undo an automatic skip of `segment` for a few seconds.
-     * @param {Segment} segment
+     * Offers to undo an automatic skip for a few seconds.
+     * @param {{ start: number, end: number }} segment
      */
     offerUndo(segment) {
         clearTimeout(this.#undoTimer);
@@ -619,10 +632,14 @@ export class SegmentSkip extends ContentFeature {
             video && !video.ended && this.#segments.length && !this.inAd()
                 ? segmentAt(this.validSegments(video.duration), video.currentTime)
                 : null;
+        if (this.#undoPlayback && (!video || video.currentTime < this.#undoPlayback.start || video.currentTime >= this.#undoPlayback.end)) {
+            this.#undoPlayback = null;
+            this.#undoSeekPending = false;
+        }
         if (this.#skipSegment?.uuid !== this.#seekedInto) this.#seekedInto = null;
-        if (video && this.#skipSegment && this.#skipMode === 'auto' && !this.#seekedInto) {
-            this.skipTo(video, this.#skipSegment);
-            this.offerUndo(this.#skipSegment);
+        if (video && this.#skipSegment && this.#skipMode === 'auto' && !this.#seekedInto && !this.#undoPlayback) {
+            const end = this.skipTo(video, this.#skipSegment);
+            this.offerUndo({ start: this.#skipSegment.start, end });
             // Playback is past the segment now; fall through to show the undo button.
             this.#skipSegment = null;
         }
@@ -631,7 +648,7 @@ export class SegmentSkip extends ContentFeature {
         if (uuid !== this.#skipButtonTimedOut) this.#skipButtonTimedOut = null;
         // Inside a segment the skip button takes over from an undo offer.
         if (uuid) this.clearUndo();
-        const skippable = uuid && !this.#skipButtonTimedOut;
+        const skippable = uuid && !this.#skipButtonTimedOut && !this.#undoPlayback;
         // No undo over an ad: it plays in the same video element, so the tap would seek the ad.
         const kind = skippable ? 'skip' : this.#undoSegment && !this.inAd() ? 'undo' : null;
         this.#doc.documentElement.toggleAttribute(BUSY_ATTR, Boolean(uuid || kind));
@@ -705,8 +722,8 @@ export class SegmentSkip extends ContentFeature {
                 // Going back is a choice to watch the segment: no auto skip and no skip button until playback leaves it.
                 this.clearUndo();
                 this.hideSkipButton();
-                this.#seekedInto = undo.uuid;
-                this.#skipButtonTimedOut = undo.uuid;
+                this.#undoPlayback = undo;
+                this.#undoSeekPending = true;
                 video.currentTime = undo.start;
                 return;
             }
