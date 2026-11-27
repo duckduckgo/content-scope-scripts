@@ -26,7 +26,8 @@
     </head>
     <body>
         <p>Fake YouTube player. Served under a youtube.com URL by the test, since the feature only acts on YouTube hosts.</p>
-        <div id="movie_player" class="html5-video-player">
+        <!-- Starts with YouTube's controls faded out (ytp-autohide), so the skip button shows; tests toggle it. -->
+        <div id="movie_player" class="html5-video-player ytp-autohide">
             <video class="html5-main-video" src="/segment-skip/video.webm" muted preload="auto"></video>
             <div class="ytp-progress-bar-container"><div class="ytp-progress-bar"></div></div>
         </div>
@@ -36,6 +37,9 @@
             if (location.pathname.startsWith('/embed/')) {
                 const controls = document.createElement('div');
                 controls.id = 'player-controls';
+                // Like the real embed, the player fills the frame and the layer covers it.
+                document.querySelector('p').remove();
+                document.body.style.margin = '0';
                 controls.style.cssText = 'position: fixed; top: 0; left: 0; width: 320px; height: 180px';
                 const bottomRow = document.createElement('div');
                 bottomRow.className = 'player-controls-bottom';

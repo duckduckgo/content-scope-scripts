@@ -1,0 +1,14 @@
+{
+    "readme": "Config for segmentSkip integration tests: controls-visible check turned off with an empty selector list.",
+    "version": 1,
+    "features": {
+        "segmentSkip": {
+            "state": "enabled",
+            "exceptions": [],
+            "settings": {
+                "controlsVisibleSelectors": []
+            }
+        }
+    },
+    "unprotectedTemporary": []
+}
