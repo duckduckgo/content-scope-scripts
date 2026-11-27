@@ -389,11 +389,13 @@ test.describe('SegmentSkip', () => {
     });
 
     test('auto mode: undo plays through overlapping and touching segments, then skips again', async ({ page }, testInfo) => {
-        const segments = { segments: [
-            { start: 2, end: 4, category: 'sponsor', actionType: 'skip', uuid: 'a', videoDuration: 12 },
-            { start: 3, end: 5, category: 'sponsor', actionType: 'skip', uuid: 'b', videoDuration: 12 },
-            { start: 5, end: 7, category: 'sponsor', actionType: 'skip', uuid: 'c', videoDuration: 12 },
-        ] };
+        const segments = {
+            segments: [
+                { start: 2, end: 4, category: 'sponsor', actionType: 'skip', uuid: 'a', videoDuration: 12 },
+                { start: 3, end: 5, category: 'sponsor', actionType: 'skip', uuid: 'b', videoDuration: 12 },
+                { start: 5, end: 7, category: 'sponsor', actionType: 'skip', uuid: 'c', videoDuration: 12 },
+            ],
+        };
         await loadPlayer(page, testInfo, { responses: { getConfig: CONFIG_AUTO, getSegments: segments } });
         await expect(page.locator(MARKER)).toHaveCount(3);
         await seekTo(page, 1.5);
@@ -410,10 +412,12 @@ test.describe('SegmentSkip', () => {
     });
 
     test('auto mode: a manual seek after undo restores the skip button', async ({ page }, testInfo) => {
-        const segments = { segments: [
-            { start: 2, end: 4, category: 'sponsor', actionType: 'skip', uuid: 'a', videoDuration: 12 },
-            { start: 4, end: 7, category: 'sponsor', actionType: 'skip', uuid: 'b', videoDuration: 12 },
-        ] };
+        const segments = {
+            segments: [
+                { start: 2, end: 4, category: 'sponsor', actionType: 'skip', uuid: 'a', videoDuration: 12 },
+                { start: 4, end: 7, category: 'sponsor', actionType: 'skip', uuid: 'b', videoDuration: 12 },
+            ],
+        };
         await loadPlayer(page, testInfo, { responses: { getConfig: CONFIG_AUTO, getSegments: segments } });
         await expect(page.locator(MARKER)).toHaveCount(2);
         await seekTo(page, 1.5);

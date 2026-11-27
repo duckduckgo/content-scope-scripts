@@ -330,10 +330,14 @@ export class SegmentSkip extends ContentFeature {
             },
             true,
         );
-        this.#doc.addEventListener('seeked', () => {
-            this.#undoSeekPending = false;
-            this.updateSkip();
-        }, true);
+        this.#doc.addEventListener(
+            'seeked',
+            () => {
+                this.#undoSeekPending = false;
+                this.updateSkip();
+            },
+            true,
+        );
         // The skip button's countdown runs only while the video plays.
         for (const type of ['playing', 'pause', 'waiting']) this.#doc.addEventListener(type, () => this.updateSkip(), true);
         // seeking: fires only for jumps, never for natural playback, with the new position already set.
