@@ -1,0 +1,20 @@
+{
+  "smartling": {
+    "string_format": "icu",
+    "translate_paths": [
+      {
+        "path": "*/title",
+        "key": "{*}/title",
+        "instruction": "*/note"
+      }
+    ]
+  },
+  "skipButton": {
+    "title": "Skip",
+    "note": "Button shown over a YouTube video while a sponsored segment plays; tapping it jumps past the segment. Keep it short: it sits between two small icons."
+  },
+  "undoSkipButton": {
+    "title": "Undo Skip",
+    "note": "Same button, shown for a few seconds after a sponsored segment was skipped automatically; tapping it goes back to the start of the segment. Keep it short: it sits between two small icons."
+  }
+}
