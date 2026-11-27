@@ -1,1 +1,1 @@
-- Element hiding: add a walk-based empty check behind the emptyCheck setting (#3257)
+- SegmentSkip: update designs (#3246)
