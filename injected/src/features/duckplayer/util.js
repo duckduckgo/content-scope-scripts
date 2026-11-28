@@ -160,7 +160,7 @@ export class VideoParams {
             return null;
         }
 
-        let id = null;
+        let id;
 
         // known params
         const vParam = url.searchParams.get('v');

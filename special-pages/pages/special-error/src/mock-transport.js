@@ -7,12 +7,6 @@ export function mockTransport() {
         request(_msg) {
             window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
 
-            const searchParams = new URLSearchParams(window.location.search);
-            let errorId = searchParams.get('errorId');
-            if (!errorId || !sampleData[errorId]) {
-                errorId = 'ssl.invalid';
-            }
-
             /** @type {import('../types/special-error.js').SpecialErrorMessages['requests']} */
             const msg = /** @type {any} */ (_msg);
 

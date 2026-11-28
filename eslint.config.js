@@ -53,6 +53,8 @@ export default tseslint.config(
             ],
 
             'require-await': ['error'],
+            // Our `cb` callbacks are subscription listeners, not Node-style error-first callbacks.
+            'n/no-callback-literal': 'off',
             'promise/prefer-await-to-then': ['error'],
             '@typescript-eslint/no-unused-vars': [
                 'error',
