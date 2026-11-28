@@ -53,6 +53,8 @@ export class NativeReader {
      * @type {Map<PropertyKey, Map<object, CapturedRecord | null>>}
      */
     #records = new Map();
+    /** @type {WeakMap<object, Map<string, unknown>>} values pinned on objects, which reads give in place of the property */
+    #pinned = new WeakMap();
 
     /**
      * @param {object} global - the global object to capture from
@@ -173,6 +175,23 @@ export class NativeReader {
         }
     }
 
+    /**
+     * Pin a property's value on an object, so reads of it give this value: an event's `target` as it was
+     * during dispatch, which the DOM sets to `null` after dispatch in a shadow tree.
+     *
+     * @param {object} target
+     * @param {string} name
+     * @param {unknown} value
+     */
+    pin(target, name, value) {
+        let pinned = this.#pinned.get(target);
+        if (!pinned) {
+            pinned = new Map();
+            this.#pinned.set(target, pinned);
+        }
+        pinned.set(name, value);
+    }
+
     /** Start a run: records found from a prototype are looked up again. */
     beginRun() {
         this.#records.clear();
@@ -277,6 +296,10 @@ export class NativeReader {
      */
     read(target, name) {
         try {
+            if (typeof target === 'object' && target !== null) {
+                const pinned = this.#pinned.get(target);
+                if (pinned?.has(name)) return pinned.get(name);
+            }
             const record = this._captured(target, name);
             if (!record) {
                 // A primitive is read from its prototype, with itself as the getter's receiver

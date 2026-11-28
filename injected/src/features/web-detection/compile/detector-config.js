@@ -37,6 +37,7 @@ import { compileDetector } from './compile.js';
  * @typedef {object} Triggers
  * @property {TriggerBase} breakageReport - Whether to run in the breakage report flow
  * @property {AutoTrigger} auto - Whether to run automatically at specified intervals
+ * @property {TriggerBase} observe - Whether to run when an item of a type its `on` names arrives. The `on` bodies compile with the detector
  */
 
 /**
@@ -69,6 +70,7 @@ const DEFAULT_RUN_CONDITIONS = /** @type {import('../../../config-feature.js').C
  * - Detector is enabled
  * - breakageReport trigger is enabled, restricted to top frame
  * - auto trigger is disabled (opt-in only), restricted to top frame, no intervals
+ * - observe trigger is disabled (opt-in only), restricted to top frame
  *
  * @param {RawDetectorConfig} config
  * @returns {DetectorConfig}
@@ -92,8 +94,24 @@ function normalizeDetector(config) {
                 runConditions: /** @type {ConditionBlockOrArray} */ (config.triggers?.auto?.runConditions ?? DEFAULT_RUN_CONDITIONS),
                 when: { intervalMs: intervalsOf(config.triggers?.auto?.when) },
             },
+            // observe: disabled by default - detectors must opt in to running on arrivals
+            observe: {
+                state: observeOf(config.triggers)?.state ?? 'disabled',
+                runConditions: /** @type {ConditionBlockOrArray} */ (observeOf(config.triggers)?.runConditions ?? DEFAULT_RUN_CONDITIONS),
+            },
         },
     };
+}
+
+/**
+ * The `observe` trigger, read from raw triggers the schema types don't include yet.
+ *
+ * @param {unknown} triggers
+ * @returns {{ state?: FeatureState, runConditions?: unknown } | undefined}
+ */
+function observeOf(triggers) {
+    const observe = isPlainObject(triggers) ? triggers.observe : undefined;
+    return isPlainObject(observe) ? observe : undefined;
 }
 
 /**

@@ -115,6 +115,7 @@ export function evaluate(node, position, ctx) {
             case 'define':
             case 'fireEvent':
             case 'breakageReportData':
+            case 'done':
                 result = runAction(node, ctx);
                 break;
         }
@@ -384,6 +385,14 @@ function applyAction(node, ctx) {
         }
         (node.name.startsWith('this.') ? ctx.detectorNames : ctx.runNames).set(node.name, value);
         if (isScalar(value)) ctx.measured[node.name] = value;
+        return undefined;
+    }
+    if (node.kind === 'done') {
+        const value = evaluateOccurrence(node.value, ctx);
+        const held = isItemBuffer(value) ? presence(value) : value;
+        if (isFailure(held)) return held;
+        // `done`s in a run combine by OR, and one that held stays in effect whatever follows
+        if (held === true) ctx.done = true;
         return undefined;
     }
     const data = node.data && evaluatePayload(node.data, ctx);
