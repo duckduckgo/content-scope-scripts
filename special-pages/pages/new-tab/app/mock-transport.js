@@ -380,9 +380,8 @@ export function mockTransport() {
                         const int = setInterval(() => {
                             if (index === max) return clearInterval(int);
                             console.log({ index, max });
-                            cb({
-                                trackerCompanies: list.slice(0, index + 1),
-                            });
+                            const next = { trackerCompanies: list.slice(0, index + 1) };
+                            cb(next);
                             index++;
                         }, 200);
                         return () => {};

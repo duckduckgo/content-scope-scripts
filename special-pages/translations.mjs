@@ -39,6 +39,7 @@ async function processPage(path) {
             try {
                 json = JSON.parse(raw);
             } catch (e) {
+                // eslint-disable-next-line preserve-caught-error -- the tsconfig lib predates the Error cause option; the message carries the original error
                 throw new Error(`${e.name} in '${path}' ${e.name}\n  ${e.message}`);
             }
             return {

@@ -207,10 +207,10 @@ export function activityMockTransport() {
 
                     if (response.action === 'burn' && !window.__playwright_01) {
                         setTimeout(() => {
-                            const cb = subs.get('activity_onDataUpdate');
+                            const listener = subs.get('activity_onDataUpdate');
                             console.log('will send updated data after 500ms', url);
                             const next = activityMocks.few.activity.filter((x) => x.url !== url);
-                            cb?.({ activity: next });
+                            listener?.({ activity: next });
                         }, 500);
                         setTimeout(() => {
                             const cb = subs.get('activity_onBurnComplete');
