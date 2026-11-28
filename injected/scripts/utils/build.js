@@ -18,10 +18,11 @@ const prefixMessage = '/*! © DuckDuckGo ContentScopeScripts $INJECT_NAME$ https
  * @param {string[]} [params.featureNames]
  * @param {string} [params.name]
  * @param {boolean} [params.sourcemap] - Enable inline source maps for debugging
+ * @param {'iife' | 'esm'} [params.format] - 'esm' output has no banner: the caller wraps it
  * @return {Promise<string>}
  */
 export async function bundle(params) {
-    const { scriptPath, platform, name, featureNames, sourcemap = false } = params;
+    const { scriptPath, platform, name, featureNames, sourcemap = false, format = 'iife' } = params;
 
     const extensions = ['firefox', 'chrome-mv3'];
     const isExtension = extensions.includes(platform);
@@ -42,7 +43,7 @@ export async function bundle(params) {
         write: false,
         outdir: 'build',
         target: 'es2021',
-        format: 'iife',
+        format,
         bundle: true,
         metafile: true,
         legalComments: 'inline',
@@ -58,9 +59,7 @@ export async function bundle(params) {
             'import.meta.contentScopeScriptsVersion': JSON.stringify(contentScopeScriptsVersion),
         },
         plugins: [loadFeaturesPlugin, commentPlugin()],
-        banner: {
-            js: outputPrefixName,
-        },
+        banner: format === 'iife' ? { js: outputPrefixName } : undefined,
         // Inline source maps embed mapping data as base64 data URL - useful for debugging
         // without requiring separate .map files. Only parsed when DevTools are open.
         ...(sourcemap && { sourcemap: 'inline' }),

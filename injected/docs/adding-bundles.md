@@ -86,3 +86,26 @@ Inject Name is a condition that can then be used in the config.
 ```
 
 This allows the same feature to have different behavior depending on which bundle it's running in.
+
+## Blank-frame builds
+
+Some sites add hundreds of empty frames, and every frame pays the memory cost of each bundle that runs in it. A
+blank-frame target builds a bundle that does nothing in frames whose URL protocol is `about:`:
+
+```js
+'apple-isolated-ios': {
+    input: 'entry-points/apple.js',
+    output: ['../Sources/ContentScopeScripts/dist/contentScopeIsolated.ios.js'],
+    injectName: 'apple-isolated',
+    blankFrameOptimized: true,
+},
+```
+
+- The bundle is wrapped in a function that the activation check only calls outside `about:` frames. Until then it
+  allocates nothing, and native's placeholders inside it are never evaluated.
+- `injectName` gives it the same features and remote config as the `apple-isolated` bundle. iOS selects it with a
+  feature flag.
+- Only the isolated-world bundle has a blank-frame target: page-world protections must keep running in blank frames.
+
+`scripts/utils/blank-frame-activation.js` wraps the bundle, and `unit-test/blank-frame-activation.spec.js` shows its
+exact shape.

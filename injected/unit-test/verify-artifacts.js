@@ -1,5 +1,6 @@
 import { join, relative } from 'node:path';
 import { readFileSync } from 'node:fs';
+import { Script } from 'node:vm';
 import { transformSync } from 'esbuild';
 import { cwd } from '../../scripts/script-utils.js';
 
@@ -27,7 +28,7 @@ if (process.platform === 'win32') {
 const TRACKER_LOOKUP_SAMPLE = '"2020mustang"';
 
 /**
- * @typedef {{ kind: 'maxFileSize', value: number } | { kind: 'containsString', text: string, includes: boolean }} Check
+ * @typedef {{ kind: 'maxFileSize', value: number } | { kind: 'containsString', text: string, includes: boolean } | { kind: 'countString', text: string, count: number } | { kind: 'compilesAsScript' }} Check
  * @type {Record<string, { file: string, tests: Check[] }>}
  */
 const checks = {
@@ -80,6 +81,19 @@ const checks = {
             { kind: 'containsString', text: TRACKER_LOOKUP_SAMPLE, includes: false },
         ],
     },
+    'contentScopeIsolated.ios': {
+        file: join(APPLE_BUILD, 'contentScopeIsolated.ios.js'),
+        tests: [
+            { kind: 'maxFileSize', value: CSS_OUTPUT_SIZE },
+            { kind: 'containsString', text: TRACKER_LOOKUP_SAMPLE, includes: false },
+            { kind: 'countString', text: "if (window.location.protocol !== 'about:') {", count: 1 },
+            { kind: 'countString', text: 'function ddgMain(', count: 1 },
+            { kind: 'countString', text: '$CONTENT_SCOPE_JSON$', count: 1 },
+            { kind: 'countString', text: '$USER_UNPROTECTED_DOMAINS$', count: 1 },
+            { kind: 'countString', text: '$USER_PREFERENCES$', count: 1 },
+            { kind: 'compilesAsScript' },
+        ],
+    },
     'apple-broker-protection': {
         file: join(APPLE_BUILD, 'brokerProtection.js'),
         tests: [
@@ -108,6 +122,19 @@ describe('checks', () => {
                     } else {
                         expect(includes).toBeFalse();
                     }
+                });
+            }
+            if (check.kind === 'countString') {
+                it(`${platformName}: '${localPath}' contains ${check.text} ${check.count} time(s)`, () => {
+                    const fileContents = readFileSync(platformChecks.file).toString();
+                    expect(fileContents.split(check.text).length - 1).toBe(check.count);
+                });
+            }
+            if (check.kind === 'compilesAsScript') {
+                // compiled as a classic script, the way native injects it, without running it
+                it(`${platformName}: '${localPath}' compiles as a script`, () => {
+                    const fileContents = readFileSync(platformChecks.file).toString();
+                    expect(() => new Script(fileContents, { filename: localPath })).not.toThrow();
                 });
             }
         }
