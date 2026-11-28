@@ -1,0 +1,32 @@
+.ring {
+    position: absolute;
+    border-radius: 4px;
+    outline: 3px solid #f5a623;
+    outline-offset: 3px;
+    animation: ring 1.6s ease-in-out infinite;
+}
+
+.badge {
+    position: absolute;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: #ffc95c;
+    color: #3d2a00;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 16px;
+    white-space: nowrap;
+}
+
+@keyframes ring {
+    50% {
+        outline-offset: 6px;
+        outline-color: rgba(245, 166, 35, 0.55);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ring {
+        animation: none;
+    }
+}
