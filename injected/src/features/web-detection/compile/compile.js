@@ -13,7 +13,7 @@ import {
 import { compilePredicate } from '../predicates/predicates.js';
 import { parseItemKeys } from '../sources/common.js';
 import { parseRecordedType } from '../sources/recorded.js';
-import { finish } from './positions.js';
+import { finish, markSuspensions } from './positions.js';
 
 /**
  * @import { Node, NodeBase, IfNode, ItemBinder, ItemNode, Position, CompiledPayloadField, SourceBody } from '../model/types.js'
@@ -535,5 +535,6 @@ export function compileDetector(config, sources) {
     const actions = compileBody(config.actions, 'value', 'actions', scope);
     const on = compileOn(config.triggers, scope);
     finish(scope);
+    markSuspensions(scope, actions);
     return { ...(match && { match }), actions, names: scope.readerNames, paths: scope.readerPaths, recorded: scope.recorded, on };
 }

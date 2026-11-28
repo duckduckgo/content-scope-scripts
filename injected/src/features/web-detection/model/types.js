@@ -33,6 +33,7 @@
  * @property {Position} position - the position this occurrence fills. With `is`, the value position the predicate tests
  * @property {CompiledPredicate} [is]
  * @property {'number' | 'boolean'} [single] - for an operand of `sum`, `mul`, `any`, `all` or `none`, what it gives when it is not a list
+ * @property {true} [suspends] - the expression can suspend the run: it is, or holds, a source that suspends
  */
 
 /**
@@ -115,7 +116,8 @@
  * @typedef {object} Source
  * @property {string} key - the expression key in config
  * @property {(raw: unknown, path: string, hooks: PredicateHooks, key?: string) => Body} parse - throws a `ConfigParseError`. `key` names the expression key in messages, where the source parses a `self` or `using` body
- * @property {(bodies: Body[], ctx: PredicateContext) => unknown} read - the value: an `ItemBuffer` for a list, or a `Failure` for the source as a whole
+ * @property {(bodies: Body[], ctx: PredicateContext) => unknown} read - the value: an `ItemBuffer` for a list, or a `Failure` for the source as a whole. For a source that suspends, what the run suspends on, and the run resumes with the value
+ * @property {true} [suspends] - the source suspends the run, which resumes with its value
  */
 
 /**

@@ -1,5 +1,7 @@
+import { ConfigParseError } from '../model/core.js';
+
 /**
- * @import { Node } from '../model/types.js'
+ * @import { Node, SourceNode } from '../model/types.js'
  * @import { Scope } from './compile.js'
  */
 
@@ -67,4 +69,67 @@ function isPresenceLeaf(node) {
     let current = node;
     while ((current.kind === 'expr' || current.kind === 'using') && !current.operand.is) current = current.operand;
     return current.kind === 'source' && current.leaf;
+}
+
+/**
+ * The expressions a run can suspend in, with the operands it suspends through: the elements of a
+ * sequence, an `if`'s condition and branches, `expr`'s operand, the value beside `using`, and the values
+ * of actions. Other expressions, and the bodies of sources and predicates, evaluate synchronously.
+ *
+ * @param {Node} node
+ * @returns {Node[]}
+ */
+export function suspendingOperands(node) {
+    switch (node.kind) {
+        case 'sequence':
+            return node.elements;
+        case 'if':
+            return node.else ? [node.test, node.then, node.else] : [node.test, node.then];
+        case 'expr':
+            return [node.operand];
+        case 'using':
+            return [node.root];
+        case 'define':
+        case 'done':
+            return [node.value];
+        case 'fireEvent':
+        case 'breakageReportData':
+            return (node.data ?? []).map((field) => field.value);
+        default:
+            return [];
+    }
+}
+
+/**
+ * Mark the expressions a run can suspend in, from `actions` down to each source that suspends, and
+ * reject a source that suspends anywhere else. `match` never suspends.
+ *
+ * @param {Scope} scope
+ * @param {Node} actions
+ */
+export function markSuspensions(scope, actions) {
+    const suspending = /** @type {SourceNode[]} */ (scope.nodes.filter((node) => node.kind === 'source' && node.source.suspends));
+    if (suspending.length === 0) return;
+    /** @type {Set<Node>} */
+    const reached = new Set();
+    /**
+     * @param {Node} node
+     * @returns {boolean} whether the node suspends
+     */
+    const visit = (node) => {
+        reached.add(node);
+        let suspends = node.kind === 'source' && node.source.suspends === true;
+        for (const operand of suspendingOperands(node)) if (visit(operand)) suspends = true;
+        if (suspends) node.suspends = true;
+        return suspends;
+    };
+    visit(actions);
+    for (const node of suspending) {
+        if (!reached.has(node)) {
+            throw new ConfigParseError(
+                node.path,
+                `\`${node.source.key}\` suspends the run, so it goes in a sequence, an \`if\`, \`expr\`, beside \`using\`, or an action's value, in \`actions\``,
+            );
+        }
+    }
 }

@@ -1,5 +1,5 @@
-import { isFailure, isScalar, thrownMessage } from '../model/core.js';
-import { evaluateOccurrence } from './evaluate.js';
+import { DetectionError, isFailure, isScalar, thrownMessage } from '../model/core.js';
+import { evaluateOccurrence, occurrenceSteps } from './evaluate.js';
 
 /**
  * @import { EvaluationContext } from './context.js'
@@ -48,15 +48,66 @@ export function createDetectorState() {
  * @returns {DetectorRun}
  */
 export function runDetector(compiled, state, ctx) {
+    if (compiled.actions.suspends) throw new DetectionError('a run that can suspend needs a scheduler to resume it');
     /** @type {DetectorRun} */
     const run = { actions: ctx.outcomes };
-    if (compiled.match) {
-        const matched = evaluatePart(compiled.match, ctx, run);
-        run.match = matched === true || matched === 'aborted' || matched === 'error' ? matched : false;
-        if (run.match !== true) return run;
-        state.done = true;
+    if (!runMatch(compiled, state, ctx, run)) return run;
+    finishPart(compiled.actions, () => evaluateOccurrence(compiled.actions, ctx), ctx, run);
+    // A `done` that held before a failure stays in effect, as a `match` that held does
+    if (ctx.done) state.done = true;
+    return run;
+}
+
+/**
+ * Evaluate `match`, when the detector has one, recording its result in `run`. A `match` that holds
+ * makes the detector done.
+ *
+ * @param {CompiledDetector} compiled
+ * @param {DetectorState} state
+ * @param {EvaluationContext} ctx
+ * @param {DetectorRun} run
+ * @returns {boolean} whether `actions` runs
+ */
+function runMatch(compiled, state, ctx, run) {
+    const match = compiled.match;
+    if (!match) return true;
+    const matched = finishPart(match, () => evaluateOccurrence(match, ctx), ctx, run);
+    run.match = matched === true || matched === 'aborted' || matched === 'error' ? matched : false;
+    if (run.match !== true) return false;
+    state.done = true;
+    return true;
+}
+
+/**
+ * `runDetector` for a detector that can suspend, as a generator: a source that suspends yields what it
+ * read, and the run resumes with the value passed to `next`. `match` never suspends, and a run that
+ * reaches no source that suspends ends in its first `next()`.
+ *
+ * @param {CompiledDetector} compiled
+ * @param {DetectorState} state
+ * @param {EvaluationContext} ctx - created for this run, over `state.names`
+ * @returns {Generator<unknown, DetectorRun, unknown>}
+ */
+export function* runDetectorSteps(compiled, state, ctx) {
+    /** @type {DetectorRun} */
+    const run = { actions: ctx.outcomes };
+    if (!runMatch(compiled, state, ctx, run)) return run;
+    /** @type {{ value: unknown } | { error: unknown }} */
+    let outcome;
+    try {
+        outcome = { value: yield* occurrenceSteps(compiled.actions, ctx) };
+    } catch (e) {
+        outcome = { error: e };
     }
-    evaluatePart(compiled.actions, ctx, run);
+    finishPart(
+        compiled.actions,
+        () => {
+            if ('error' in outcome) throw outcome.error;
+            return outcome.value;
+        },
+        ctx,
+        run,
+    );
     // A `done` that held before a failure stays in effect, as a `match` that held does
     if (ctx.done) state.done = true;
     return run;
@@ -66,17 +117,18 @@ export function runDetector(compiled, state, ctx) {
  * Evaluate `match` or `actions`, recording in `run` a failure or error that reaches the top.
  *
  * @param {Node} node
+ * @param {() => unknown} evaluate - gives the part's value, or throws its error
  * @param {EvaluationContext} ctx
  * @param {DetectorRun} run
  * @returns {unknown} the value, or the failure that ended the run
  */
-function evaluatePart(node, ctx, run) {
+function finishPart(node, evaluate, ctx, run) {
     /** @type {string} */
     let path;
     /** @type {RunFailure} */
     let failure;
     try {
-        const value = evaluateOccurrence(node, ctx);
+        const value = evaluate();
         if (!isFailure(value)) return value;
         path = value.path ?? node.path;
         failure = 'aborted';
