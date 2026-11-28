@@ -31,7 +31,7 @@ All detector performance event types use the reserved `detectorPerf_` prefix:
 
 - `detectorPerf_measured` — the top frame initialized the feature
 - `detectorPerf_<group>_ran` — a detector in the named group ran
-- `detectorPerf_<group>_failed` — a detector in the named group threw during evaluation
+- `detectorPerf_<group>_failed` — a detector in the named group threw during evaluation, or its run ended on a failure or an error
 - `detectorPerf_<group>_over<N>ms` — one run in the group exceeded threshold `N`
 - `detectorPerf_<group>_total_over<N>ms` — the group's accumulated time in the frame exceeded `N`
 - `detectorPerf_combined_over<N>ms` — accumulated time for all instrumented detectors in the frame exceeded `N`

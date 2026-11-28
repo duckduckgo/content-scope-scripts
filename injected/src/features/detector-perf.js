@@ -129,7 +129,8 @@ function roundMs(ms) {
  * family and edge). These
  * crossings are rare by construction and native EventHub turns them into an
  * immediate pixel with the detector name in the data payload.
- * `<name>_failed` fires when an invocation throws; failed runs still contribute
+ * `<name>_failed` fires when an invocation throws or gives a result the caller
+ * counts as failed; failed runs still contribute
  * to duration thresholds because they consume the same on-device resources.
  *
  * No DOM or layout reads and no `performance.mark`/`measure` happen here —
@@ -296,7 +297,7 @@ export default class DetectorPerf extends ContentFeature {
      * @param {string} [detail] - exact detector identity for single-run severe
      *   attribution, e.g. `adwalls.generic_en` within the `adwalls` group.
      *   Never appears in periodic event-type names.
-     * @param {boolean} [failed] - whether the detector invocation threw
+     * @param {boolean} [failed] - whether the detector invocation threw or gave a failed result
      */
     record(name, durationMs, detail, failed = false) {
         if (!this.#active) return;

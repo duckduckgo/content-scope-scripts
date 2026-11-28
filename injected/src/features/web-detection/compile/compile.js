@@ -2,7 +2,6 @@ import { isArray, objectKeys } from '../../../captured-globals.js';
 import {
     ACTION_KEYS,
     ConfigParseError,
-    DEFINE_NAME_PATTERN,
     EXPRESSION_KEYS,
     NAME_PATTERN,
     asArray,
@@ -212,6 +211,8 @@ function compileActions(raw, keys, position, path, scope) {
 }
 
 /**
+ * Any string is a name. One starting `this.` is a detector name, and any other is a run name.
+ *
  * @param {unknown} raw
  * @param {string} path
  * @param {Scope} scope
@@ -221,7 +222,6 @@ function compileDefine(raw, path, scope) {
     if (!isPlainObject(raw)) throw new ConfigParseError(path, '`define` takes an object of names');
     return objectKeys(raw).map((name) => {
         const namePath = `${path}.${name}`;
-        if (!DEFINE_NAME_PATTERN.test(name)) throw new ConfigParseError(namePath, `invalid name '${name}'`);
         const value = compileExpr(raw[name], 'value', namePath, scope);
         return makeNode(scope, { kind: 'define', name, value, path: namePath, position: 'value' });
     });

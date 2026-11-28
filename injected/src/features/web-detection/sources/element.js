@@ -1,10 +1,11 @@
-import { ConfigParseError, isFailure, isPlainObject, rejectUnknownKeys } from '../model/core.js';
+import { ConfigParseError, isFailure, isPlainObject, rejectUnknownKeys, thrownFailure } from '../model/core.js';
 import { ItemBuffer } from '../model/lists.js';
 import { parseItemKeys, selectItems, stringList } from './common.js';
 import { parseRoot, resolveRoots } from './roots.js';
 import { hasContent, isVisible } from './visibility.js';
 
 /**
+ * @import { Failure } from '../model/core.js'
  * @import { PredicateContext, Source } from '../model/types.js'
  * @import { CompiledField } from '../predicates/fields.js'
  * @import { CompiledPredicate } from '../predicates/predicates.js'
@@ -69,13 +70,17 @@ export const elementSource = {
     read(bodies, ctx) {
         return new ItemBuffer(selectElements(bodies, ctx), {
             hasAny() {
-                // With no state to read, a quick existence check suffices. A root that fails leaves
-                // the iterator to report it
+                // With no state to read, a quick existence check suffices. A root or selector that
+                // fails leaves the iterator to report it
                 if (!bodies.every(isPresenceOnly)) return undefined;
                 for (const body of bodies) {
                     const roots = resolveRoots(body.root, ctx);
                     if (isFailure(roots)) return undefined;
-                    if (roots.some((root) => root.querySelector(body.selector) !== null)) return true;
+                    try {
+                        if (roots.some((root) => root.querySelector(body.selector) !== null)) return true;
+                    } catch {
+                        return undefined;
+                    }
                 }
                 return false;
             },
@@ -85,7 +90,9 @@ export const elementSource = {
                 for (const body of bodies) {
                     const roots = resolveRoots(body.root, ctx);
                     if (isFailure(roots)) return undefined;
-                    for (const root of roots) count += root.querySelectorAll(body.selector).length;
+                    const matches = selectorMatches(body.selector, roots);
+                    if (isFailure(matches)) return undefined;
+                    for (const elements of matches) count += elements.length;
                 }
                 return count;
             },
@@ -124,21 +131,41 @@ function* selectElements(bodies, ctx) {
             yield roots;
             return;
         }
+        const matches = selectorMatches(body.selector, roots);
+        if (isFailure(matches)) {
+            yield matches;
+            return;
+        }
         // A failure ends the buffer reading this, so later bodies are not read
-        yield* selectItems(visibleElements(body, roots), body, ctx);
+        yield* selectItems(visibleElements(body, matches), body, ctx);
     }
 }
 
 /**
- * The elements a body's selector matches in its roots that pass `visibility`.
+ * Each root's matches for a selector.
+ *
+ * @param {string} selector
+ * @param {ParentNode[]} roots
+ * @returns {NodeListOf<Element>[] | Failure} the matches, or a `Failure` where the engine rejects the selector
+ */
+function selectorMatches(selector, roots) {
+    try {
+        return roots.map((root) => root.querySelectorAll(selector));
+    } catch (e) {
+        return thrownFailure(e);
+    }
+}
+
+/**
+ * The elements of a body's matches that pass `visibility`.
  *
  * @param {ElementBody} body
- * @param {ParentNode[]} roots
+ * @param {NodeListOf<Element>[]} matches
  * @returns {Generator<Element>}
  */
-function* visibleElements(body, roots) {
-    for (const root of roots) {
-        for (const element of root.querySelectorAll(body.selector)) {
+function* visibleElements(body, matches) {
+    for (const elements of matches) {
+        for (const element of elements) {
             if (passesVisibility(element, body.visibility)) yield element;
         }
     }

@@ -2,6 +2,7 @@ import {
     BROKEN,
     FAILING,
     IMG,
+    INVALID_SELECTOR,
     NATURAL_WIDTH,
     REPORT,
     abortError,
@@ -29,7 +30,7 @@ describe('WebDetection evaluate', () => {
         it('compiles a ref to a name nothing binds, which reads `undefined`', () => {
             expect(holds('', { ref: 'nope', is: { type: 'undefined' } })).toBe(true);
             expect(holds('', { ref: 'nope', is: true })).toBe(false);
-            expect(holds('', { ref: 'nope' })).toBe('error');
+            expect(holds('', { ref: 'nope' })).toBe('aborted');
         });
 
         it('evaluates every operand, so a value bound in a later operand is read', () => {
@@ -222,8 +223,8 @@ describe('WebDetection evaluate', () => {
     });
 
     describe('operators', () => {
-        it('errors on only over no items', () => {
-            expect(holds('', { only: NATURAL_WIDTH, is: {} })).toBe('error');
+        it('fails on only over no items', () => {
+            expect(holds('', { only: NATURAL_WIDTH, is: {} })).toBe('aborted');
             expect(holds('', { sum: NATURAL_WIDTH, is: 0 })).toBe(true);
             expect(holds('', { mul: NATURAL_WIDTH, is: 1 })).toBe(true);
             const at = { ...NATURAL_WIDTH, using: { path: 'at', args: [0] } };
@@ -235,11 +236,11 @@ describe('WebDetection evaluate', () => {
             expect(holds(IMG('data-width="3"') + IMG('data-width="9"'), { sum: [NATURAL_WIDTH, 1], is: 13 })).toBe(true);
         });
 
-        it('reads the one item with only, and errors over none or several', () => {
+        it('reads the one item with only, and fails over none or several', () => {
             const read = { only: NATURAL_WIDTH, is: { gte: 0 } };
             expect(holds(IMG(), read)).toBe(true);
-            expect(holds('', read)).toBe('error');
-            expect(holds(IMG() + IMG(), read)).toBe('error');
+            expect(holds('', read)).toBe('aborted');
+            expect(holds(IMG() + IMG(), read)).toBe('aborted');
         });
 
         it('picks an item by position with at on a root, in document and in timeline order', () => {
@@ -257,13 +258,63 @@ describe('WebDetection evaluate', () => {
             expect(holds('', { ...durations, using: at(-1), is: 7 }, { install })).toBe(true);
         });
 
-        it('errors on a value of the wrong type', () => {
-            expect(holds('<p>x</p>', { sum: [{ element: { selector: 'p', field: 'tagName' } }], is: 1 })).toBe('error');
+        it('fails on a value of the wrong type', () => {
+            expect(holds('<p>x</p>', { sum: [{ element: { selector: 'p', field: 'tagName' } }], is: 1 })).toBe('aborted');
             expect(holds('<p>x</p>', { only: { element: { selector: 'p', field: 'tagName' } }, is: { gt: 1 } })).toBe(false);
-            expect(holds('<p>x</p>', { all: { element: { selector: 'p', field: 'tagName' } } })).toBe('error');
-            expect(holds('', { only: { api: { path: 'document.title' } }, is: 0 })).toBe('error');
-            expect(holds('', { div: [{ api: { path: 'document.styleSheets' } }, 1], is: 0 })).toBe('error');
+            expect(holds('<p>x</p>', { all: { element: { selector: 'p', field: 'tagName' } } })).toBe('aborted');
+            expect(holds('', { only: { api: { path: 'document.title' } }, is: 0 })).toBe('aborted');
+            expect(holds('', { div: [{ api: { path: 'document.styleSheets' } }, 1], is: 0 })).toBe('aborted');
             expect(holds('', { sum: { api: { path: 'document.styleSheets' } }, is: 0 })).toBe(true);
+        });
+
+        it('fails on a value that does not fit the config, which `fails` handles', () => {
+            const tagName = { element: { selector: 'p', field: 'tagName' } };
+            /** @type {Array<[string, object]>} */
+            const cases = [
+                ['', { only: NATURAL_WIDTH }],
+                [IMG() + IMG(), { only: NATURAL_WIDTH }],
+                ['', { div: [NATURAL_WIDTH, 5] }],
+                ['<p>x</p>', { sum: tagName }],
+                ['<p>x</p>', { all: tagName }],
+                ['', { div: [{ api: { path: 'document.styleSheets' } }, 1] }],
+                ['', { api: { path: 'document.title', where: { length: 0 } } }],
+                ['<p></p>', { element: { selector: 'p', root: [1] } }],
+            ];
+            for (const [body, expression] of cases) {
+                const context = JSON.stringify(expression);
+                expect(holds(body, { ...expression, is: { fails: true } }))
+                    .withContext(context)
+                    .toBe(true);
+                expect(holds(body, { ...expression, is: { fails: false } }))
+                    .withContext(context)
+                    .toBe(false);
+            }
+        });
+
+        it('fails on a selector or XPath expression the engine rejects, which `fails` handles', () => {
+            const readRoot = { only: { element: { selector: '#s', field: 'textContent' } } };
+            /** @type {Array<[string, object]>} */
+            const cases = [
+                ['<p></p>', INVALID_SELECTOR],
+                ['<p></p>', { any: [INVALID_SELECTOR] }],
+                ['<p></p>', { ...INVALID_SELECTOR, using: 'length' }],
+                ['<p></p>', { element: { selector: 'p', root: '[' } }],
+                ['<p id="s">[</p>', { element: { selector: 'p', root: readRoot } }],
+                ['<p id="s">[</p>', { element: { selector: 'p', root: readRoot }, using: 'length' }],
+                ['<p>x</p>', { text: { selector: '[', pattern: 'x' } }],
+                ['<p>x</p>', { text: { xpath: '//[', pattern: 'x' } }],
+                ['<p>x</p>', { text: { xpath: '//[', pattern: 'x' }, using: 'length' }],
+            ];
+            for (const [body, expression] of cases) {
+                const context = JSON.stringify(expression);
+                expect(holds(body, expression)).withContext(context).toBe('aborted');
+                expect(holds(body, { ...expression, is: { fails: true } }))
+                    .withContext(context)
+                    .toBe(true);
+                expect(holds(body, { ...expression, is: { fails: false } }))
+                    .withContext(context)
+                    .toBe(false);
+            }
         });
 
         it('takes all, any and none over a list of booleans', () => {
@@ -423,7 +474,7 @@ describe('WebDetection evaluate', () => {
                     alpha: { value: { ...FAILING, using: 'length' } },
                 }),
             };
-            expect(run('<p></p>', detector).failure).toEqual({ path: 'actions.fireEvent.data.zeta.value.only', result: 'error' });
+            expect(run('<p></p>', detector).failure).toEqual({ path: 'actions.fireEvent.data.zeta.value.only', result: 'aborted' });
         });
 
         it('sends every key when nothing fails', () => {
@@ -475,7 +526,7 @@ describe('WebDetection evaluate', () => {
             expect(bound(widths, { define: { enough } }, 'enough')).toBe(true);
             expect(bound(IMG(), { define: { enough } }, 'enough')).toBe(false);
             expect(payload(widths, enough)).toEqual({ x: true });
-            expect(holds(widths, { sum: [{ expr: { element: { selector: 'img' }, using: 'length', is: 1 } }], is: 1 })).toBe('error');
+            expect(holds(widths, { sum: [{ expr: { element: { selector: 'img' }, using: 'length', is: 1 } }], is: 1 })).toBe('aborted');
         });
 
         it('gives the boolean an `is` gives in value position', () => {
@@ -501,7 +552,7 @@ describe('WebDetection evaluate', () => {
             expect(holds('', { all: { expr: [true, false] } })).toBe(false);
             expect(holds('<title>x</title>', { any: { expr: [{ api: { path: 'document.title' }, is: 'x' }] } })).toBe(true);
             expect(holds('', { only: { expr: ['a'] }, is: 'a' })).toBe(true);
-            expect(holds('', { only: { expr: [] }, is: 'a' })).toBe('error');
+            expect(holds('', { only: { expr: [] }, is: 'a' })).toBe('aborted');
             expect(holds('', { expr: [1, 2, 3], using: 'length', is: 3 })).toBe(true);
             expect(holds('', { expr: [1, 2, 3], using: { path: 'at', args: [-1] }, is: 3 })).toBe(true);
             expect(holds('', { expr: [], is: { type: 'array' } })).toBe(true);
@@ -511,8 +562,8 @@ describe('WebDetection evaluate', () => {
             expect(holds('', { expr: [1, FAILING], using: 'length', is: 2 })).toBe('aborted');
             expect(payload('', { expr: [1, 'a', { expr: [true] }] })).toEqual({ x: [1, 'a', [true]] });
             // A list stays one: it is not unwrapped to a number, nor read as a boolean
-            expect(holds('', { div: [{ expr: [6] }, 2], is: 3 })).toBe('error');
-            expect(holds('', { expr: [true] })).toBe('error');
+            expect(holds('', { div: [{ expr: [6] }, 2], is: 3 })).toBe('aborted');
+            expect(holds('', { expr: [true] })).toBe('aborted');
         });
     });
 });

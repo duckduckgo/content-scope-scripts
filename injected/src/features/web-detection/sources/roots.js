@@ -1,5 +1,5 @@
 import { isArray } from '../../../captured-globals.js';
-import { DetectionError, asArray, isFailure } from '../model/core.js';
+import { asArray, isFailure, mismatch, thrownFailure } from '../model/core.js';
 import { isItemBuffer, listMembers } from '../model/lists.js';
 
 /**
@@ -60,7 +60,12 @@ function collectRootNodes(value, nodes, ctx) {
     /** @type {Iterable<unknown>} */
     let values;
     if (typeof value === 'string') {
-        values = document.querySelectorAll(value);
+        try {
+            values = document.querySelectorAll(value);
+        } catch (e) {
+            // A selector the engine rejects, whether in the config or read from the page
+            return thrownFailure(e);
+        }
     } else if (isItemBuffer(value)) {
         const failure = value.pull(Infinity);
         if (failure) return failure;
@@ -74,7 +79,7 @@ function collectRootNodes(value, nodes, ctx) {
         if (isFailure(node)) return node;
         const isNode = ctx.reader.isNode(node);
         if (isFailure(isNode)) return isNode;
-        if (!isNode) throw new DetectionError('a root is a selector, a node or a list of nodes');
+        if (!isNode) return mismatch('a root is a selector, a node or a list of nodes');
         nodes.push(/** @type {Node} */ (node));
     }
     return undefined;

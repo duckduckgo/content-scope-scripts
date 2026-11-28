@@ -204,8 +204,8 @@ export default class WebDetection extends ContentFeature {
         };
         const ctx = new EvaluationContext(this._reader, state.names, task, sink);
         const run = () => runDetector(compiled, state, ctx);
-        // A run that errored is a failed run
-        const result = this.#detectorPerfEnabled ? timeDetector(this, groupName, run, detectorId, (r) => r.error !== undefined) : run();
+        // A run that ended on a failure or an error is a failed run
+        const result = this.#detectorPerfEnabled ? timeDetector(this, groupName, run, detectorId, (r) => r.failure !== undefined) : run();
 
         if (result.failedAt !== undefined && result.failure !== undefined) this.#breakage.fail(detectorId, result.failedAt, result.failure);
         if (state.done) this._cancelFinishedTimers();

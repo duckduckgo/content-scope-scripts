@@ -25,7 +25,7 @@ import { evaluateOccurrence } from './evaluate.js';
  * @property {Record<string, ActionOutcome>} actions - each action evaluated, by config path
  * @property {string} [failedAt] - the config path of the failure that ended the run
  * @property {RunFailure} [failure] - that failure
- * @property {string} [abortError] - for an abort by a throw, the thrown value's constructor name
+ * @property {string} [abortError] - for an abort, the thrown value's constructor name, or what did not fit the config
  * @property {string} [error] - an error's message
  */
 
