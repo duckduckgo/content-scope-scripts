@@ -19,7 +19,7 @@ import { parseRoot, resolveRoots } from './roots.js';
  * A snapshot (rather than an iterator) is required: `iterateNext()` throws
  * `InvalidStateError` if the document mutates during iteration, and detectors
  * run against live pages that mutate underneath them. A snapshot is also what
- * the detectors of one task share (see `selectedText`).
+ * detectors share while the page is unchanged (see `selectedText`).
  */
 const ORDERED_NODE_SNAPSHOT_TYPE = 7;
 
@@ -159,33 +159,57 @@ function tailStart(buffer, chunkTail) {
  * @property {(i: number) => string} at
  */
 
+const READS_ATTRIBUTES = /@|attribute|namespace|\bid\s*\(|\blang\s*\(/;
+
 /**
- * The text an XPath expression selects from a root, evaluated once per task and shared by every
- * detector in it that names the expression. A node's text is read when a scan first reaches it, so
- * a scan that stops early leaves the rest unread.
+ * Whether an XPath expression can read attributes: through `@` or the `attribute` axis, in `id()` or
+ * `lang()`, or through namespace nodes. A string literal that matches only watches more of the page.
  *
  * @param {string} expression
+ * @returns {boolean}
+ */
+export function readsAttributes(expression) {
+    return READS_ATTRIBUTES.test(expression);
+}
+
+/**
+ * An XPath expression of a `text` body, with whether it can read attributes.
+ *
+ * @typedef {{ expression: string, readsAttributes: boolean }} XPathSource
+ */
+
+/**
+ * The text an XPath expression selects from a root, evaluated once and shared by every detector that
+ * names the expression while the page reads keep it. A node's text is read when a scan first reaches it, so
+ * a scan that stops early leaves the rest unread.
+ *
+ * @param {XPathSource} xpath
  * @param {Node} contextNode
  * @param {PredicateContext} ctx
  * @returns {SelectedText}
  */
-function selectedText(expression, contextNode, ctx) {
-    return ctx.task.of(contextNode, `xpath:${expression}`, () => {
-        const snapshot = compileXPath(expression).evaluate(contextNode, ORDERED_NODE_SNAPSHOT_TYPE, null);
-        /** @type {string[]} */
-        const texts = [];
-        return {
-            length: snapshot.snapshotLength,
-            at(i) {
-                let text = texts[i];
-                if (text === undefined) {
-                    text = snapshot.snapshotItem(i)?.textContent || '';
-                    texts[i] = text;
-                }
-                return text;
-            },
-        };
-    });
+function selectedText({ expression, readsAttributes }, contextNode, ctx) {
+    return ctx.task.of(
+        contextNode,
+        `xpath:${expression}`,
+        () => {
+            const snapshot = compileXPath(expression).evaluate(contextNode, ORDERED_NODE_SNAPSHOT_TYPE, null);
+            /** @type {string[]} */
+            const texts = [];
+            return {
+                length: snapshot.snapshotLength,
+                at(i) {
+                    let text = texts[i];
+                    if (text === undefined) {
+                        text = snapshot.snapshotItem(i)?.textContent || '';
+                        texts[i] = text;
+                    }
+                    return text;
+                },
+            };
+        },
+        readsAttributes,
+    );
 }
 
 /**
@@ -256,7 +280,7 @@ function nextMatch({ pattern, chunk }) {
  * @typedef {object} TextBody
  * @property {RegExp} pattern - case-insensitive, global
  * @property {string[]} selectors
- * @property {string[]} xpaths
+ * @property {XPathSource[]} xpaths
  * @property {{ chunkSize: number, chunkTail: number }} chunking
  * @property {Root} [root]
  * @property {boolean} rootIsSource - with `root` and neither `selector` nor `xpath`, each root's text is the source
@@ -276,8 +300,8 @@ function nextMatch({ pattern, chunk }) {
  *   select text nodes and filter on ancestry, so it can exclude text that is present in the DOM but never
  *   rendered - eg text inside `<script>`: `//body//text()[not(ancestor::script)]`. The text of all nodes
  *   selected by one expression is matched as a whole, but is scanned in bounded chunks rather than
- *   concatenated in full. The detectors of one task share each expression's selection from a root,
- *   and each node's text, read once.
+ *   concatenated in full. Detectors share each expression's selection from a root, and each node's
+ *   text, read once while the page is unchanged.
  *
  * `xpathConfig` [optional]: Tunes that chunking, and applies to `xpath` only. A match longer than
  *   `chunkTail` that straddles a chunk boundary is missed; `chunkSize: 0` turns chunking off
@@ -312,7 +336,7 @@ export const textSource = {
             // A disjunction of no patterns matches nothing, where joining them would give '', which matches everywhere
             pattern: new RegExp(patterns.length > 0 ? patterns.join('|') : '(?!)', 'gi'),
             selectors,
-            xpaths,
+            xpaths: xpaths.map((expression) => ({ expression, readsAttributes: readsAttributes(expression) })),
             chunking: resolveXPathConfig(/** @type {ConditionTypes['text']['xpathConfig']} */ (raw.xpathConfig)),
             root,
             rootIsSource: root !== undefined && raw.selector === undefined && xpaths.length === 0,
@@ -369,11 +393,11 @@ function* textSegments(bodies, ctx) {
                 pattern.lastIndex = 0;
                 yield { pattern, chunk: { text, end: Infinity, next: text.length } };
             }
-            for (const expression of body.xpaths) {
+            for (const xpath of body.xpaths) {
                 /** @type {SelectedText} */
                 let selected;
                 try {
-                    selected = selectedText(expression, root, ctx);
+                    selected = selectedText(xpath, root, ctx);
                 } catch (e) {
                     yield thrownFailure(e);
                     return;
