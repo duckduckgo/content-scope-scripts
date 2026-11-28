@@ -160,7 +160,11 @@ export const EXPRESSION_KEYS = new Set([
     'all',
     'none',
     'ref',
+    'iter',
 ]);
+
+/** Keys valid only beside `iter`: its stages. */
+export const ITER_KEYS = new Set(['where', 'field']);
 
 /**
  * Whether config is an expression object: a plain object with an expression key. `using` and `field`

@@ -17,6 +17,7 @@ function givesList(node) {
         case 'item':
         case 'only':
         case 'list':
+        case 'iter':
             return true;
         case 'if':
             return occurrenceGivesList(node.then) || (node.else !== undefined && occurrenceGivesList(node.else));
@@ -51,7 +52,8 @@ export function finish(scope) {
     for (const { node, single } of scope.slots) {
         // `element` without `field` and `text` are the condition leaf under any / all / none: a boolean
         const leaf = single === 'boolean' && isPresenceLeaf(node);
-        node.position = givesList(node) && !leaf ? 'spread' : single;
+        if (node.kind === 'iter') node.position = 'stream';
+        else node.position = givesList(node) && !leaf ? 'spread' : single;
         node.single = single;
     }
 }
