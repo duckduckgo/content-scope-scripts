@@ -153,7 +153,7 @@ export class ConfigParseError extends Error {
 export const NAME_PATTERN = /^[a-zA-Z][a-zA-Z0-9_]*$/;
 
 /** The keys that make an object an action. */
-export const ACTION_KEYS = new Set(['fireEvent', 'breakageReportData', 'define', 'done']);
+export const ACTION_KEYS = new Set(['fireEvent', 'breakageReportData', 'define', 'done', 'emit']);
 
 /** The keys that make an object an expression. */
 export const EXPRESSION_KEYS = new Set([
@@ -174,6 +174,7 @@ export const EXPRESSION_KEYS = new Set([
     'observed',
     'trigger',
     'wait',
+    'object',
 ]);
 
 /**

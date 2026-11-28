@@ -48,11 +48,15 @@ export const waitSource = {
     suspends: true,
     parse(raw, path, hooks) {
         if (!isPlainObject(raw)) throw new ConfigParseError(path, '`wait` takes an object');
-        rejectUnknownKeys(raw, ['entryType', 'event', 'mutation', 'durationThreshold', 'target', 'where', 'field', 'timeoutMs'], path);
+        rejectUnknownKeys(
+            raw,
+            ['entryType', 'event', 'detectorEvent', 'mutation', 'durationThreshold', 'target', 'where', 'field', 'timeoutMs'],
+            path,
+        );
         /** @type {RecordedBody} */
         let typed;
         if (raw.mutation !== undefined) {
-            if (raw.entryType !== undefined || raw.event !== undefined)
+            if (raw.entryType !== undefined || raw.event !== undefined || raw.detectorEvent !== undefined)
                 throw new ConfigParseError(path, 'a body names one of `entryType`, `event` and `mutation`');
             if (!isPlainObject(raw.mutation) || objectKeys(raw.mutation).length === 0) {
                 throw new ConfigParseError(`${path}.mutation`, '`mutation` takes the options of `MutationObserver.observe()`');

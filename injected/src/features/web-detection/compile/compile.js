@@ -225,6 +225,7 @@ function compileActions(raw, keys, position, path, scope) {
         const actionPath = `${path}.${key}`;
         if (key === 'define') actions.push(...compileDefine(raw.define, actionPath, scope));
         else if (key === 'done') actions.push(compileDone(raw.done, actionPath, scope));
+        else if (key === 'emit') actions.push(compileEmit(raw.emit, actionPath, scope));
         else actions.push(compileAction(/** @type {'fireEvent' | 'breakageReportData'} */ (key), raw[key], actionPath, scope));
     }
     /** @type {Node} */
@@ -263,6 +264,37 @@ function compileDefine(raw, path, scope) {
 function compileDone(raw, path, scope) {
     const value = compileExpr(raw, 'value', path, scope);
     return makeNode(scope, { kind: 'done', value, path, position: 'value' });
+}
+
+/**
+ * `emit`: records a detector event with a name, and a value of any kind as its `data`.
+ *
+ * @param {unknown} raw
+ * @param {string} path
+ * @param {Scope} scope
+ * @returns {Node}
+ */
+function compileEmit(raw, path, scope) {
+    if (!isPlainObject(raw)) throw new ConfigParseError(path, '`emit` takes an object');
+    rejectUnknownKeys(raw, ['name', 'data'], path);
+    if (typeof raw.name !== 'string') throw new ConfigParseError(`${path}.name`, '`name` takes a string');
+    const data = raw.data === undefined ? undefined : compileExpr(raw.data, 'value', `${path}.data`, scope);
+    return makeNode(scope, { kind: 'emit', name: raw.name, ...(data && { data }), path, position: 'value' });
+}
+
+/**
+ * `object`: an object with a field per key, each holding its expression's value.
+ *
+ * @param {unknown} body
+ * @param {Position} position
+ * @param {string} path
+ * @param {Scope} scope
+ * @returns {Node}
+ */
+function compileObject(body, position, path, scope) {
+    if (!isPlainObject(body)) throw new ConfigParseError(path, '`object` takes an object of fields');
+    const fields = objectKeys(body).map((key) => ({ key, value: compileExpr(body[key], 'value', `${path}.${key}`, scope) }));
+    return makeNode(scope, { kind: 'object', fields, path, position });
 }
 
 /**
@@ -338,6 +370,8 @@ function compileKey(key, body, position, path, scope) {
             });
             return makeNode(scope, { kind: key, operands, path, position });
         }
+        case 'object':
+            return compileObject(body, position, path, scope);
         case 'ref':
             // The name is read when evaluation reaches it: config decides what is bound then
             if (typeof body !== 'string') throw new ConfigParseError(path, '`ref` takes a name');
@@ -501,7 +535,7 @@ function compileOn(triggers, scope) {
         if (!isPlainObject(raw)) throw new ConfigParseError(bodyPath, 'an `on` body takes an object');
         rejectUnknownKeys(
             raw,
-            ['entryType', 'event', 'durationThreshold', 'target', 'where', 'delayMs', 'sync', 'whenPending', 'whenBusy'],
+            ['entryType', 'event', 'detectorEvent', 'durationThreshold', 'target', 'where', 'delayMs', 'sync', 'whenPending', 'whenBusy'],
             bodyPath,
         );
         const body = { ...parseRecordedType(raw, bodyPath, scope.hooks), ...parseItemKeys(raw, bodyPath, scope.hooks) };
@@ -520,6 +554,10 @@ function compileOn(triggers, scope) {
         // A `sync` run happens at the arrival, so it's never pending
         if (sync && raw.whenPending !== undefined) {
             throw new ConfigParseError(`${bodyPath}.whenPending`, '`whenPending` is for bodies with no `sync`');
+        }
+        // A detector event's run with no `delayMs` happens in the emitting task, so it's never pending
+        if (body.kind === 'detectorEvent' && delayMs === 0 && raw.whenPending !== undefined) {
+            throw new ConfigParseError(`${bodyPath}.whenPending`, '`whenPending` is for detector event bodies with a `delayMs`');
         }
         const whenBusy = raw.whenBusy ?? 'queue';
         if (whenBusy !== 'queue' && whenBusy !== 'interrupt' && whenBusy !== 'skip') {

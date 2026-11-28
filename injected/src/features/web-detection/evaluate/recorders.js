@@ -20,8 +20,8 @@ import { isFailure, mismatch, thrownFailure } from '../model/core.js';
  * A body naming a recorded type, as `observed`, `trigger` and an `observe` trigger's `on` parse it.
  *
  * @typedef {object} RecordedBody
- * @property {'entryType' | 'event' | 'mutation'} kind - `mutation` in a `wait` only
- * @property {string} type - the entry type or event type, or `mutation`
+ * @property {'entryType' | 'event' | 'mutation' | 'detectorEvent'} kind - `mutation` in a `wait` only
+ * @property {string} type - the entry type, event type or detector event name, or `mutation`
  * @property {Record<string, unknown>} [mutation] - for `mutation`, the options of `MutationObserver.observe()`
  * @property {number} [durationThreshold] - for `event` entries, the shortest `duration` the body gives
  * @property {CompiledExpression} [target] - for events, the expression giving the `EventTarget` listened on
@@ -36,8 +36,9 @@ import { isFailure, mismatch, thrownFailure } from '../model/core.js';
  * report.
  *
  * @typedef {object} Arrival
- * @property {'entryType' | 'event' | 'auto' | 'breakageReport'} kind
- * @property {Recorder} [recorder] - for an entry type or an event, the recorder it arrived at
+ * @property {'entryType' | 'event' | 'detectorEvent' | 'auto' | 'breakageReport'} kind
+ * @property {Recorder} [recorder] - for an entry type, an event or a detector event, the recorder it arrived at
+ * @property {number} [depth] - for a detector event, the depth of the run that emitted it
  * @property {unknown[]} items - the entries of the delivered batch, the event, or for `auto` and a breakage report one item with `timeStamp`
  */
 
@@ -116,13 +117,13 @@ export class Recorder {
     stop;
 
     /**
-     * @param {'entryType' | 'event'} kind
+     * @param {'entryType' | 'event' | 'detectorEvent'} kind
      * @param {string} type
      * @param {object | undefined} target - for events, the `EventTarget` listened on
      * @param {() => number} now
      */
     constructor(kind, type, target, now) {
-        /** @type {'entryType' | 'event'} */
+        /** @type {'entryType' | 'event' | 'detectorEvent'} */
         this.kind = kind;
         this.type = type;
         this.target = target;
@@ -133,8 +134,9 @@ export class Recorder {
      * Record what arrived: in the log, when a body reads it, then to each listener.
      *
      * @param {unknown[]} items
+     * @param {number} [depth] - for a detector event, the depth of the run that emitted it
      */
-    record(items) {
+    record(items, depth) {
         if (items.length === 0) return;
         const at = this.now();
         if (this.bodies.size > 0) {
@@ -142,7 +144,7 @@ export class Recorder {
             this.drop(at);
         }
         /** @type {Arrival} */
-        const arrival = { kind: this.kind, recorder: this, items };
+        const arrival = { kind: this.kind, recorder: this, items, ...(depth !== undefined && { depth }) };
         // A listener may leave as it runs, such as a detector done in a `sync` run
         for (const listener of [...this.listeners.values()]) listener(arrival);
     }
@@ -221,6 +223,8 @@ export class Recorders {
     #entries = new Map();
     /** @type {Map<object, Map<string, Recorder>>} */
     #events = new Map();
+    /** @type {Map<string, Recorder>} */
+    #detectorEvents = new Map();
     /** @type {RecorderGlobals} */
     #globals;
 
@@ -261,6 +265,13 @@ export class Recorders {
      */
     recorderFor(body, target, durationThreshold, create = true) {
         if (body.kind === 'mutation') return undefined;
+        if (body.kind === 'detectorEvent') {
+            const existing = this.#detectorEvents.get(body.type);
+            if (existing || !create) return existing;
+            const recorder = new Recorder('detectorEvent', body.type, undefined, this.now);
+            this.#detectorEvents.set(body.type, recorder);
+            return recorder;
+        }
         if (body.kind === 'entryType') {
             const existing = this.#entries.get(body.type);
             if (existing || !create) return existing;
@@ -392,6 +403,10 @@ export class Recorders {
             // A target whose listener method throws keeps its listener, which records nothing more
         }
         recorder.stop = undefined;
+        if (recorder.kind === 'detectorEvent') {
+            if (this.#detectorEvents.get(recorder.type) === recorder) this.#detectorEvents.delete(recorder.type);
+            return;
+        }
         if (recorder.kind === 'entryType') {
             if (this.#entries.get(recorder.type) === recorder) this.#entries.delete(recorder.type);
             return;
@@ -401,8 +416,19 @@ export class Recorders {
         if (byType?.size === 0 && recorder.target) this.#events.delete(recorder.target);
     }
 
+    /**
+     * The recorder of a detector event name, when a detector reads or waits on it.
+     *
+     * @param {string} name
+     * @returns {Recorder | undefined}
+     */
+    detectorEventRecorder(name) {
+        return this.#detectorEvents.get(name);
+    }
+
     /** Stop every recorder. */
     clear() {
+        for (const recorder of [...this.#detectorEvents.values()]) this._forget(recorder);
         for (const recorder of [...this.#entries.values()]) this._forget(recorder);
         for (const byType of [...this.#events.values()]) {
             for (const recorder of [...byType.values()]) this._forget(recorder);
@@ -411,7 +437,7 @@ export class Recorders {
 
     /** The number of recorders registered, for tests. */
     get size() {
-        let size = this.#entries.size;
+        let size = this.#entries.size + this.#detectorEvents.size;
         for (const byType of this.#events.values()) size += byType.size;
         return size;
     }

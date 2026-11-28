@@ -62,8 +62,10 @@
  * @typedef {NodeBase & { kind: 'fireEvent', type: string, data?: CompiledPayloadField[] }} FireEventNode
  * @typedef {NodeBase & { kind: 'breakageReportData', data?: CompiledPayloadField[] }} BreakageReportDataNode
  * @typedef {NodeBase & { kind: 'done', value: Node }} DoneNode - `value` in value position
- * @typedef {DefineNode | FireEventNode | BreakageReportDataNode | DoneNode} ActionNode
- * @typedef {LiteralNode | SourceNode | LengthNode | ExprNode | UsingNode | ListNode | OnlyNode | ArithmeticNode | LogicNode | IfNode | SequenceNode | RefNode | ItemNode | ActionNode} Node
+ * @typedef {NodeBase & { kind: 'emit', name: string, data?: Node }} EmitNode - `data` in value position
+ * @typedef {DefineNode | FireEventNode | BreakageReportDataNode | DoneNode | EmitNode} ActionNode
+ * @typedef {NodeBase & { kind: 'object', fields: Array<{ key: string, value: Node }> }} ObjectNode - each value in value position
+ * @typedef {LiteralNode | SourceNode | LengthNode | ExprNode | UsingNode | ListNode | OnlyNode | ArithmeticNode | LogicNode | IfNode | SequenceNode | RefNode | ItemNode | ActionNode | ObjectNode} Node
  */
 
 /**
@@ -107,6 +109,7 @@
  * @typedef {object} ActionSink
  * @property {(type: string, data?: PayloadData) => void} fireEvent - sends an event
  * @property {(data: PayloadData) => void} breakageReportData - writes to the detector's breakage entry
+ * @property {(name: string, data: unknown) => void} emit - records a detector event
  */
 
 /**

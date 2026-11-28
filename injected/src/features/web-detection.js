@@ -52,7 +52,7 @@ import { selectItems } from './web-detection/sources/common.js';
  * What triggered a run of the detectors: a breakage report, an `auto` timer at one of its intervals,
  * or an arrival on an `observe` trigger's `on` body.
  *
- * @typedef {{ trigger: 'breakageReport' } | { trigger: 'auto', intervalMs: number } | { trigger: 'observe', arrival: RunArrival }} TriggerInfo
+ * @typedef {{ trigger: 'breakageReport' } | { trigger: 'auto', intervalMs: number } | { trigger: 'observe', arrival: RunArrival, depth?: number }} TriggerInfo
  */
 
 /**
@@ -140,6 +140,15 @@ export default class WebDetection extends ContentFeature {
     /** @type {Map<string, SuspendableRun>} each detector's run that is suspended in a `wait`, by full detector ID */
     #suspended = new Map();
 
+    /** @type {Array<{ recorder: Recorder, item: object, depth: number }>} the detector events emitted and not yet delivered */
+    #emitted = [];
+
+    /** whether detector events are being delivered, so an `emit` during delivery joins the queue */
+    #delivering = false;
+
+    /** the depth at which detector events start no more runs in the emitting task, from the `detectorEventMaxDepth` setting */
+    #detectorEventMaxDepth = 0;
+
     /** @type {unknown} the feature settings the recorders were registered for */
     #registeredSettings;
 
@@ -180,6 +189,8 @@ export default class WebDetection extends ContentFeature {
     init() {
         this.#detectorPerfEnabled = hasOwnProperty.call(this.featureSettings ?? {}, 'detectorPerf');
         this.#reads.configure(readCacheMaxAgeMs(this.getFeatureSetting('readCacheMaxAgeMs')));
+        const maxDepth = this.getFeatureSetting('detectorEventMaxDepth');
+        this.#detectorEventMaxDepth = typeof maxDepth === 'number' && maxDepth > 0 ? Math.floor(maxDepth) : 0;
         this._parseDetectors();
         this._registerRecorders();
         this._scheduleAutoRunDetectors();
@@ -337,15 +348,24 @@ export default class WebDetection extends ContentFeature {
         const now = [];
         /** @type {Map<number, Array<{ detector: DetectorEntry, whenBusy: WhenBusy }>>} */
         const later = new Map();
+        const depth = arrival.depth ?? 0;
+        // A detector event with no `delayMs` runs its observers in the emitting task, up to the depth cap
+        const inTask = arrival.kind === 'detectorEvent';
         for (const { detector, on } of observers) {
             if (this._stateOf(detector.detectorId).done || !this._givesItem(on.body, arrival)) continue;
-            if (on.sync) now.push({ detector, whenBusy: on.whenBusy });
-            else if (this._schedulesOwnRun(detector, on.whenPending, arrival))
-                getOrCreate(later, on.delayMs, () => []).push({ detector, whenBusy: on.whenBusy });
+            const due = { detector, whenBusy: on.whenBusy };
+            if (on.sync || (inTask && on.delayMs === 0)) {
+                if (!inTask || depth < this.#detectorEventMaxDepth) now.push(due);
+            } else if (this._schedulesOwnRun(detector, on.whenPending, arrival)) getOrCreate(later, on.delayMs, () => []).push(due);
         }
         /** @type {TriggerInfo} */
         const triggerInfo = { trigger: 'observe', arrival };
-        if (now.length > 0) this._runAll(now.map((due) => ({ ...due, triggerInfo })));
+        const nowInfo = inTask ? { ...triggerInfo, depth: depth + 1 } : triggerInfo;
+        if (now.length > 0)
+            this._runAll(
+                now.map((run) => ({ ...run, triggerInfo: nowInfo })),
+                !inTask,
+            );
         for (const [delayMs, detectors] of later) {
             /** @type {Timer & { runs: PendingRun[] }} */
             const timer = {
@@ -571,8 +591,10 @@ export default class WebDetection extends ContentFeature {
                 void this._executeFireEvent(type, data);
             },
             breakageReportData: (data) => this.#breakage.write(detectorId, data),
+            emit: (name, data) => this._emitDetectorEvent(detectorId, name, data, ctx.depth),
         };
         const ctx = new EvaluationContext(this._reader, state.names, task, sink, arrivalOf(triggerInfo));
+        if (triggerInfo.trigger === 'observe') ctx.depth = triggerInfo.depth ?? 0;
         if (!compiled.actions.suspends) {
             // A run that ended on a failure or an error is a failed run
             const result = this._timed(
@@ -663,7 +685,7 @@ export default class WebDetection extends ContentFeature {
             stop = this.#recorders.listen(target, body.type, (event) => onItems([event]));
         } else if (body.recorder) {
             const recorder = body.recorder;
-            recorder.listeners.set(run, (arrival) => onItems(arrival.items));
+            recorder.listeners.set(run, (arrival) => this._onWaitItems(run, arrival.items, arrival.kind === 'detectorEvent'));
             stop = () => recorder.listeners.delete(run);
         }
         if (isFailure(stop)) {
@@ -689,14 +711,19 @@ export default class WebDetection extends ContentFeature {
      * first item that passes the `wait`'s `where` resumes the run with it, or its `field`, in the same
      * slice. No item passing is a wait miss, which leaves the run suspended.
      *
+     * A detector event resumes the run in the emitting call stack, in its dispatch.
+     *
      * @param {SuspendableRun} run
      * @param {unknown[]} items
+     * @param {boolean} [inStack] - whether the items are a detector event, delivered in the emitting call stack
      */
-    _onWaitItems(run, items) {
+    _onWaitItems(run, items, inStack = false) {
         const body = run.waiting;
         if (!run.stop || !body) return;
-        this.#dispatchId += 1;
-        this._resumeIn(run);
+        if (!inStack) {
+            this.#dispatchId += 1;
+            this._resumeIn(run);
+        }
         const result = this._timed(
             run.detector,
             () => {
@@ -713,6 +740,7 @@ export default class WebDetection extends ContentFeature {
             (r) => (r.step ? 'continue' : 'miss'),
         );
         if (result.step) this._advance(run, result.step);
+        if (!inStack) this._deliverDetectorEvents();
     }
 
     /**
@@ -725,7 +753,43 @@ export default class WebDetection extends ContentFeature {
         run.stop();
         this.#dispatchId += 1;
         this._resumeIn(run);
+        run.ctx.depth = 0;
         this._step(run, undefined, 'continue');
+        this._deliverDetectorEvents();
+    }
+
+    /**
+     * Record a detector event for delivery once the emitting slice ends: as it ends or suspends in a
+     * `wait`. An event no detector reads or waits on records nothing.
+     *
+     * @param {string} detectorId - the emitting detector
+     * @param {string} name
+     * @param {unknown} data
+     * @param {number} depth - the emitting run's depth
+     */
+    _emitDetectorEvent(detectorId, name, data, depth) {
+        const recorder = this.#recorders.detectorEventRecorder(name);
+        if (!recorder) return;
+        this.#emitted.push({ recorder, item: { name, timeStamp: performanceNow(), detector: detectorId, data }, depth });
+    }
+
+    /**
+     * Deliver the detector events emitted, in order, in the current call stack: each goes to the log,
+     * the runs suspended waiting on it, and the detectors observing it. Events emitted during delivery
+     * join the queue.
+     */
+    _deliverDetectorEvents() {
+        if (this.#delivering) return;
+        this.#delivering = true;
+        try {
+            let next = this.#emitted.shift();
+            while (next) {
+                next.recorder.record([next.item], next.depth);
+                next = this.#emitted.shift();
+            }
+        } finally {
+            this.#delivering = false;
+        }
     }
 
     /**
@@ -943,9 +1007,10 @@ export default class WebDetection extends ContentFeature {
      * or skips, as `whenBusy` sets.
      *
      * @param {Iterable<{ detector: DetectorEntry, triggerInfo: TriggerInfo, whenBusy: WhenBusy }>} runs
+     * @param {boolean} [newDispatch] - whether the runs are a dispatch of their own, rather than part of the one delivering a detector event
      */
-    _runAll(runs) {
-        this.#dispatchId += 1;
+    _runAll(runs, newDispatch = true) {
+        if (newDispatch) this.#dispatchId += 1;
         for (const { detector, triggerInfo, whenBusy } of runs) {
             const busy = this.#suspended.get(detector.detectorId);
             if (busy) {
@@ -964,6 +1029,8 @@ export default class WebDetection extends ContentFeature {
                     this.log.error(`Error running detector ${detector.detectorId}:`, e);
                 }
             }
+            // The detector events a run emitted go out once it ends or suspends, before the next detector runs
+            this._deliverDetectorEvents();
         }
     }
 
