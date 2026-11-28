@@ -5,6 +5,99 @@ import { readFileSync } from 'node:fs';
 const HTML = '/breakage-reporting/index.html';
 const CONFIG = './integration-test/test-pages/breakage-reporting/config/config.json';
 
+const WEB_DETECTION_HTML = '/web-detection/index.html';
+const WEB_DETECTION_CONFIG = './integration-test/test-pages/web-detection/config/config.json';
+const WEB_DETECTION_MATCH_PAGE = '/web-detection/pages/text-match.html';
+
+/**
+ * Collect the details of every `breakageReportDebug` broadcast the page receives from now on.
+ * @param {import('@playwright/test').Page} page
+ */
+async function listenForReportDebug(page) {
+    await page.evaluate(() => {
+        // @ts-expect-error - test-only page global
+        window.__reportDebug = [];
+        window.addEventListener('breakageReportDebug', (event) => {
+            // @ts-expect-error - test-only page global
+            window.__reportDebug.push(/** @type {CustomEvent} */ (event).detail);
+        });
+    });
+}
+
+/**
+ * @param {import('@playwright/test').Page} page
+ * @returns {Promise<unknown[]>}
+ */
+async function reportDebugDetails(page) {
+    // @ts-expect-error - test-only page global
+    return await page.evaluate(() => window.__reportDebug);
+}
+
+/**
+ * @param {ResultsCollector} collector
+ */
+async function reportResultCount(collector) {
+    const calls = await collector.outgoingMessages();
+    return calls.filter(
+        (c) => /** @type {import("@duckduckgo/messaging").NotificationMessage} */ (c.payload).method === 'breakageReportResult',
+    ).length;
+}
+
+test.describe('Breakage report debug broadcast', () => {
+    test('a page request gets the report values back without a report to the client', async ({ page }, testInfo) => {
+        const collector = ResultsCollector.create(page, testInfo.project.use);
+        await collector.load(WEB_DETECTION_HTML, WEB_DETECTION_CONFIG);
+        await new BreakageReportingSpec(page).navigateToPage(WEB_DETECTION_MATCH_PAGE);
+        await listenForReportDebug(page);
+
+        await page.evaluate(() => window.dispatchEvent(new CustomEvent('breakageReportDebugRequest')));
+
+        await expect.poll(async () => (await reportDebugDetails(page)).length).toBe(1);
+        const [detail] = await reportDebugDetails(page);
+        expect(typeof detail).toBe('string');
+        const payload = JSON.parse(/** @type {string} */ (detail));
+        expect(payload.source).toBe('request');
+        expect(payload.result.referrer).toBeDefined();
+        const entry = payload.breakageData.webDetection.find(
+            (/** @type {{ detectorId: string }} */ e) => e.detectorId === 'adwall.generic_text',
+        );
+        expect(entry?.detected).toBe(true);
+        expect(await reportResultCount(collector)).toBe(0);
+    });
+
+    test('a report the client asks for also reaches the page, decoded', async ({ page }, testInfo) => {
+        const collector = ResultsCollector.create(page, testInfo.project.use);
+        await collector.load(WEB_DETECTION_HTML, WEB_DETECTION_CONFIG);
+        await new BreakageReportingSpec(page).navigateToPage(WEB_DETECTION_MATCH_PAGE);
+        await listenForReportDebug(page);
+
+        await collector.simulateSubscriptionMessage('breakageReporting', 'getBreakageReportValues', {});
+        const [resultCall] = await collector.waitForMessage('breakageReportResult');
+        const result = /** @type {import("@duckduckgo/messaging").NotificationMessage} */ (resultCall.payload);
+
+        await expect.poll(async () => (await reportDebugDetails(page)).length).toBe(1);
+        const payload = JSON.parse(/** @type {string} */ ((await reportDebugDetails(page))[0]));
+        expect(payload.source).toBe('report');
+        expect(payload.result).toEqual(result.params);
+        expect(payload.breakageData).toEqual(JSON.parse(decodeURIComponent(result.params?.breakageData)));
+    });
+
+    test('without the debug flag a page request is ignored', async ({ page }, testInfo) => {
+        const collector = ResultsCollector.create(page, testInfo.project.use);
+        collector.withUserPreferences({ debug: false });
+        await collector.load(WEB_DETECTION_HTML, WEB_DETECTION_CONFIG);
+        await new BreakageReportingSpec(page).navigateToPage(WEB_DETECTION_MATCH_PAGE);
+        await listenForReportDebug(page);
+
+        await page.evaluate(() => window.dispatchEvent(new CustomEvent('breakageReportDebugRequest')));
+        // Give a listener, if one were registered, time to collect and answer
+        await page.waitForTimeout(500);
+
+        expect(await reportDebugDetails(page)).toEqual([]);
+        expect(await reportResultCount(collector)).toBe(0);
+    });
+});
+
 test.describe('Breakage Reporting Feature', () => {
     test('breakageData is undefined when no features add data', async ({ page }, testInfo) => {
         const collector = ResultsCollector.create(page, testInfo.project.use);
