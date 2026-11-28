@@ -674,12 +674,23 @@ export default class WebDetection extends ContentFeature {
         const onItems = (items) => this._onWaitItems(run, items);
         /** @type {(() => void) | Failure | undefined} */
         let stop;
-        if (body.kind === 'mutation') {
-            stop = this.#recorders.observeMutations(target, body.mutation ?? {}, (records) => {
-                // A record has no time of its own
+        if (body.kind === 'mutation' || body.kind === 'resize') {
+            /** @param {object[]} items */
+            const timed = (items) => {
+                // A mutation record or resize entry has no time of its own
                 const timeStamp = performanceNow();
-                for (const record of records) this._reader.pin(record, 'timeStamp', timeStamp);
-                onItems(records);
+                for (const item of items) this._reader.pin(item, 'timeStamp', timeStamp);
+                onItems(items);
+            };
+            stop =
+                body.kind === 'mutation'
+                    ? this.#recorders.observeMutations(target, body.options ?? {}, timed)
+                    : this.#recorders.observeResize(target, body.options ?? {}, timed);
+        } else if (body.kind === 'intersection') {
+            stop = this.#recorders.observeIntersection(target, body.options ?? {}, (entries) => {
+                // An intersection's time is that of the rendering update that computed it
+                for (const entry of entries) this._reader.pin(entry, 'timeStamp', this._reader.read(entry, 'time'));
+                onItems(entries);
             });
         } else if (body.target !== undefined) {
             stop = this.#recorders.listen(target, body.type, (event) => onItems([event]));

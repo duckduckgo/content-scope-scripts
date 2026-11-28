@@ -8,9 +8,12 @@ import { parseRecordedType } from './recorded.js';
  * @import { RecordedBody } from '../evaluate/recorders.js'
  */
 
+/** The `wait` body keys observing an element or node of their own, with the observer's options. */
+const OBSERVER_KEYS = ['mutation', 'intersection', 'resize'];
+
 /**
- * A `wait` body: a recorded type, or `mutation` with the options of `MutationObserver.observe()`, and
- * the longest the wait lasts.
+ * A `wait` body: a recorded type, or `mutation`, `intersection` or `resize` with the options of their
+ * observer, and the longest the wait lasts.
  *
  * @typedef {RecordedBody & { timeoutMs: number | null }} WaitBody
  */
@@ -50,26 +53,30 @@ export const waitSource = {
         if (!isPlainObject(raw)) throw new ConfigParseError(path, '`wait` takes an object');
         rejectUnknownKeys(
             raw,
-            ['entryType', 'event', 'detectorEvent', 'mutation', 'durationThreshold', 'target', 'where', 'field', 'timeoutMs'],
+            ['entryType', 'event', 'detectorEvent', ...OBSERVER_KEYS, 'durationThreshold', 'target', 'where', 'field', 'timeoutMs'],
             path,
         );
         /** @type {RecordedBody} */
         let typed;
-        if (raw.mutation !== undefined) {
-            if (raw.entryType !== undefined || raw.event !== undefined || raw.detectorEvent !== undefined)
-                throw new ConfigParseError(path, 'a body names one of `entryType`, `event` and `mutation`');
-            if (!isPlainObject(raw.mutation) || objectKeys(raw.mutation).length === 0) {
-                throw new ConfigParseError(`${path}.mutation`, '`mutation` takes the options of `MutationObserver.observe()`');
+        const observing = OBSERVER_KEYS.filter((key) => raw[key] !== undefined);
+        if (observing.length > 0) {
+            const kind = /** @type {'mutation' | 'intersection' | 'resize'} */ (observing[0]);
+            if (observing.length > 1 || raw.entryType !== undefined || raw.event !== undefined || raw.detectorEvent !== undefined) {
+                throw new ConfigParseError(
+                    path,
+                    'a body names one of `entryType`, `event`, `detectorEvent`, `mutation`, `intersection` and `resize`',
+                );
             }
-            if (raw.target === undefined) throw new ConfigParseError(path, 'a `mutation` body needs `target`');
-            if (raw.durationThreshold !== undefined)
+            const options = raw[kind];
+            // `mutation` needs an option selecting what to observe, and the others take `{}`
+            if (!isPlainObject(options) || (kind === 'mutation' && objectKeys(options).length === 0)) {
+                throw new ConfigParseError(`${path}.${kind}`, `\`${kind}\` takes the options of its observer`);
+            }
+            if (raw.target === undefined) throw new ConfigParseError(path, `a \`${kind}\` body needs \`target\``);
+            if (raw.durationThreshold !== undefined) {
                 throw new ConfigParseError(`${path}.durationThreshold`, '`durationThreshold` is for `event` entries only');
-            typed = {
-                kind: 'mutation',
-                type: 'mutation',
-                mutation: { ...raw.mutation },
-                target: hooks.expression(raw.target, `${path}.target`, 'value'),
-            };
+            }
+            typed = { kind, type: kind, options: { ...options }, target: hooks.expression(raw.target, `${path}.target`, 'value') };
         } else {
             typed = parseRecordedType(raw, path, hooks);
         }
