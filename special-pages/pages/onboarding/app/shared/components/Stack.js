@@ -16,7 +16,9 @@ import { useEnv } from '../../../../../shared/components/EnvironmentProvider';
  */
 export function Stack({ children, gap = 'var(--sp-6)', className = '', animate = false, debug = false }) {
     const { isReducedMotion } = useEnv();
-    const [parent] = useAutoAnimate({ duration: isReducedMotion ? 0 : 300 });
+    const [parent] = /** @type {[import("preact").RefObject<HTMLDivElement>, (enabled: boolean) => void]} */ (
+        useAutoAnimate({ duration: isReducedMotion ? 0 : 300 })
+    );
     const classNames = [styles.stack, className].filter(Boolean).join(' ');
     return (
         <div class={classNames} ref={animate ? parent : null} data-debug={String(debug)} style={{ gap }}>
