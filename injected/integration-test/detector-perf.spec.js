@@ -279,10 +279,15 @@ test.describe('DetectorPerf Feature', () => {
             .toBeGreaterThan(0);
 
         const payloads = await getWebEventPayloads(collector, 'detectorPerf_severe');
-        expect(new Set(payloads.map((data) => data.thresholdMs))).toEqual(new Set([0.0001, 0.0002]));
+        const single = payloads.filter((data) => data.kind === 'single');
+        expect(new Set(single.map((data) => data.thresholdMs))).toEqual(new Set([0.0001, 0.0002]));
+        // The breakage report's run is one dispatch, which also goes past the single-run severe cutoff, as
+        // can an auto tick before it
+        const dispatch = payloads.filter((data) => data.kind === 'dispatch');
+        expect(dispatch.length).toBeGreaterThan(0);
+        expect(new Set(dispatch.map((data) => data.thresholdMs))).toEqual(new Set([0.0001]));
+        expect(single.length + dispatch.length).toBe(payloads.length);
         for (const data of payloads) {
-            expect(data.kind).toBe('single');
-            expect([0.0001, 0.0002]).toContain(data.thresholdMs);
             // Exact config attribution: groupName.detectorId, not the group label
             expect(String(data.detector)).toMatch(/^[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+$/);
         }

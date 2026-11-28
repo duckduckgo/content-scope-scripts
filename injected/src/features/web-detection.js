@@ -69,6 +69,9 @@ export default class WebDetection extends ContentFeature {
 
     #detectorPerfEnabled = false;
 
+    /** the ID of the current dispatch, one call from the browser into the feature that runs detectors */
+    #dispatchId = 0;
+
     /** @type {NativeReader | undefined} */
     #reader;
 
@@ -222,7 +225,9 @@ export default class WebDetection extends ContentFeature {
         const ctx = new EvaluationContext(this._reader, state.names, task, sink);
         const run = () => runDetector(compiled, state, ctx);
         // A run that ended on a failure or an error is a failed run
-        const result = this.#detectorPerfEnabled ? timeDetector(this, groupName, run, detectorId, (r) => r.failure !== undefined) : run();
+        const result = this.#detectorPerfEnabled
+            ? timeDetector(this, groupName, run, detectorId, (r) => r.failure !== undefined, this.#dispatchId)
+            : run();
 
         if (result.failedAt !== undefined && result.failure !== undefined) this.#breakage.fail(detectorId, result.failedAt, result.failure);
         if (state.done) this._finishDetector();
@@ -347,10 +352,12 @@ export default class WebDetection extends ContentFeature {
     /**
      * Run every detector the trigger runs that is not done, sharing the frame's page reads. A throw that
      * escapes a detector's run is recorded in its entry under `run`, and the other detectors still run.
+     * Each call is one dispatch for `detectorPerf`.
      *
      * @param {TriggerInfo} triggerInfo
      */
     runDetectors(triggerInfo) {
+        this.#dispatchId += 1;
         for (const detector of this._detectorsFor(triggerInfo)) {
             try {
                 this._runDetector(detector, triggerInfo, this.#reads);

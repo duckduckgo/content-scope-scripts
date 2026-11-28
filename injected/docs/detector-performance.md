@@ -35,7 +35,7 @@ All detector performance event types use the reserved `detectorPerf_` prefix:
 - `detectorPerf_<group>_over<N>ms` — one run in the group exceeded threshold `N`
 - `detectorPerf_<group>_total_over<N>ms` — the group's accumulated time in the frame exceeded `N`
 - `detectorPerf_combined_over<N>ms` — accumulated time for all instrumented detectors in the frame exceeded `N`
-- `detectorPerf_severe` — an immediate event for each crossed single-run, per-group total, or combined edge at or above its severe cutoff
+- `detectorPerf_severe` — an immediate event for each crossed single-run, per-group total, or combined edge at or above its severe cutoff, and for a dispatch whose total goes past the single-run severe cutoff
 
 Thresholds are configuration values embedded in event names. Every threshold change therefore requires corresponding EventHub sources in privacy configuration. C-S-S unit tests enumerate the possible output types, while privacy-configuration tests verify both directions of the contract: every possible event has a consumer and no stale `detectorPerf_` source remains.
 
@@ -51,13 +51,19 @@ Failed runs still contribute to run and duration events because failed detector 
 }
 ```
 
-`kind` is `single`, `total`, or `combined`. Single-run events identify the exact config-driven detector. Totals use the detector group because the accumulator is shared within that group; combined crossings use the literal `combined`. Severe events are deduplicated per detector, kind, and threshold. When several edges cross together, the highest edges emit first so the frame cap preserves the strongest signals.
+`kind` is `single`, `total`, `combined`, or `dispatch`. Single-run events identify the exact config-driven detector. Totals use the detector group because the accumulator is shared within that group; combined crossings use the literal `combined`. Dispatch events identify the exact detector with the largest share of the dispatch when its total went past the cutoff, with a tie going to the detector that ran first. Severe events are deduplicated per detector, kind, and threshold. When several edges cross together, the highest edges emit first so the frame cap preserves the strongest signals.
 
 ## Frames and EventHub deduplication
 
 Each injected frame owns its own accumulators and at-most-once guards. Only the top frame emits `detectorPerf_measured`, preventing subframes from inflating the page denominator.
 
 Native EventHub owns page-level deduplication. Consequently, periodic counters represent pages where at least one frame crossed a threshold, not the number of frame emissions.
+
+## Dispatches
+
+A dispatch is one call from the browser into Web Detection that runs detectors, such as an `auto` timer or the breakage report's run. Web Detection passes a dispatch ID with each run, and the runs with one ID add up to the dispatch's total, which is the detector work in that call stack. Runs also count towards their own single-run and accumulated edges.
+
+When a dispatch's total goes past the single-run severe cutoff (`singleRunSevereThresholdMs`, or the highest default single-run edge without it), `detectorPerf_severe` fires with `kind: dispatch`, at most once per frame per detector and threshold like other severe events. Dispatches have no periodic events.
 
 ## Breakage reports
 
@@ -67,6 +73,7 @@ User-initiated breakage reports include the reporting frame's exact accumulated 
 - total duration
 - worst duration
 - combined duration across instrumented detectors
+- the dispatch with the largest total, as `worstDispatch`, with each detector's share of it by exact ID. It's left out when no run had a dispatch ID
 
 These values are rounded to 0.1 ms. Unlike periodic telemetry, config-driven detectors retain their exact IDs in breakage reports.
 
