@@ -781,6 +781,56 @@ test.describe('WebDetection Feature', () => {
         });
     });
 
+    test.describe('wait', () => {
+        /** Waits, from a `sync` run in the click listener, for the page to change in response to the click. */
+        const RESPONDED = {
+            triggers: {
+                breakageReport: { state: 'disabled' },
+                observe: { state: 'enabled', on: [{ event: 'click', sync: true, whenBusy: 'skip' }] },
+            },
+            actions: [
+                {
+                    define: {
+                        change: {
+                            wait: { mutation: { childList: true, subtree: true }, target: { api: 'document.body' }, timeoutMs: 500 },
+                        },
+                    },
+                },
+                { fireEvent: { type: 'responded', data: { changed: { value: { ref: 'change', is: { type: 'object' } } } } } },
+            ],
+        };
+
+        /**
+         * @param {import('@playwright/test').Page} page
+         * @param {Record<string, any>} projectUse
+         */
+        async function setup(page, projectUse) {
+            const { helper } = await WebDetectionTestHelper.setupFireEventTest(page, projectUse, (config) => {
+                config.features.webDetection.settings.detectors.wait = { responded: RESPONDED };
+            });
+            await helper.navigateTo('/web-detection/pages/no-detection.html');
+            return helper;
+        }
+
+        test('sees the change a page makes in its own click handler', async ({ page }, testInfo) => {
+            const helper = await setup(page, testInfo.project.use);
+            await page.evaluate(() => {
+                document.querySelector('h1')?.addEventListener('click', () => document.body.append(document.createElement('p')));
+            });
+            await page.click('h1');
+            const responded = (await helper.getWebEventNotifications()).filter((event) => event.type === 'responded');
+            expect(responded).toEqual([{ type: 'responded', data: { changed: true } }]);
+        });
+
+        test('resumes with nothing at its timeout when the page does not change', async ({ page }, testInfo) => {
+            const helper = await setup(page, testInfo.project.use);
+            await page.click('h1');
+            await page.clock.runFor(500);
+            const responded = (await helper.getWebEventNotifications()).filter((event) => event.type === 'responded');
+            expect(responded).toEqual([{ type: 'responded', data: { changed: false } }]);
+        });
+    });
+
     test.describe('captcha detection (per-provider events)', () => {
         /** @type {Array<[string, string]>} */
         const cases = [

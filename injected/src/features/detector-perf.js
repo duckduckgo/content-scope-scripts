@@ -54,6 +54,9 @@ const DEBUG_STATS_EVENT_TYPE = `${EVENT_PREFIX}DebugStats`;
 
 /**
  * @typedef {{ runs: number, totalMs: number, worstMs: number }} DetectorStats
+ * @typedef {DetectorStats & { worstSliceMs: number, waitMisses: number, waitMissMs: number, suspended: boolean }} DetailedStats - with the slice fields, reported once a run of the detector suspended
+ * @typedef {DetectorStats & { worstSliceMs?: number, waitMisses?: number, waitMissMs?: number }} ReportedStats
+ * @typedef {'start' | 'continue' | 'miss'} SliceKind - a run's first slice, a later slice that moves it forward, or a wait miss that leaves it suspended
  * @typedef {{ singleRunThresholdsMs: number[], totalPerPageThresholdsMs: number[] }} DetectorThresholds
  * @typedef {'single' | 'total' | 'combined' | 'dispatch'} SevereKind
  * @typedef {{ id: number, totalMs: number, shares: Map<string, number>, severe: boolean }} DispatchStats
@@ -158,9 +161,12 @@ export default class DetectorPerf extends ContentFeature {
      * Per-page stats keyed by exact attribution (the `detail` config ID when
      * present, the group otherwise). Never feeds periodic events — only the
      * breakage-report payload, where exact IDs are wanted.
-     * @type {Map<string, DetectorStats>}
+     * @type {Map<string, DetailedStats>}
      */
     #detectorsDetailed = new Map();
+
+    /** @type {Map<string, number>} each detector's current run total so far, by exact attribution */
+    #runTotals = new Map();
 
     /** Total ms across all recorded detectors in this frame. */
     #combinedTotalMs = 0;
@@ -311,32 +317,56 @@ export default class DetectorPerf extends ContentFeature {
      * @param {boolean} [failed] - whether the detector invocation threw or gave a failed result
      * @param {number} [dispatch] - the ID of the dispatch the run is in, a positive integer the caller
      *   increments for each dispatch. Runs with the same ID as the previous run add to its dispatch total
+     * @param {SliceKind} [slice] - which part of a run the duration is: its first slice (the default), a
+     *   later one that moves it forward, or a wait miss. A run is counted at its first slice, and its
+     *   single-run edges are checked against its total so far. A wait miss adds to every total but the run's
      */
-    record(name, durationMs, detail, failed = false, dispatch) {
+    record(name, durationMs, detail, failed = false, dispatch, slice = 'start') {
         if (!this.#active) return;
         if (typeof name !== 'string' || !NAME_PATTERN.test(name)) return;
         if (typeof durationMs !== 'number' || !Number.isFinite(durationMs) || durationMs < 0) return;
+        if (slice !== 'start' && slice !== 'continue' && slice !== 'miss') return;
+
+        const attributed = typeof detail === 'string' && NAME_PATTERN.test(detail) ? detail : name;
+        // A detector has one run at a time, so the total by detector is its current run's
+        const runTotal = slice === 'start' ? durationMs : (this.#runTotals.get(attributed) ?? 0) + (slice === 'miss' ? 0 : durationMs);
+        if (slice !== 'miss') this.#runTotals.set(attributed, runTotal);
 
         const stats = this.#detectors.get(name) ?? { runs: 0, totalMs: 0, worstMs: 0 };
-        stats.runs += 1;
+        if (slice === 'start') stats.runs += 1;
         stats.totalMs += durationMs;
-        stats.worstMs = Math.max(stats.worstMs, durationMs);
+        if (slice !== 'miss') stats.worstMs = Math.max(stats.worstMs, runTotal);
         this.#detectors.set(name, stats);
         this.#combinedTotalMs += durationMs;
 
-        const attributed = typeof detail === 'string' && NAME_PATTERN.test(detail) ? detail : name;
-        const detailed = this.#detectorsDetailed.get(attributed) ?? { runs: 0, totalMs: 0, worstMs: 0 };
-        detailed.runs += 1;
+        /** @type {DetailedStats} */
+        const detailed = this.#detectorsDetailed.get(attributed) ?? {
+            runs: 0,
+            totalMs: 0,
+            worstMs: 0,
+            worstSliceMs: 0,
+            waitMisses: 0,
+            waitMissMs: 0,
+            suspended: false,
+        };
+        if (slice === 'start') detailed.runs += 1;
+        else detailed.suspended = true;
         detailed.totalMs += durationMs;
-        detailed.worstMs = Math.max(detailed.worstMs, durationMs);
+        if (slice !== 'miss') detailed.worstMs = Math.max(detailed.worstMs, runTotal);
+        detailed.worstSliceMs = Math.max(detailed.worstSliceMs, durationMs);
+        if (slice === 'miss') {
+            detailed.waitMisses += 1;
+            detailed.waitMissMs += durationMs;
+        }
         this.#detectorsDetailed.set(attributed, detailed);
 
         const thresholds = this._thresholdsFor(name);
-        this._emitCrossings(name, durationMs, stats, thresholds);
+        // A wait miss leaves the run where it was, so only the accumulated edges can cross
+        this._emitCrossings(name, slice === 'miss' ? 0 : runTotal, stats, thresholds, slice === 'start');
         if (failed === true) {
             this._emit(`${EVENT_PREFIX}_${name}_failed`);
         }
-        this._checkSevere(name, durationMs, stats, attributed, thresholds);
+        this._checkSevere(name, slice === 'miss' ? 0 : runTotal, stats, attributed, thresholds);
         if (typeof dispatch === 'number' && Number.isInteger(dispatch) && dispatch > 0) {
             this._recordDispatch(dispatch, attributed, durationMs);
         }
@@ -389,12 +419,13 @@ export default class DetectorPerf extends ContentFeature {
      * each event fire exactly at its first crossing.
      *
      * @param {string} name
-     * @param {number} durationMs
+     * @param {number} durationMs - the run's total so far
      * @param {DetectorStats} stats
      * @param {DetectorThresholds} thresholds
+     * @param {boolean} [started] - whether this is the run's first slice
      */
-    _emitCrossings(name, durationMs, stats, thresholds) {
-        this._emit(`${EVENT_PREFIX}_${name}_ran`);
+    _emitCrossings(name, durationMs, stats, thresholds, started = true) {
+        if (started) this._emit(`${EVENT_PREFIX}_${name}_ran`);
 
         // Every crossed edge is emitted (not just the highest) so each
         // EventHub counter reads as an independent exceedance rate.
@@ -419,17 +450,24 @@ export default class DetectorPerf extends ContentFeature {
      *
      * `worstDispatch` is the dispatch with the largest total, with each detector's share of it.
      *
-     * @returns {{ combinedTotalMs: number, worstDispatch?: { totalMs: number, detectors: Record<string, number> }, detectors: Record<string, DetectorStats> } | undefined}
+     * A detector whose runs suspended also has `worstSliceMs`, `waitMisses` and `waitMissMs`.
+     *
+     * @returns {{ combinedTotalMs: number, worstDispatch?: { totalMs: number, detectors: Record<string, number> }, detectors: Record<string, ReportedStats> } | undefined}
      */
     getStats() {
         if (!this.#active) return undefined;
-        /** @type {Record<string, DetectorStats>} */
+        /** @type {Record<string, ReportedStats>} */
         const detectors = {};
         for (const [name, stats] of this.#detectorsDetailed) {
             detectors[name] = {
                 runs: stats.runs,
                 totalMs: roundMs(stats.totalMs),
                 worstMs: roundMs(stats.worstMs),
+                ...(stats.suspended && {
+                    worstSliceMs: roundMs(stats.worstSliceMs),
+                    waitMisses: stats.waitMisses,
+                    waitMissMs: roundMs(stats.waitMissMs),
+                }),
             };
         }
         const worst = this.#worstDispatch;
@@ -596,18 +634,22 @@ export default class DetectorPerf extends ContentFeature {
  *   attribution (e.g. `adwalls.generic_en` within `adwalls`)
  * @param {(result: T) => boolean} [isFailed] - whether a returned result is a failed run
  * @param {number} [dispatch] - the ID of the dispatch the invocation is in, as `record` takes it
+ * @param {SliceKind | ((result: T) => SliceKind)} [slice] - which part of a run the invocation is, as `record` takes it, or a function of its result
  * @returns {T}
  */
-export function timeDetector(feature, name, fn, detail, isFailed, dispatch) {
+export function timeDetector(feature, name, fn, detail, isFailed, dispatch, slice) {
     const t0 = performanceNow();
     let failed = true;
+    /** @type {SliceKind | undefined} */
+    let kind = typeof slice === 'function' ? 'continue' : slice;
     try {
         const result = fn();
         failed = isFailed?.(result) ?? false;
+        if (typeof slice === 'function') kind = slice(result);
         return result;
     } finally {
         const durationMs = performanceNow() - t0;
-        void reportDuration(feature, name, durationMs, detail, failed, dispatch);
+        void reportDuration(feature, name, durationMs, detail, failed, dispatch, kind);
     }
 }
 
@@ -621,10 +663,11 @@ export function timeDetector(feature, name, fn, detail, isFailed, dispatch) {
  * @param {string} [detail]
  * @param {boolean} [failed]
  * @param {number} [dispatch]
+ * @param {SliceKind} [slice]
  */
-async function reportDuration(feature, name, durationMs, detail, failed, dispatch) {
+async function reportDuration(feature, name, durationMs, detail, failed, dispatch, slice) {
     try {
-        await feature.callFeatureMethod('detectorPerf', 'record', name, durationMs, detail, failed, dispatch);
+        await feature.callFeatureMethod('detectorPerf', 'record', name, durationMs, detail, failed, dispatch, slice);
     } catch {
         // detectorPerf may not be loaded on this platform — silently ignore
     }

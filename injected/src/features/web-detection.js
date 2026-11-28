@@ -7,7 +7,7 @@ import { BreakageEntries } from './web-detection/evaluate/breakage-entries.js';
 import { EvaluationContext } from './web-detection/evaluate/context.js';
 import { NativeReader } from './web-detection/evaluate/native-reader.js';
 import { DEFAULT_EVENT_DURATION_THRESHOLD, passesThreshold, RECORDED_ITEM_PATHS, Recorders } from './web-detection/evaluate/recorders.js';
-import { createDetectorState, detectorNameScalars, runDetector } from './web-detection/evaluate/run.js';
+import { createDetectorState, detectorNameScalars, runDetector, runDetectorSteps } from './web-detection/evaluate/run.js';
 import { FrameReadCache } from './web-detection/evaluate/task-read-cache.js';
 import { getOrCreate, isFailure } from './web-detection/model/core.js';
 import { selectItems } from './web-detection/sources/common.js';
@@ -20,6 +20,32 @@ import { selectItems } from './web-detection/sources/common.js';
  * @import { BreakageEntry } from './web-detection/evaluate/breakage-entries.js'
  * @import { OnBody } from './web-detection/compile/compile.js'
  * @import { Arrival, RecordedBody, Recorder, RunArrival } from './web-detection/evaluate/recorders.js'
+ * @import { DetectorRun } from './web-detection/evaluate/run.js'
+ * @import { WaitBody, WaitRequest } from './web-detection/sources/wait.js'
+ * @import { SliceKind } from './detector-perf.js'
+ * @import { Failure } from './web-detection/model/core.js'
+ */
+
+/**
+ * What a run that's due does while a run of the detector is suspended in a `wait`: queue for after it
+ * ends, abandon it and run, or not run.
+ *
+ * @typedef {'queue' | 'interrupt' | 'skip'} WhenBusy
+ */
+
+/**
+ * A run of a detector that can suspend, from its start until it ends or is abandoned.
+ *
+ * @typedef {object} SuspendableRun
+ * @property {DetectorEntry} detector
+ * @property {TriggerInfo} triggerInfo - what started it
+ * @property {EvaluationContext} ctx
+ * @property {Array<{ type: string, data?: PayloadData }>} events - the events it sent, for the debug notification
+ * @property {Generator<unknown, DetectorRun, unknown>} steps
+ * @property {WaitBody} [waiting] - the `wait` it's suspended in
+ * @property {() => void} [stop] - stops listening and the timeout, while it's suspended
+ * @property {Array<TriggerInfo | PendingRun>} queue - the runs queued while it's suspended, in order: an arrival's as a
+ * pending run, which later arrivals act on as their `whenPending` sets
  */
 
 /**
@@ -36,13 +62,15 @@ import { selectItems } from './web-detection/sources/common.js';
  */
 
 /**
- * A run an arrival scheduled with `delayMs`, from then until it's due. Later arrivals act on it as their
- * `on` body's `whenPending` sets.
+ * A run an arrival scheduled with `delayMs`, from then until it's due, or queued behind a suspended run
+ * until it runs. Later arrivals act on it as their `on` body's `whenPending` sets.
  *
  * @typedef {object} PendingRun
  * @property {DetectorEntry} detector
  * @property {RunArrival} arrival - what the run's `trigger` reads
- * @property {Timer & { runs: PendingRun[] }} timer - the timer the run is due at, with every run due at it
+ * @property {WhenBusy} whenBusy - what it does if a run of the detector is suspended when it's due
+ * @property {Timer & { runs: PendingRun[] }} [timer] - the timer the run is due at, with every run due at it, until it's due
+ * @property {boolean} [cancelled] - whether a later arrival cancelled it while it was queued
  */
 
 /**
@@ -105,6 +133,12 @@ export default class WebDetection extends ContentFeature {
 
     /** @type {Map<string, RecordedBody[]>} the `observed` bodies each detector reads, by full detector ID, while it isn't done */
     #readers = new Map();
+
+    /** @type {Map<string, RecordedBody[]>} the `wait` bodies with no `target` of each detector, by full detector ID, while it isn't done */
+    #waiters = new Map();
+
+    /** @type {Map<string, SuspendableRun>} each detector's run that is suspended in a `wait`, by full detector ID */
+    #suspended = new Map();
 
     /** @type {unknown} the feature settings the recorders were registered for */
     #registeredSettings;
@@ -209,6 +243,7 @@ export default class WebDetection extends ContentFeature {
         this.#recorders.clear();
         this.#observers.clear();
         this.#readers.clear();
+        this.#waiters.clear();
 
         /** @type {Array<{ detector: DetectorEntry, compiled: CompiledDetector }>} */
         const recording = [];
@@ -248,6 +283,16 @@ export default class WebDetection extends ContentFeature {
                 reads.push(body);
             }
             if (reads.length > 0) this.#readers.set(detector.detectorId, reads);
+            /** @type {RecordedBody[]} */
+            const waits = [];
+            for (const { key, body } of compiled.recorded) {
+                if (key !== 'wait') continue;
+                const recorder = register(body);
+                if (!recorder) continue;
+                recorder.waits.add(body);
+                waits.push(body);
+            }
+            if (waits.length > 0) this.#waiters.set(detector.detectorId, waits);
             if (!this._shouldRunDetector(detector.config, { trigger: 'observe' })) continue;
             for (const on of compiled.on) {
                 const recorder = register(on.body);
@@ -288,27 +333,27 @@ export default class WebDetection extends ContentFeature {
      * @param {Observer[]} observers - the detectors observing the arrival's recorder
      */
     _onArrival(arrival, observers) {
-        /** @type {DetectorEntry[]} */
+        /** @type {Array<{ detector: DetectorEntry, whenBusy: WhenBusy }>} */
         const now = [];
-        /** @type {Map<number, DetectorEntry[]>} */
+        /** @type {Map<number, Array<{ detector: DetectorEntry, whenBusy: WhenBusy }>>} */
         const later = new Map();
         for (const { detector, on } of observers) {
             if (this._stateOf(detector.detectorId).done || !this._givesItem(on.body, arrival)) continue;
-            if (on.sync) now.push(detector);
-            else if (this._schedulesOwnRun(detector, on.whenPending, arrival)) getOrCreate(later, on.delayMs, () => []).push(detector);
+            if (on.sync) now.push({ detector, whenBusy: on.whenBusy });
+            else if (this._schedulesOwnRun(detector, on.whenPending, arrival))
+                getOrCreate(later, on.delayMs, () => []).push({ detector, whenBusy: on.whenBusy });
         }
         /** @type {TriggerInfo} */
         const triggerInfo = { trigger: 'observe', arrival };
-        if (now.length > 0) this._runAll(now.map((detector) => ({ detector, triggerInfo })));
+        if (now.length > 0) this._runAll(now.map((due) => ({ ...due, triggerInfo })));
         for (const [delayMs, detectors] of later) {
-            /** @type {PendingRun['timer']} */
-            const timer = { detectors, runs: [], timer: setTimeout(() => this._runPending(timer), delayMs) };
-            for (const detector of detectors) {
-                /** @type {PendingRun} */
-                const run = { detector, arrival, timer };
-                timer.runs.push(run);
-                getOrCreate(this.#pending, detector.detectorId, () => []).push(run);
-            }
+            /** @type {Timer & { runs: PendingRun[] }} */
+            const timer = {
+                detectors: detectors.map(({ detector }) => detector),
+                runs: [],
+                timer: setTimeout(() => this._runPending(timer), delayMs),
+            };
+            for (const { detector, whenBusy } of detectors) timer.runs.push(this._pend(detector, arrival, whenBusy, timer));
             this.#timers.push(timer);
         }
     }
@@ -338,27 +383,50 @@ export default class WebDetection extends ContentFeature {
     }
 
     /**
+     * Count a run as its detector's latest pending run.
+     *
+     * @param {DetectorEntry} detector
+     * @param {RunArrival} arrival
+     * @param {WhenBusy} whenBusy
+     * @param {PendingRun['timer']} [timer] - the timer it's due at, or none for a run queued behind a suspended run
+     * @returns {PendingRun}
+     */
+    _pend(detector, arrival, whenBusy, timer) {
+        /** @type {PendingRun} */
+        const run = { detector, arrival, whenBusy, ...(timer && { timer }) };
+        getOrCreate(this.#pending, detector.detectorId, () => []).push(run);
+        return run;
+    }
+
+    /**
      * Run the runs due at a timer, together in one task.
      *
-     * @param {PendingRun['timer']} timer
+     * @param {Timer & { runs: PendingRun[] }} timer
      */
     _runPending(timer) {
         this.#timers = this.#timers.filter((entry) => entry !== timer);
         for (const run of timer.runs) this._unpend(run);
-        this._runAll(timer.runs.map(({ detector, arrival }) => ({ detector, triggerInfo: { trigger: 'observe', arrival } })));
+        this._runAll(
+            timer.runs.map(({ detector, arrival, whenBusy }) => ({ detector, triggerInfo: { trigger: 'observe', arrival }, whenBusy })),
+        );
     }
 
     /**
-     * Cancel a pending run, and its timer once no other run is due at it.
+     * Cancel a pending run: drop it from its timer, cancelling the timer once no other run is due at it,
+     * or mark it so the queue it's in skips it.
      *
      * @param {PendingRun} run
      */
     _cancelPending(run) {
+        this._unpend(run);
         const { timer } = run;
+        if (!timer) {
+            run.cancelled = true;
+            return;
+        }
         const i = timer.runs.indexOf(run);
         timer.runs.splice(i, 1);
         timer.detectors.splice(i, 1);
-        this._unpend(run);
         if (timer.runs.length > 0) return;
         clearTimeout(timer.timer);
         this.#timers = this.#timers.filter((entry) => entry !== timer);
@@ -411,6 +479,13 @@ export default class WebDetection extends ContentFeature {
             this.#recorders.releaseIfUnused(recorder);
         }
         this.#readers.delete(detectorId);
+        for (const body of this.#waiters.get(detectorId) ?? []) {
+            const recorder = body.recorder;
+            if (!recorder) continue;
+            recorder.waits.delete(body);
+            this.#recorders.releaseIfUnused(recorder);
+        }
+        this.#waiters.delete(detectorId);
         for (const [recorder, observers] of this.#observers) {
             const remaining = observers.filter(({ detector }) => detector.detectorId !== detectorId);
             if (remaining.length === observers.length) continue;
@@ -477,7 +552,7 @@ export default class WebDetection extends ContentFeature {
      * @param {TaskReads} task - the page reads the run shares
      */
     _runDetector(detector, triggerInfo, task) {
-        const { groupName, detectorId } = detector;
+        const { detectorId } = detector;
         // Parsing compiles every detector a trigger runs in the frame, so the reader captures the names it reads
         const compiled = this._compiledOf(detector);
         const state = this._stateOf(detectorId);
@@ -498,12 +573,227 @@ export default class WebDetection extends ContentFeature {
             breakageReportData: (data) => this.#breakage.write(detectorId, data),
         };
         const ctx = new EvaluationContext(this._reader, state.names, task, sink, arrivalOf(triggerInfo));
-        const run = () => runDetector(compiled, state, ctx);
-        // A run that ended on a failure or an error is a failed run
-        const result = this.#detectorPerfEnabled
-            ? timeDetector(this, groupName, run, detectorId, (r) => r.failure !== undefined, this.#dispatchId)
-            : run();
+        if (!compiled.actions.suspends) {
+            // A run that ended on a failure or an error is a failed run
+            const result = this._timed(
+                detector,
+                () => runDetector(compiled, state, ctx),
+                (r) => r.failure !== undefined,
+                'start',
+            );
+            this._finishRun(detector, triggerInfo, result, ctx, events);
+            return;
+        }
+        /** @type {SuspendableRun} */
+        const run = { detector, triggerInfo, ctx, events, steps: runDetectorSteps(compiled, state, ctx), queue: [] };
+        this._step(run, undefined, 'start');
+    }
 
+    /**
+     * Time a slice of a detector's run for `detectorPerf`, in the current dispatch.
+     *
+     * @template T
+     * @param {DetectorEntry} detector
+     * @param {() => T} fn
+     * @param {(result: T) => boolean} isFailed
+     * @param {SliceKind | ((result: T) => SliceKind)} slice
+     * @returns {T}
+     */
+    _timed(detector, fn, isFailed, slice) {
+        if (!this.#detectorPerfEnabled) return fn();
+        return timeDetector(this, detector.groupName, fn, detector.detectorId, isFailed, this.#dispatchId, slice);
+    }
+
+    /**
+     * Run a slice of a run that can suspend: up to its next `wait`, or its end.
+     *
+     * @param {SuspendableRun} run
+     * @param {unknown} value - the value the run resumes with
+     * @param {SliceKind} slice
+     */
+    _step(run, value, slice) {
+        const step = this._timed(run.detector, () => run.steps.next(value), failedStep, slice);
+        this._advance(run, step);
+    }
+
+    /**
+     * Act on what a slice ended with: suspend the run in its `wait`, or finish it and run what queued
+     * behind it.
+     *
+     * @param {SuspendableRun} run
+     * @param {IteratorResult<unknown, DetectorRun>} step
+     */
+    _advance(run, step) {
+        const { detectorId } = run.detector;
+        if (!step.done) {
+            this.#suspended.set(detectorId, run);
+            this._wait(run, /** @type {WaitRequest} */ (step.value));
+            return;
+        }
+        this.#suspended.delete(detectorId);
+        this._finishRun(run.detector, run.triggerInfo, step.value, run.ctx, run.events);
+        this._runQueued(run);
+    }
+
+    /**
+     * Suspend a run in a `wait`: listen on the recorder its type registered, or on its `target`, until
+     * an item passes its `where` or `timeoutMs` passes. A `target` that failed, or that can't be
+     * observed or listened on, resumes the run with the failure.
+     *
+     * @param {SuspendableRun} run
+     * @param {WaitRequest} request
+     */
+    _wait(run, { body, target }) {
+        if (isFailure(target)) {
+            this._step(run, target, 'continue');
+            return;
+        }
+        /** @param {unknown[]} items */
+        const onItems = (items) => this._onWaitItems(run, items);
+        /** @type {(() => void) | Failure | undefined} */
+        let stop;
+        if (body.kind === 'mutation') {
+            stop = this.#recorders.observeMutations(target, body.mutation ?? {}, (records) => {
+                // A record has no time of its own
+                const timeStamp = performanceNow();
+                for (const record of records) this._reader.pin(record, 'timeStamp', timeStamp);
+                onItems(records);
+            });
+        } else if (body.target !== undefined) {
+            stop = this.#recorders.listen(target, body.type, (event) => onItems([event]));
+        } else if (body.recorder) {
+            const recorder = body.recorder;
+            recorder.listeners.set(run, (arrival) => onItems(arrival.items));
+            stop = () => recorder.listeners.delete(run);
+        }
+        if (isFailure(stop)) {
+            this._step(run, body.target ? stop.at(body.target.path) : stop, 'continue');
+            return;
+        }
+        run.waiting = body;
+        /** @type {Array<() => void>} */
+        const stops = stop ? [stop] : [];
+        if (body.timeoutMs !== null) {
+            const timer = setTimeout(() => this._onWaitTimeout(run), body.timeoutMs);
+            stops.push(() => clearTimeout(timer));
+        }
+        run.stop = () => {
+            run.stop = undefined;
+            run.waiting = undefined;
+            for (const stop of stops) stop();
+        };
+    }
+
+    /**
+     * Test what arrived for a suspended run, in the task that recorded it, as a dispatch of its own. The
+     * first item that passes the `wait`'s `where` resumes the run with it, or its `field`, in the same
+     * slice. No item passing is a wait miss, which leaves the run suspended.
+     *
+     * @param {SuspendableRun} run
+     * @param {unknown[]} items
+     */
+    _onWaitItems(run, items) {
+        const body = run.waiting;
+        if (!run.stop || !body) return;
+        this.#dispatchId += 1;
+        this._resumeIn(run);
+        const result = this._timed(
+            run.detector,
+            () => {
+                const first = selectItems(
+                    items.filter((item) => passesThreshold(body, item)),
+                    body,
+                    run.ctx,
+                ).next();
+                if (first.done) return { miss: true };
+                run.stop?.();
+                return { step: run.steps.next(first.value) };
+            },
+            (r) => r.step !== undefined && failedStep(r.step),
+            (r) => (r.step ? 'continue' : 'miss'),
+        );
+        if (result.step) this._advance(run, result.step);
+    }
+
+    /**
+     * Resume a suspended run with `undefined` once its `wait`'s `timeoutMs` passes.
+     *
+     * @param {SuspendableRun} run
+     */
+    _onWaitTimeout(run) {
+        if (!run.stop) return;
+        run.stop();
+        this.#dispatchId += 1;
+        this._resumeIn(run);
+        this._step(run, undefined, 'continue');
+    }
+
+    /**
+     * Prepare a run to resume in the current task: it looks up captured records again, as a run does
+     * at its start.
+     *
+     * @param {SuspendableRun} run
+     */
+    _resumeIn(run) {
+        run.ctx.reader.beginRun();
+    }
+
+    /**
+     * Abandon a suspended run: it stops waiting, and the rest of it never evaluates. Its `define`s of
+     * detector names and its `done`s before the wait stand.
+     *
+     * @param {SuspendableRun} run
+     */
+    _abandon(run) {
+        run.stop?.();
+        run.steps.return(/** @type {DetectorRun} */ ({ actions: run.ctx.outcomes }));
+        this.#suspended.delete(run.detector.detectorId);
+        const state = this._stateOf(run.detector.detectorId);
+        if (run.ctx.done) state.done = true;
+        this._finishRun(run.detector, run.triggerInfo, { actions: run.ctx.outcomes }, run.ctx, run.events, true);
+    }
+
+    /**
+     * Run what arrivals queued behind a run that ended, in order, unless the detector is done. A queued
+     * run that suspends takes the rest of the queue.
+     *
+     * @param {SuspendableRun} run
+     */
+    _runQueued(run) {
+        const { detectorId } = run.detector;
+        const queue = run.queue;
+        while (queue.length > 0) {
+            if (this._stateOf(detectorId).done) return;
+            const next = this.#suspended.get(detectorId);
+            if (next) {
+                next.queue.push(...queue);
+                return;
+            }
+            const queued = /** @type {TriggerInfo | PendingRun} */ (queue.shift());
+            if ('trigger' in queued) {
+                this._runAll([{ detector: run.detector, triggerInfo: queued, whenBusy: 'queue' }]);
+                continue;
+            }
+            if (queued.cancelled) continue;
+            this._unpend(queued);
+            this._runAll([{ detector: run.detector, triggerInfo: { trigger: 'observe', arrival: queued.arrival }, whenBusy: 'queue' }]);
+        }
+    }
+
+    /**
+     * Record how a run ended: the failure that ended it in its breakage entry, the detector done, and
+     * the debug notification.
+     *
+     * @param {DetectorEntry} detector
+     * @param {TriggerInfo} triggerInfo
+     * @param {DetectorRun} result
+     * @param {EvaluationContext} ctx
+     * @param {Array<{ type: string, data?: PayloadData }>} events
+     * @param {boolean} [aborted] - whether an arrival abandoned it
+     */
+    _finishRun(detector, triggerInfo, result, ctx, events, aborted = false) {
+        const { detectorId } = detector;
+        const state = this._stateOf(detectorId);
         if (result.failedAt !== undefined && result.failure !== undefined) this.#breakage.fail(detectorId, result.failedAt, result.failure);
         if (state.done) {
             this._finishDetector();
@@ -522,6 +812,7 @@ export default class WebDetection extends ContentFeature {
                     names: detectorNameScalars(state),
                     measured: ctx.measured,
                     events,
+                    ...(aborted && { aborted: true }),
                     ...(result.abortError && { abortError: result.abortError }),
                     ...(result.error && { error: result.error }),
                     ...(ctx.errorAt && { errorAt: ctx.errorAt }),
@@ -637,18 +928,34 @@ export default class WebDetection extends ContentFeature {
      * @param {{ trigger: 'breakageReport' } | { trigger: 'auto', intervalMs: number }} triggerInfo
      */
     runDetectors(triggerInfo) {
-        this._runAll([...this._detectorsFor(triggerInfo)].map((detector) => ({ detector, triggerInfo })));
+        this._runAll(
+            [...this._detectorsFor(triggerInfo)].map((detector) => ({
+                detector,
+                triggerInfo,
+                whenBusy: /** @type {WhenBusy} */ ('queue'),
+            })),
+        );
     }
 
     /**
      * Run detectors that aren't done in one task, as one dispatch for `detectorPerf`, each with what
-     * triggered its run.
+     * triggered its run. A detector with a run suspended in a `wait` queues a run behind it, abandons it,
+     * or skips, as `whenBusy` sets.
      *
-     * @param {Iterable<{ detector: DetectorEntry, triggerInfo: TriggerInfo }>} runs
+     * @param {Iterable<{ detector: DetectorEntry, triggerInfo: TriggerInfo, whenBusy: WhenBusy }>} runs
      */
     _runAll(runs) {
         this.#dispatchId += 1;
-        for (const { detector, triggerInfo } of runs) {
+        for (const { detector, triggerInfo, whenBusy } of runs) {
+            const busy = this.#suspended.get(detector.detectorId);
+            if (busy) {
+                if (whenBusy === 'skip') continue;
+                if (whenBusy === 'queue') {
+                    busy.queue.push(triggerInfo.trigger === 'observe' ? this._pend(detector, triggerInfo.arrival, whenBusy) : triggerInfo);
+                    continue;
+                }
+                this._abandon(busy);
+            }
             try {
                 this._runDetector(detector, triggerInfo, this.#reads);
             } catch (e) {
@@ -687,4 +994,14 @@ export default class WebDetection extends ContentFeature {
 function arrivalOf(triggerInfo) {
     if (triggerInfo.trigger === 'observe') return triggerInfo.arrival;
     return { kind: triggerInfo.trigger, items: [{ timeStamp: performanceNow() }] };
+}
+
+/**
+ * Whether a slice ended its run on a failure or an error, which makes it a failed run.
+ *
+ * @param {IteratorResult<unknown, DetectorRun>} step
+ * @returns {boolean}
+ */
+function failedStep(step) {
+    return step.done === true && step.value.failure !== undefined;
 }

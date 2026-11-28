@@ -12,12 +12,13 @@
  * @import { TextBody } from '../sources/text.js'
  * @import { RunArrival, RecordedBody } from '../evaluate/recorders.js'
  * @import { TriggerBody } from '../sources/recorded.js'
+ * @import { WaitBody } from '../sources/wait.js'
  */
 
 /**
  * A body of `element`, `text`, `api`, `observed` or `trigger`, as its source parsed it.
  *
- * @typedef {ApiBody | ElementBody | TextBody | RecordedBody | TriggerBody} SourceBody
+ * @typedef {ApiBody | ElementBody | TextBody | RecordedBody | TriggerBody | WaitBody} SourceBody
  */
 
 /**
@@ -150,7 +151,7 @@
  * @property {<T>(fn: (binder: ItemBinder) => T) => T} item - compiles a `where` or `field` that binds `self`
  * @property {Set<string>} names - collects every name read, for the native reader
  * @property {Set<string>} paths - collects every path read from the global object, up to the method it calls, for the native reader
- * @property {Array<{ key: 'observed' | 'trigger', body: RecordedBody }>} recorded - collects every `observed` and `trigger` body naming a recorded type, for registering recorders
+ * @property {Array<{ key: 'observed' | 'trigger' | 'wait', body: RecordedBody }>} recorded - collects every `observed` and `trigger` body naming a recorded type, and every `wait` body with no `target`, for registering recorders
  */
 
 /**

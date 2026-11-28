@@ -131,6 +131,7 @@ const CORE_FILES = new Set([
     'injected/src/features/web-detection/sources/recorded.js',
     'injected/src/features/web-detection/sources/roots.js',
     'injected/src/features/web-detection/sources/text.js',
+    'injected/src/features/web-detection/sources/wait.js',
     'injected/src/features/web-detection/sources/visibility.js',
     'injected/src/features/web-events.js',
     'injected/src/features/web-interference-detection.js',
