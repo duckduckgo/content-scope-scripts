@@ -45,7 +45,7 @@ function displayDiffs(dir1Files, dir2Files) {
         rollupGrouping[summary].string = string;
     }
     for (const [filePath, fileContent] of Object.entries(dir1Files)) {
-        let diffOut = '';
+        let diffOut;
         let compareOut;
         if (filePath in dir2Files) {
             const fileOut = fileContent;

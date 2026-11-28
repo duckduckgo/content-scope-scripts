@@ -15,7 +15,7 @@ import { processTemplateStringWithUserData } from './build-url-transforms.js';
  */
 export function click(action, userData, root = document) {
     /** @type {Array<any> | null} */
-    let elements = [];
+    let elements;
 
     if (action.choices?.length) {
         const choices = evaluateChoices(action, userData);
